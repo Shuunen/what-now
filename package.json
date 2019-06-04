@@ -1,0 +1,56 @@
+{
+  "author": "Romain Racamier-Lafon <romain.racamier@gmail.com>",
+  "bugs": "https://github.com/Shuunen/what-now/issues",
+  "config": {
+    "port": 8000
+  },
+  "description": "Minimalistic task coach",
+  "devDependencies": {
+    "cross-var": "1.1.0",
+    "cypress": "3.3.1",
+    "eslint": "5.16.0",
+    "eslint-config-standard": "12.0.0",
+    "eslint-plugin-cypress": "2.2.1",
+    "eslint-plugin-html": "5.0.5",
+    "eslint-plugin-import": "2.17.3",
+    "eslint-plugin-node": "9.1.0",
+    "eslint-plugin-promise": "4.1.1",
+    "eslint-plugin-standard": "4.0.0",
+    "npm-run-all": "4.1.5",
+    "parcel-bundler": "1.12.3",
+    "parcel-plugin-purgecss": "2.1.2",
+    "parcel-plugin-static-files-copy": "2.1.2",
+    "posthtml-include": "1.2.0",
+    "rimraf": "2.6.3",
+    "serve": "11.0.1"
+  },
+  "homepage": "https://github.com/Shuunen/what-now",
+  "keywords": [
+    "minimalist",
+    "task",
+    "coach"
+  ],
+  "license": "GPL-3.0",
+  "name": "@shuunen/what-now",
+  "optionalDependencies": {
+    "acorn": "6.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Shuunen/what-now.git"
+  },
+  "scripts": {
+    "build": "parcel build src/index.html --public-url . --no-source-maps",
+    "clean": "rimraf dist/*",
+    "dev": "run-p watch test:open",
+    "lint": "eslint --fix {src/**,cypress/**,.}/*.{js,html} --no-ignore .eslintrc.js",
+    "prebuild": "npm run clean",
+    "preserve": "npm run build",
+    "serve": "cross-var serve dist --listen $npm_package_config_port --single",
+    "test": "npm-run-all lint build --parallel serve:dist test:headless --race",
+    "test:headless": "cypress run",
+    "test:open": "cypress open",
+    "watch": "cross-var parcel src/index.html --port $npm_package_config_port"
+  },
+  "version": "0.0.1"
+}
