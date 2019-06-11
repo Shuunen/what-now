@@ -13,5 +13,6 @@
 - [Cypress.io](https://www.cypress.io) : cool E2E testing framework
 - [Favicon.io](https://favicon.io) : cool favicon generator
 - [Feather Icons](https://feathericons.com) : great open source svg icons
+- [Loading.io](https://github.com/loadingio/css-spinner/) : lightweight & good looking css loading spinner
 - [Parcel](https://parceljs.org) : easy and fast web application bundler
 - [Shields.io](https://shields.io) : nice looking badges to be proud of

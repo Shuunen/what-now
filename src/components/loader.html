@@ -1,0 +1,32 @@
+<div class="loader backdrop hidden">
+  <div class="lds-dual-ring"></div>
+</div>
+
+<style>
+  .lds-dual-ring {
+    display: inline-block;
+    width: 6rem;
+    height: 6rem;
+  }
+
+  .lds-dual-ring:after {
+    content: " ";
+    display: block;
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    border: .5rem solid var(--color-white, whitesmoke);
+    border-color: var(--color-white, whitesmoke) transparent var(--color-white, whitesmoke) transparent;
+    animation: lds-dual-ring 1.2s linear infinite;
+  }
+
+  @keyframes lds-dual-ring {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+</style>

@@ -8,17 +8,21 @@
   </svg>
 </div>
 
-<div class="settings hidden">
+<div class="settings backdrop hidden">
   <div class="settings--modal center">
     <h2>Settings</h2>
     <form class="col" onsubmit="return validateSettings(this);">
       <label class="setting">
         <a href="https://sheety.co" target="_blank">Sheety</a>&nbsp;api :
-        <input type="url" name="api" required minlength="4">
+        <input type="url" name="api" required minlength="4" autofocus>
       </label>
-      <div class="settings--footer">
-        <input class="success" type="submit" value="Save">
-        <input type="button" value="Close" onclick="toggleSettings()">
+      <div class="settings--footer col">
+        <div>
+          <input class="settings--save" type="submit" value="Save">
+        </div>
+        <div>
+          <button class="settings--close text" onclick="toggleSettings()">Close</button>
+        </div>
       </div>
     </form>
   </div>
@@ -32,7 +36,7 @@
     const formData = {}
     formEl.querySelectorAll('[name]').forEach(el => (formData[el.name] = el.value))
     const event = new CustomEvent('settings-submitted', { detail: formData })
-    this.dispatchEvent(event)
+    setTimeout(() => this.dispatchEvent(event), 100)
     // close modal, we can't get here if form is invalid
     this.toggleSettings()
     // prevent native form submit
@@ -49,6 +53,7 @@
     height: 2.5rem;
     width: 2.5rem;
     cursor: pointer;
+    overflow: hidden;
   }
 
   .settings--trigger.action-required {
@@ -60,27 +65,14 @@
     transform-origin: center bottom;
   }
 
-  .settings {
-    --width: var(--settings-width, 80vw);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--color-shade, rgba(0, 0, 0, 0.4));
-  }
-
-  .settings.hidden {
-    display: none;
-  }
-
   .settings--modal {
-    padding: 2rem;
+    --width: var(--settings-width, 80vw);
+    padding: 0rem 2rem;
     position: absolute;
-    top: 25%;
+    top: 15vh;
     width: var(--width);
     left: calc(50% - var(--width) / 2);
-    border: .4rem solid var(--color-primary, steelblue);
+    border: .3rem solid var(--color-primary, steelblue);
     background-color: var(--color-white, whitesmoke);
     border-radius: var(--border-radius, 0.3rem);
   }
@@ -90,9 +82,9 @@
   }
 
   .setting {
-    margin-top: 1rem;
     display: flex;
     flex-wrap: wrap;
+    line-height: 3rem;
   }
 
   @keyframes bounce {
