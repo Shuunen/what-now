@@ -8,11 +8,12 @@ console.log('local storage will use base key :', baseKey)
 
 export async function get (key) {
   const fullKey = baseKey + separator + key
-  if (!localStorage[fullKey]) {
+  const data = localStorage[fullKey]
+  if (!data) {
     return Promise.reject(new Error(`storage : found no matching key "${fullKey}"`))
   }
   try {
-    return Promise.resolve(JSON.parse(localStorage[fullKey]))
+    return Promise.resolve((data[0] === '{') ? JSON.parse(data) : data)
   } catch (e) {
     return Promise.reject(e)
   }

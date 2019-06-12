@@ -27,9 +27,14 @@ window.addEventListener('settings-submitted', (event) => {
   storage.set('api', event.detail.api)
 })
 
-storage.has('api').then(apiDefined => {
-  if (!apiDefined) {
-    console.log('api is not defined')
+setTimeout(() => {
+  storage.get('api')
+    .then(api => {
+      console.log('found api', api)
+      window.dispatchEvent(new CustomEvent('api-recovered', { detail: api }))
+    })
+    .catch(() => {
+      console.log('found no api in storage')
     settingsTriggerEl.classList.add('action-required')
-  }
 })
+}, 100)

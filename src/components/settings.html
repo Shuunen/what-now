@@ -29,14 +29,17 @@
 </div>
 
 <script>
+  window.addEventListener('api-recovered', (event) => {
+    console.log('api recovered :', event.detail)
+    document.querySelector('.settings--modal input[name="api"]').value = event.detail
+  })
   this.toggleSettings = () => {
     document.querySelector('.settings').classList.toggle('hidden')
   }
   this.validateSettings = (formEl) => {
     const formData = {}
     formEl.querySelectorAll('[name]').forEach(el => (formData[el.name] = el.value))
-    const event = new CustomEvent('settings-submitted', { detail: formData })
-    setTimeout(() => this.dispatchEvent(event), 100)
+    this.dispatchEvent(new CustomEvent('settings-submitted', { detail: formData }))
     // close modal, we can't get here if form is invalid
     this.toggleSettings()
     // prevent native form submit
