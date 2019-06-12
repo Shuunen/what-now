@@ -1,6 +1,45 @@
 <main class="tasks col center">
-  <h1 class="tasks--title">What <em>now</em> ?</h1>
+  <h1 class="tasks--title" onclick="getTask()">What <em>now</em> ?</h1>
+  <div class="task col hidden">
+    <h2 class="task--title"></h2>
+    <div>
+      <button class="task--done" onclick="doneTask()">Done</button>
+    </div>
+  </div>
 </main>
+
+<script>
+  const tasksTitle = document.querySelector('.tasks--title')
+  const taskEl = document.querySelector('.tasks .task')
+  const taskTitle = taskEl.querySelector('.task--title')
+  let tasks = []
+  let activeTask = null
+  window.addEventListener('tasks-loaded', (event) => {
+    event.detail.forEach(t => (t.done = false))
+    tasks = event.detail
+    console.log('tasks loaded :', tasks)
+  })
+  this.getTask = () => {
+    activeTask = tasks.find(t => !t.done)
+    this.switchView()
+  }
+  this.switchView = (el) => {
+    taskTitle.textContent = activeTask.name
+    taskEl.classList.toggle('hidden')
+    tasksTitle.classList.toggle('hidden')
+  }
+  this.doneTask = () => {
+    activeTask.done = true
+    this.switchView()
+    if (!tasks.some(t => !t.done)) {
+      this.showSuccessView()
+    }
+  }
+  this.showSuccessView = () => {
+    tasksTitle.innerHTML = 'You did everything.<br><em>GG</em> 🎖️'
+    tasksTitle.classList.add('success')
+  }
+</script>
 
 <style>
   .tasks {
@@ -13,13 +52,18 @@
   }
 
   .tasks--title {
+    padding: 1rem;
     border-bottom: .2rem dashed;
+  }
+
+  .tasks--title.success {
+    color: var(--color-success, green);
+    border-style: dashed;
+    border-width: .4rem 0;
   }
 
   .tasks--title em {
     font-style: normal;
     color: var(--color-black, #333);
-    padding-bottom: .1rem;
-    border-bottom: .2rem solid var(--color-primary, steelblue);
   }
 </style>
