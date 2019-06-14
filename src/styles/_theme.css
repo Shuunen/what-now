@@ -5,4 +5,7 @@
   --color-grey: #666;
   --color-grey-light: #ebebeb;
   --color-shade: rgba(0, 0, 0, .4);
+  --color-success: green;
+  --color-error: red;
+  --color-error-light: rgba(250,0,0,.1);
 }
