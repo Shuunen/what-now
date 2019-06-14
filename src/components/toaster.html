@@ -1,0 +1,55 @@
+<div class="toaster col center"></div>
+
+<script>
+  class Toaster {
+    constructor () {
+      this.toasterEl = document.querySelector('.toaster')
+      this.setupListeners()
+    }
+    setupListeners () {
+      window.addEventListener('show-toast', (event) => {
+        const { type, message } = Object.assign({ type: 'error', message: 'no message provided' }, event.detail)
+        this.showToast(type, message)
+      })
+    }
+    showToast (type, message) {
+      console.log(`show ${type} toast : ${message}`)
+      const toastEl = document.createElement('p')
+      toastEl.classList.add('toast', type)
+      toastEl.innerHTML = message
+      if (type === 'success') {
+        toastEl.innerHTML += ' ✔️'
+      }
+      this.toasterEl.appendChild(toastEl)
+      toastEl.addEventListener('click', () => {
+        this.fadeOut(toastEl)
+        setTimeout(() => toastEl.remove(), 400)
+      })
+      if (type === 'error') {
+        return
+      }
+      setTimeout(() => this.fadeOut(toastEl), 3000)
+    }
+    fadeOut (el) {
+      window.dispatchEvent(new CustomEvent('fade-out', { detail: el }))
+    }
+  }
+  // eslint-disable-next-line no-new
+  new Toaster()
+</script>
+
+<style>
+  .toaster {
+    bottom: 1rem;
+    position: absolute;
+    width: 100%;
+  }
+
+  .toast {
+    margin: .5rem 0;
+  }
+
+  .toast.error {
+    background-color: var(--color-error-light, #ff000014);
+  }
+</style>

@@ -7,7 +7,23 @@ describe('App', () => {
     cy.visit('/')
     cy.get('h1').should('contain', 'What now')
   })
-
+  describe('Toaster', () => {
+    it('show success toast', () => {
+      const message = 'nice success'
+      cy.window().then(w => w.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'success', message } })))
+      cy.get('.toast.success').should('be.visible').contains(message)
+    })
+    it('show error toast', () => {
+      const message = 'bad news'
+      cy.window().then(w => w.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', message } })))
+      cy.get('.toast.error').should('be.visible').contains(message)
+    })
+    it('dismiss error toast', () => {
+      cy.get('.toast.error').should('be.visible')
+      cy.get('.toast.error').click()
+      cy.get('.toast.error').should('not.be.visible')
+    })
+  })
   describe('Settings', () => {
     it('has a button to open modal', () => {
       cy.get('.settings--trigger').should('be.visible')
