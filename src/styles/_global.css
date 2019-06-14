@@ -34,6 +34,11 @@ body {
   width: 100%;
 }
 
+.hide {
+  opacity: 0;
+  transition: opacity .3s;
+}
+
 .hidden {
   display: none !important;
 }
@@ -49,11 +54,9 @@ h3 {
 h1,
 h2,
 h3,
-label,
 a,
-input,
-button,
-p {
+p,
+.ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
 }
