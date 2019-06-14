@@ -21,7 +21,7 @@ export async function get (key) {
 
 export async function set (key, data) {
   const fullKey = baseKey + separator + key
-  localStorage[fullKey] = JSON.stringify(data)
+  localStorage[fullKey] = typeof data === 'object' ? JSON.stringify(data) : data
   return Promise.resolve(data)
 }
 
