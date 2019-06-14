@@ -13,7 +13,7 @@
     <h2>Settings</h2>
     <form class="col" onsubmit="return validateSettings(this);">
       <label class="setting">
-        <a href="https://sheety.co" target="_blank">Sheety</a>&nbsp;api :
+        <a href="https://sheety.co" target="_blank">Sheety</a>&nbsp;api :&nbsp;
         <input type="url" name="api" required minlength="4" autofocus>
       </label>
       <div class="settings--footer col">
@@ -21,7 +21,7 @@
           <input class="settings--save" type="submit" value="Save">
         </div>
         <div>
-          <button class="settings--close text" onclick="toggleSettings()">Close</button>
+          <input class="settings--close text" type="button" value="Close" onclick="toggleSettings()">
         </div>
       </div>
     </form>
@@ -70,11 +70,9 @@
 
   .settings--modal {
     --width: var(--settings-width, 80vw);
-    padding: 0rem 2rem;
-    position: absolute;
-    top: 15vh;
+    padding: 0.7rem 2rem 0;
     width: var(--width);
-    left: calc(50% - var(--width) / 2);
+    max-width: 40rem;
     border: .3rem solid var(--color-primary, steelblue);
     background-color: var(--color-white, whitesmoke);
     border-radius: var(--border-radius, 0.3rem);
@@ -85,8 +83,6 @@
   }
 
   .setting {
-    display: flex;
-    flex-wrap: wrap;
     line-height: 3rem;
   }
 
