@@ -1,44 +1,59 @@
 <main class="tasks col center">
-  <h1 class="tasks--title" onclick="getTask()">What <em>now</em> ?</h1>
+  <h1 class="tasks--title" onclick="tasks.getTask()">What <em>now</em> ?</h1>
   <div class="task col hidden">
     <h2 class="task--title"></h2>
     <div>
-      <button class="task--done" onclick="doneTask()">Done</button>
+      <button class="task--done" onclick="tasks.doneTask()">Done</button>
     </div>
   </div>
 </main>
 
 <script>
-  const tasksTitle = document.querySelector('.tasks--title')
-  const taskEl = document.querySelector('.tasks .task')
-  const taskTitle = taskEl.querySelector('.task--title')
-  let tasks = []
-  let activeTask = null
-  window.addEventListener('tasks-loaded', (event) => {
-    event.detail.forEach(t => (t.done = false))
-    tasks = event.detail
-    console.log('tasks loaded :', tasks)
-  })
-  this.getTask = () => {
-    activeTask = tasks.find(t => !t.done)
-    this.switchView()
-  }
-  this.switchView = (el) => {
-    taskTitle.textContent = activeTask.name
-    taskEl.classList.toggle('hidden')
-    tasksTitle.classList.toggle('hidden')
-  }
-  this.doneTask = () => {
-    activeTask.done = true
-    this.switchView()
-    if (!tasks.some(t => !t.done)) {
-      this.showSuccessView()
+  class Tasks {
+    constructor () {
+      this.tasksTitle = document.querySelector('.tasks--title')
+      this.taskEl = document.querySelector('.tasks .task')
+      this.taskTitle = this.taskEl.querySelector('.task--title')
+      this.tasks = []
+      this.activeTask = null
+      this.setupListeners()
+    }
+    setupListeners () {
+      window.addEventListener('tasks-loaded', (event) => {
+        this.tasks = event.detail
+        this.tasks.forEach(t => (t.done = false))
+        console.log('tasks loaded :', this.tasks)
+        this.showToast(this.tasks.length ? 'success' : 'error', (this.tasks.length || 'no') + ' tasks found')
+      })
+    }
+    showToast (type, message) {
+      window.dispatchEvent(new CustomEvent('show-toast', { detail: { type, message } }))
+    }
+    getTask () {
+      this.activeTask = this.tasks.find(t => !t.done)
+      this.switchView()
+    }
+    switchView (el) {
+      this.taskTitle.textContent = this.activeTask.name
+      this.taskEl.classList.toggle('hidden')
+      this.tasksTitle.classList.toggle('hidden')
+    }
+    doneTask () {
+      this.showToast('success', 'well done')
+      this.activeTask.done = true
+      this.switchView()
+      if (!this.tasks.some(t => !t.done)) {
+        this.showSuccessView()
+      }
+    }
+    showSuccessView () {
+      this.tasksTitle.innerHTML = 'You did everything.<br><em>GG</em> 🎖️'
+      this.tasksTitle.classList.add('success')
+      this.showToast('info', '🎉🍾🥂🎉')
     }
   }
-  this.showSuccessView = () => {
-    tasksTitle.innerHTML = 'You did everything.<br><em>GG</em> 🎖️'
-    tasksTitle.classList.add('success')
-  }
+  // eslint-disable-next-line no-new
+  window.tasks = new Tasks()
 </script>
 
 <style>

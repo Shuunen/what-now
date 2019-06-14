@@ -25,5 +25,6 @@
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('setApiInLS', (url) => {
+  console.log('setting api in LS to :', url)
   window.localStorage.setItem('@shuunen/what-now_0.0.1_api', url)
 })

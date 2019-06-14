@@ -1,4 +1,4 @@
-<div class="settings--trigger" onclick="toggleSettings()">
+<div class="settings--trigger" onclick="settings.toggleSettings()">
   <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
     class="feather feather-settings">
     <circle cx="12" cy="12" r="3"></circle>
@@ -11,7 +11,7 @@
 <div class="settings backdrop hidden">
   <div class="settings--modal center">
     <h2>Settings</h2>
-    <form class="col" onsubmit="return validateSettings(this);">
+    <form class="col" onsubmit="settings.validateSettings(event, this);">
       <label class="setting">
         <a href="https://sheety.co" target="_blank">Sheety</a>&nbsp;api :&nbsp;
         <input type="url" name="api" required minlength="4" autofocus>
@@ -21,7 +21,7 @@
           <input class="settings--save" type="submit" value="Save">
         </div>
         <div>
-          <input class="settings--close text" type="button" value="Close" onclick="toggleSettings()">
+          <input class="settings--close text" type="button" value="Close" onclick="settings.toggleSettings()">
         </div>
       </div>
     </form>
@@ -29,22 +29,41 @@
 </div>
 
 <script>
-  window.addEventListener('api-recovered', (event) => {
-    console.log('api recovered :', event.detail)
-    document.querySelector('.settings--modal input[name="api"]').value = event.detail
-  })
-  this.toggleSettings = () => {
-    document.querySelector('.settings').classList.toggle('hidden')
+  class Settings {
+    get isDisplayed () {
+      return !this.settingsEl.classList.contains('hidden')
+    }
+    constructor () {
+      this.settingsEl = document.querySelector('.settings')
+      this.setupListeners()
+    }
+    setupListeners () {
+      window.addEventListener('api-recovered', (event) => {
+        console.log('api recovered :', event.detail)
+        document.querySelector('.settings--modal input[name="api"]').value = event.detail
+      })
+    }
+    toggleSettings () {
+      if (this.isDisplayed) {
+        this.fadeOut(this.settingsEl)
+      } else {
+        this.settingsEl.classList.remove('hidden')
+      }
+    }
+    validateSettings (event, formEl) {
+      event.preventDefault()
+      const formData = {}
+      formEl.querySelectorAll('[name]').forEach(el => (formData[el.name] = el.value))
+      window.dispatchEvent(new CustomEvent('settings-submitted', { detail: formData }))
+      // close modal, we can't get here if form is invalid
+      this.toggleSettings()
+    }
+    fadeOut (el) {
+      window.dispatchEvent(new CustomEvent('fade-out', { detail: el }))
+    }
   }
-  this.validateSettings = (formEl) => {
-    const formData = {}
-    formEl.querySelectorAll('[name]').forEach(el => (formData[el.name] = el.value))
-    this.dispatchEvent(new CustomEvent('settings-submitted', { detail: formData }))
-    // close modal, we can't get here if form is invalid
-    this.toggleSettings()
-    // prevent native form submit
-    return false
-  }
+  // eslint-disable-next-line no-new
+  window.settings = new Settings()
 </script>
 
 <style>
@@ -110,5 +129,4 @@
       transform: translate3d(0, -4px, 0);
     }
   }
-
 </style>
