@@ -1,6 +1,7 @@
+/* eslint-disable cypress/no-unnecessary-waiting */
 
-const badUrl = 'https/bad-url.com'
-const goodUrl = 'https://api.sheety.co/31935d1e-4f9d-442d-a504-2c13ecd441a3'
+const invalidUrl = 'https/bad-url.com'
+const validUrl = 'https://www.mocky.io'
 
 describe('App', () => {
   it('successfully loads', () => {
@@ -25,43 +26,84 @@ describe('App', () => {
     })
   })
   describe('Settings', () => {
+    beforeEach(() => {
+      cy.get('.settings--trigger').as('trigger')
+      cy.get('.settings--modal').as('modal')
+    })
     it('has a button to open modal', () => {
-      cy.get('.settings--trigger').should('be.visible')
+      cy.get('@trigger').should('be.visible')
     })
     it('open modal', () => {
-      cy.get('.settings--modal').should('not.be.visible')
-      cy.get('.settings--trigger').click()
-      cy.get('.settings--modal').should('be.visible')
+      cy.get('@modal').should('not.be.visible')
+      cy.get('@trigger').click()
+      cy.get('@modal').should('be.visible')
     })
     it('close modal', () => {
-      cy.get('.settings--modal').should('be.visible')
+      cy.get('@modal').should('be.visible')
       cy.get('.settings--close').click()
-      cy.get('.settings--modal').should('not.be.visible')
+      cy.get('@modal').should('not.be.visible')
     })
     it('cannot submit empty form', () => {
-      cy.get('.settings--trigger').click()
-      cy.get('.settings--modal').should('be.visible')
+      cy.get('@trigger').click()
+      cy.get('@modal').should('be.visible')
       cy.get('.settings--save').click()
-      cy.get('.settings--modal').should('be.visible')
+      cy.get('@modal').should('be.visible')
     })
     it('pre-fill api field if found in storage', () => {
-      const url = 'https://url-from-storage'
-      cy.setApiInLS(url)
+      cy.setApiInLS(validUrl)
       cy.visit('/')
-      cy.get('.settings--trigger').click()
-      cy.get('.settings--modal').should('be.visible')
-      cy.get('.settings--modal input[name="api"]').should('have.value', url)
+      cy.get('@trigger').click()
+      cy.get('@modal').should('be.visible')
+      cy.get('@modal').find('input[name="api"]').should('have.value', validUrl)
     })
     it('cannot submit invalid form', () => {
-      cy.get('.settings--modal input[name="api"]').clear().type(badUrl + '2')
+      cy.get('@modal').find('input[name="api"]').clear().type(invalidUrl + '2')
       cy.get('.settings--save').click()
-      cy.get('.settings--modal').should('be.visible')
+      cy.get('@modal').should('be.visible')
     })
     it('can submit valid form', () => {
-      cy.get('.settings--modal input[name="api"]').clear().type(goodUrl)
+      cy.get('@modal').find('input[name="api"]').clear().type(validUrl)
       cy.get('.settings--save').click()
-      cy.get('.settings--modal').should('not.be.visible')
-      cy.get('.loader').should('be.visible')
+      cy.get('@modal').should('not.be.visible')
+    })
+    it('should have 2 error toast displayed', () => {
+      cy.get('.toast.error').as('toasts').should('have.length', 2)
+      cy.get('@toasts').each(toast => toast.click())
+      cy.get('@toasts').should('have.length', 0)
+    })
+  })
+  describe('Tasks', () => {
+    beforeEach(() => {
+      cy.get('.task--get').as('button-get')
+      cy.get('.task--mark-as-done').as('button-done')
+    })
+    it('load tasks from json', () => {
+      cy.fixture('get-tasks').then((json) => {
+        cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: json })))
+        cy.get('.toast.success').should('be.visible').contains('5 tasks found')
+      })
+    })
+    it('show task', () => {
+      cy.get('.task--title').as('task-title').should('not.be.visible')
+      cy.get('@button-done').as('button').should('not.be.visible')
+      cy.get('@button-get').click()
+      cy.get('@task-title').should('be.visible').contains('Faire une lessive')
+    })
+    it('mark task as done', () => {
+      cy.get('@button-done').should('be.visible')
+      cy.get('@button-done').click()
+      cy.get('@button-done').should('not.be.visible')
+      cy.get('.toast.success').should('be.visible').contains('well done')
+    })
+    it('mark all tasks as done', () => {
+      for (let i = 0; i < 4; i++) {
+        cy.get('@button-get').click()
+        cy.get('@button-done').click()
+      }
+    })
+    it('display everything done screen', () => {
+      cy.get('.tasks--title.success').as('success-message').should('be.visible')
+      cy.get('@success-message').contains('You did everything')
     })
   })
 })

@@ -35,13 +35,17 @@
     }
     constructor () {
       this.settingsEl = document.querySelector('.settings')
+      this.settingsTriggerEl = document.querySelector('.settings--trigger')
       this.setupListeners()
     }
     setupListeners () {
-      window.addEventListener('api-recovered', (event) => {
-        console.log('api recovered :', event.detail)
-        document.querySelector('.settings--modal input[name="api"]').value = event.detail
-      })
+      window.addEventListener('api-set', (event) => (document.querySelector('.settings--modal input[name="api"]').value = event.detail))
+      window.addEventListener('action-required', event => this.settingsTriggerEl.classList.toggle('action-required', event.detail))
+      window.addEventListener('tasks-loaded', () => this.emit('action-required', false))
+    }
+    async emit (eventName, eventData) {
+      console.log(`%c${eventName}`, 'color: blue', eventData)
+      window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
     }
     toggleSettings () {
       if (this.isDisplayed) {
@@ -105,6 +109,7 @@
   }
 
   @keyframes bounce {
+
     from,
     20%,
     53%,

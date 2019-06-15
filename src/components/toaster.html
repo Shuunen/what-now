@@ -8,12 +8,11 @@
     }
     setupListeners () {
       window.addEventListener('show-toast', (event) => {
-        const { type, message } = Object.assign({ type: 'error', message: 'no message provided' }, event.detail)
-        this.showToast(type, message)
+        const { type, message, delay } = Object.assign({ type: 'error', message: 'no message provided', delay: 3000 }, event.detail)
+        this.showToast(type, message, delay)
       })
     }
-    showToast (type, message) {
-      console.log(`show ${type} toast : ${message}`)
+    showToast (type, message, delay) {
       const toastEl = document.createElement('p')
       toastEl.classList.add('toast', type)
       toastEl.innerHTML = message
@@ -28,7 +27,7 @@
       if (type === 'error') {
         return
       }
-      setTimeout(() => this.fadeOut(toastEl), 3000)
+      setTimeout(() => this.fadeOut(toastEl), delay)
     }
     fadeOut (el) {
       window.dispatchEvent(new CustomEvent('fade-out', { detail: el }))

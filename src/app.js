@@ -4,9 +4,8 @@ import * as storage from './plugins/storage'
 class App {
   constructor () {
     this.loaderEl = document.querySelector('.loader')
-    this.settingsTriggerEl = document.querySelector('.settings--trigger')
-    this.recoverApi()
     this.setupListeners()
+    this.recoverApi()
   }
   async setLoading (active) {
     return this.loaderEl.classList.toggle('hidden', !active)
@@ -17,31 +16,37 @@ class App {
   setupListeners () {
     window.addEventListener('settings-submitted', (event) => {
       console.log('new settings submitted :', event.detail)
-      this.settingsTriggerEl.classList.remove('action-required')
+      this.emit('action-required', false)
       this.loadTasks(event.detail.api)
     })
     window.addEventListener('show-error', event => this.showError(event.detail))
     window.addEventListener('fade-out', event => this.fadeOut(event.detail))
+    window.addEventListener('set-loading', event => this.setLoading(event.detail))
+    window.addEventListener('api-response', event => this.parseApiResponse(event.detail))
+  }
+  async emit (eventName, eventData) {
+    console.log(`%c${eventName}`, 'color: blue', eventData)
+    window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
   }
   recoverApi () {
-    this.sleep(100)
+    this.sleep(10)
       .then(() => storage.get('api'))
       .then(api => {
         console.log('found api', api)
-        window.dispatchEvent(new CustomEvent('api-recovered', { detail: api }))
+        this.emit('api-set', api)
         this.loadTasks(api)
       })
       .catch(() => {
-        window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'info', message: 'please setup api in settings' } }))
-        this.settingsTriggerEl.classList.add('action-required')
+        this.emit('show-toast', { type: 'info', message: 'please setup api in settings', delay: 5000 })
+        this.emit('action-required', true)
       })
   }
   loadTasks (api) {
     this.setLoading(true)
       .then(() => storage.set('api', api))
       .then(() => fetch(api))
-      .then(res => res.text())
-      .then(json => this.parseTasks(json))
+      .then(res => res.json())
+      .then(data => this.parseApiResponse(data))
       .catch(err => this.showError(err.message))
       .then(() => this.setLoading(false))
   }
@@ -52,13 +57,28 @@ class App {
     el.classList.add('hidden')
   }
   showError (message) {
-    console.error(message)
-    window.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', message } }))
+    console.error('app show error :', message)
+    this.emit('show-toast', { type: 'error', message })
+  }
+  showLog (message, data) {
+    console.log('%c' + 'app show log :', 'font-weight: bold', message, data)
+    this.emit('show-toast', { type: 'info', message })
+  }
+  async parseApiResponse (data) {
+    this.showLog('parsing api response...', data)
+    if (!data.records) {
+      throw Error('api does not return the expected format')
+    }
+    const tasks = data.records.map(task => ({
+      id: task.id,
+      ...task.fields,
+    }))
+    this.emit('tasks-loaded', tasks)
   }
   parseTasks (json) {
     json = json.replace(/\w.*\[(\w+)\]/g, (m, m1) => m1.toLowerCase())
     try {
-      window.dispatchEvent(new CustomEvent('tasks-loaded', { detail: JSON.parse(json) }))
+      this.emit('tasks-loaded', JSON.parse(json))
       return Promise.resolve('tasks-loaded')
     } catch (err) {
       console.error(err)
