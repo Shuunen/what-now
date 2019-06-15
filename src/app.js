@@ -14,39 +14,37 @@ class App {
     return new Promise(resolve => setTimeout(resolve, (ms || 1000)))
   }
   setupListeners () {
-    window.addEventListener('settings-submitted', (event) => {
-      console.log('new settings submitted :', event.detail)
-      this.emit('action-required', false)
-      this.loadTasks(event.detail.api)
-    })
     window.addEventListener('show-error', event => this.showError(event.detail))
     window.addEventListener('fade-out', event => this.fadeOut(event.detail))
     window.addEventListener('set-loading', event => this.setLoading(event.detail))
     window.addEventListener('api-response', event => this.parseApiResponse(event.detail))
+    window.addEventListener('api-set', event => this.onApiSet(event.detail.base, event.detail.key))
   }
   async emit (eventName, eventData) {
     console.log(`%c${eventName}`, 'color: blue', eventData)
     window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
   }
+  onApiSet (base, key) {
+    return this.loadTasks(base, key)
+      .then(() => storage.set('api-base', base))
+      .then(() => storage.set('api-key', key))
+  }
   recoverApi () {
     this.sleep(10)
-      .then(() => storage.get('api'))
-      .then(api => {
-        console.log('found api', api)
-        this.emit('api-set', api)
-        this.loadTasks(api)
-      })
+      .then(() => Promise.all([storage.get('api-base'), storage.get('api-key')]))
+      .then(([base, key]) => this.emit('api-set', { base, key }))
       .catch(() => {
-        this.emit('show-toast', { type: 'info', message: 'please setup api in settings', delay: 5000 })
+        this.emit('show-toast', { type: 'info', message: 'please setup api in settings' })
         this.emit('action-required', true)
       })
   }
-  loadTasks (api) {
-    this.setLoading(true)
-      .then(() => storage.set('api', api))
-      .then(() => fetch(api))
+  loadTasks (apiBase, apiKey) {
+    return this.setLoading(true)
+      .then(() => fetch(`https://api.airtable.com/v0/${apiBase}/tasks?api_key=${apiKey}&view=todo`))
       .then(res => res.json())
       .then(data => this.parseApiResponse(data))
+      .then(() => this.emit('action-required', false))
+      .then(() => this.sleep(500))
       .catch(err => this.showError(err.message))
       .then(() => this.setLoading(false))
   }
@@ -61,8 +59,8 @@ class App {
     this.emit('show-toast', { type: 'error', message })
   }
   showLog (message, data) {
-    console.log('%c' + 'app show log :', 'font-weight: bold', message, data)
-    this.emit('show-toast', { type: 'info', message })
+    console.log('%c' + 'app show log :', 'font-weight: bold', message, data || '')
+    return this.emit('show-toast', { type: 'info', message })
   }
   async parseApiResponse (data) {
     this.showLog('parsing api response...', data)

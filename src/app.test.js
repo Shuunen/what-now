@@ -1,7 +1,5 @@
-/* eslint-disable cypress/no-unnecessary-waiting */
-
-const invalidUrl = 'https/bad-url.com'
-const validUrl = 'https://www.mocky.io'
+const AIRTABLE_API_BASE_SAMPLE = 'appdxOY0ei028c0AE'
+const AIRTABLE_API_KEY_SAMPLE = 'keyWtbZlAQKQ10t1b'
 
 describe('App', () => {
   it('successfully loads', () => {
@@ -29,6 +27,10 @@ describe('App', () => {
     beforeEach(() => {
       cy.get('.settings--trigger').as('trigger')
       cy.get('.settings--modal').as('modal')
+      cy.get('.settings--close').as('close')
+      cy.get('.settings--save').as('save')
+      cy.get('@modal').find('input[name="airtable-api-base"]').as('input-base')
+      cy.get('@modal').find('input[name="airtable-api-key"]').as('input-key')
     })
     it('has a button to open modal', () => {
       cy.get('@trigger').should('be.visible')
@@ -40,36 +42,42 @@ describe('App', () => {
     })
     it('close modal', () => {
       cy.get('@modal').should('be.visible')
-      cy.get('.settings--close').click()
+      cy.get('@close').click()
       cy.get('@modal').should('not.be.visible')
     })
     it('cannot submit empty form', () => {
       cy.get('@trigger').click()
       cy.get('@modal').should('be.visible')
-      cy.get('.settings--save').click()
+      cy.get('@save').click()
       cy.get('@modal').should('be.visible')
     })
-    it('pre-fill api field if found in storage', () => {
-      cy.setApiInLS(validUrl)
+    it('pre-fill api fields if found in storage', () => {
+      cy.setLS('api-base', AIRTABLE_API_BASE_SAMPLE)
+      cy.setLS('api-key', AIRTABLE_API_KEY_SAMPLE)
       cy.visit('/')
       cy.get('@trigger').click()
       cy.get('@modal').should('be.visible')
-      cy.get('@modal').find('input[name="api"]').should('have.value', validUrl)
+      cy.get('@input-base').should('have.value', AIRTABLE_API_BASE_SAMPLE)
+      cy.get('@input-key').should('have.value', AIRTABLE_API_KEY_SAMPLE)
     })
     it('cannot submit invalid form', () => {
-      cy.get('@modal').find('input[name="api"]').clear().type(invalidUrl + '2')
-      cy.get('.settings--save').click()
+      cy.visit('/')
+      cy.get('@trigger').click()
+      cy.get('@modal').should('be.visible')
+      cy.get('@input-base').clear().type('abc')
+      cy.get('@save').click()
+      cy.get('@modal').should('be.visible')
+      cy.get('@input-base').clear().type(AIRTABLE_API_BASE_SAMPLE)
+      cy.get('@input-key').clear().type('abc')
+      cy.get('@input-key').trigger('keypress')
+      cy.get('@save').click()
       cy.get('@modal').should('be.visible')
     })
     it('can submit valid form', () => {
-      cy.get('@modal').find('input[name="api"]').clear().type(validUrl)
-      cy.get('.settings--save').click()
+      cy.get('@input-base').clear().type(AIRTABLE_API_BASE_SAMPLE)
+      cy.get('@input-key').clear().type(AIRTABLE_API_KEY_SAMPLE)
+      cy.get('@save').click()
       cy.get('@modal').should('not.be.visible')
-    })
-    it('should have 2 error toast displayed', () => {
-      cy.get('.toast.error').as('toasts').should('have.length', 2)
-      cy.get('@toasts').each(toast => toast.click())
-      cy.get('@toasts').should('have.length', 0)
     })
   })
   describe('Tasks', () => {

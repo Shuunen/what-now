@@ -24,7 +24,7 @@
 // -- This is will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
-Cypress.Commands.add('setApiInLS', (url) => {
-  console.log('setting api in LS to :', url)
-  window.localStorage.setItem('@shuunen/what-now_0.0.1_api', url)
+Cypress.Commands.add('setLS', (key, value) => {
+  console.log(`setting key "${key}" in LS with value :`, value)
+  window.localStorage.setItem('@shuunen/what-now_0.0.1_' + key, value)
 })

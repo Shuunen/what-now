@@ -11,20 +11,22 @@
 <div class="settings backdrop hidden">
   <div class="settings--modal center">
     <h2>Settings</h2>
-    <form class="col" onsubmit="settings.validateSettings(event, this);">
-      <label class="setting">
-        <a href="https://sheety.co" target="_blank">Sheety</a>&nbsp;api :&nbsp;
-        <input type="url" name="api" required minlength="4" autofocus>
-      </label>
-      <div class="settings--footer col">
-        <div>
-          <input class="settings--save" type="submit" value="Save">
-        </div>
-        <div>
-          <input class="settings--close text" type="button" value="Close" onclick="settings.toggleSettings()">
-        </div>
+    <label class="setting">
+      <a href="//airtable.com/api" target="_blank">Airtable api base</a> :&nbsp;
+      <input name="airtable-api-base" pattern="^app\w{14}$" required autofocus>
+    </label>
+    <label class="setting">
+      <a href="//airtable.com/account" target="_blank">Airtable api key</a> :&nbsp;
+      <input name="airtable-api-key" pattern="^key\w{14}$" required>
+    </label>
+    <div class="settings--footer col">
+      <div>
+        <button class="settings--save" onclick="settings.validateSettings()">Save</button>
       </div>
-    </form>
+      <div>
+        <button class="settings--close text" onclick="settings.toggleSettings()">Close</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -36,12 +38,13 @@
     constructor () {
       this.settingsEl = document.querySelector('.settings')
       this.settingsTriggerEl = document.querySelector('.settings--trigger')
+      this.settingApiBase = document.querySelector('.settings--modal input[name="airtable-api-base"]')
+      this.settingApiKey = document.querySelector('.settings--modal input[name="airtable-api-key"]')
       this.setupListeners()
     }
     setupListeners () {
-      window.addEventListener('api-set', (event) => (document.querySelector('.settings--modal input[name="api"]').value = event.detail))
+      window.addEventListener('api-set', event => this.preFillApi(event.detail.base, event.detail.key))
       window.addEventListener('action-required', event => this.settingsTriggerEl.classList.toggle('action-required', event.detail))
-      window.addEventListener('tasks-loaded', () => this.emit('action-required', false))
     }
     async emit (eventName, eventData) {
       console.log(`%c${eventName}`, 'color: blue', eventData)
@@ -54,16 +57,18 @@
         this.settingsEl.classList.remove('hidden')
       }
     }
-    validateSettings (event, formEl) {
-      event.preventDefault()
-      const formData = {}
-      formEl.querySelectorAll('[name]').forEach(el => (formData[el.name] = el.value))
-      window.dispatchEvent(new CustomEvent('settings-submitted', { detail: formData }))
-      // close modal, we can't get here if form is invalid
-      this.toggleSettings()
+    preFillApi (base, key) {
+      this.settingApiBase.value = base
+      this.settingApiKey.value = key
+    }
+    validateSettings () {
+      if (this.settingApiBase.checkValidity() && this.settingApiKey.checkValidity()) {
+        this.emit('api-set', { base: this.settingApiBase.value, key: this.settingApiKey.value })
+        this.toggleSettings()
+      }
     }
     fadeOut (el) {
-      window.dispatchEvent(new CustomEvent('fade-out', { detail: el }))
+      this.emit('fade-out', el)
     }
   }
   // eslint-disable-next-line no-new
@@ -98,6 +103,7 @@
     max-width: 40rem;
     padding: .7rem 2rem 0;
     width: var(--settings-width, 80vw);
+    z-index: 10;
   }
 
   .settings--footer {
@@ -105,6 +111,7 @@
   }
 
   .setting {
+    margin-top: .5rem;
     line-height: 3rem;
   }
 
