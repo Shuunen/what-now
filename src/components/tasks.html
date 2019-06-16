@@ -21,12 +21,28 @@
     setupListeners () {
       window.addEventListener('tasks-loaded', (event) => {
         this.tasks = event.detail
-        this.tasks.forEach(t => (t.done = false))
-        this.showToast(this.tasks.length ? 'success' : 'error', (this.tasks.length || 'no') + ' tasks found')
+        this.showToast(this.tasks.length ? 'info' : 'error', (this.tasks.length || 'no') + ' tasks found')
+        this.showMainView()
+        this.checkTasks()
+        this.emit('action-required', false)
       })
     }
+    async emit (eventName, eventData) {
+      console.log(`%c${eventName}`, 'color: blue', eventData)
+      window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
+    }
+    checkTasks () {
+      const hadActiveTasks = this.tasks.length > 0
+      const today = this.getDate()
+      // TODO: prendre en charge les autres situations qu'une tache quotidienne
+      this.tasks = this.tasks.filter(t => (t['completed-on'] !== today))
+      const hasActiveTasks = this.tasks.length > 0
+      if (hadActiveTasks && !hasActiveTasks) {
+        this.showSuccessView()
+      }
+    }
     showToast (type, message) {
-      window.dispatchEvent(new CustomEvent('show-toast', { detail: { type, message } }))
+      return this.emit('show-toast', { type, message })
     }
     getTask () {
       this.activeTask = this.tasks.find(t => !t.done)
@@ -39,14 +55,23 @@
     }
     doneTask () {
       this.showToast('success', 'well done')
-      this.activeTask.done = true
+      this.activeTask['completed-on'] = this.getDate()
+      this.emit('task-update', Object.assign({}, this.activeTask))
       this.switchView()
-      if (!this.tasks.some(t => !t.done)) {
-        this.showSuccessView()
+      this.checkTasks()
+    }
+    getDate () {
+      return new Date().toISOString().split('T')[0]
+    }
+    showMainView () {
+      this.tasksTitle.innerHTML = 'What <em>now</em> ?'
+      this.tasksTitle.classList.remove('success')
+      if (this.tasksTitle.classList.contains('hidden')) {
+        this.switchView()
       }
     }
     showSuccessView () {
-      this.tasksTitle.innerHTML = 'You did everything.<br><em>GG</em> 🎖️'
+      this.tasksTitle.innerHTML = 'You did everything for today.<br><em>GG</em> 🎖️'
       this.tasksTitle.classList.add('success')
       this.showToast('info', '🎉🍾🥂🎉')
     }
