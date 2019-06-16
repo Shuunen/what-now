@@ -1,3 +1,4 @@
+/* eslint-disable cypress/no-unnecessary-waiting */
 const AIRTABLE_API_BASE_SAMPLE = 'appdxOY0ei028c0AE'
 const AIRTABLE_API_KEY_SAMPLE = 'keyWtbZlAQKQ10t1b'
 
@@ -18,9 +19,9 @@ describe('App', () => {
       cy.get('.toast.error').should('be.visible').contains(message)
     })
     it('dismiss error toast', () => {
-      cy.get('.toast.error').should('be.visible')
-      cy.get('.toast.error').click()
-      cy.get('.toast.error').should('not.be.visible')
+      cy.get('.toast.error').as('toast').should('be.visible')
+      cy.get('@toast').click()
+      cy.get('@toast').should('not.be.visible')
     })
   })
   describe('Settings', () => {
@@ -85,10 +86,11 @@ describe('App', () => {
       cy.get('.task--get').as('button-get')
       cy.get('.task--mark-as-done').as('button-done')
     })
-    it('load tasks from json', () => {
+    it('load 5 tasks from json', () => {
+      cy.visit('/')
       cy.fixture('get-tasks').then((json) => {
         cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: json })))
-        cy.get('.toast.success').should('be.visible').contains('5 tasks found')
+        cy.get('.toast.info').should('be.visible').contains('5 tasks found')
       })
     })
     it('show task', () => {
@@ -102,16 +104,41 @@ describe('App', () => {
       cy.get('@button-done').click()
       cy.get('@button-done').should('not.be.visible')
       cy.get('.toast.success').should('be.visible').contains('well done')
+      cy.get('.toast.error').should('be.visible').contains('cannot update task without api')
+      cy.get('.toast.error').click()
     })
     it('mark all tasks as done', () => {
       for (let i = 0; i < 4; i++) {
+        cy.wait(300)
         cy.get('@button-get').click()
         cy.get('@button-done').click()
+        cy.wait(200)
+        cy.get('.toast.error').click()
       }
     })
     it('display everything done screen', () => {
-      cy.get('.tasks--title.success').as('success-message').should('be.visible')
-      cy.get('@success-message').contains('You did everything')
+      cy.get('.tasks--title.success').should('be.visible').contains('You did everything')
+    })
+    it('load empty task list', () => {
+      cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: { records: [] } })))
+      cy.get('.toast.info').should('be.visible').contains('parsing api response')
+      cy.get('.toast.error').should('be.visible').contains('no tasks found')
+    })
+    it('load already done tasks', () => {
+      cy.visit('/')
+      const today = new Date().toISOString().split('T')[0]
+      const task = {
+        'id': 'some-id',
+        'fields': {
+          'name': 'Trier les mails',
+          'once': 'day',
+          'completed-on': today,
+        },
+      }
+      cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: { records: [task] } })))
+      cy.get('.toast.info').should('be.visible').contains('parsing api response')
+      cy.get('.toast.info').should('be.visible').contains('1 tasks found')
+      cy.get('.tasks--title.success').should('be.visible').contains('You did everything')
     })
   })
 })
