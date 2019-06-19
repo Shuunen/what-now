@@ -5,7 +5,7 @@
     "port": 8000
   },
   "description": "Minimalistic task coach",
-  "devDependencies": {
+  "dependencies": {
     "cross-var": "1.1.0",
     "cypress": "3.3.1",
     "eslint": "5.16.0",
@@ -47,7 +47,7 @@
     "prebuild": "npm run clean",
     "preserve": "npm run build",
     "serve": "cross-var serve dist --listen $npm_package_config_port --single",
-    "test": "npm-run-all lint build --parallel serve:dist test:headless --race",
+    "test": "npm-run-all lint build --parallel serve test:headless --race",
     "test:headless": "cypress run",
     "test:open": "cypress open",
     "watch": "cross-var parcel src/index.html --port $npm_package_config_port"
