@@ -2,6 +2,7 @@
 
 [![GitHub license](https://img.shields.io/github/license/shuunen/what-now.svg?color=informational)](https://github.com/Shuunen/what-now/blob/master/LICENSE)
 
+[![Build Status](https://travis-ci.org/Shuunen/what-now.svg?branch=master)](https://travis-ci.org/Shuunen/what-now)
 [![David](https://img.shields.io/david/shuunen/what-now.svg)](https://david-dm.org/shuunen/what-now)
 [![LGTM Grade](https://img.shields.io/lgtm/grade/javascript/github/Shuunen/what-now.svg)](https://lgtm.com/projects/g/Shuunen/what-now)
 
@@ -16,3 +17,4 @@
 - [Loading.io](https://github.com/loadingio/css-spinner/) : lightweight & good looking css loading spinner
 - [Parcel](https://parceljs.org) : easy and fast web application bundler
 - [Shields.io](https://shields.io) : nice looking badges to be proud of
+- [Travis-ci.org](https://travis-ci.org) : for providing free continuous deployments
