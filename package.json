@@ -22,7 +22,7 @@
     "parcel-plugin-static-files-copy": "2.1.2",
     "posthtml-include": "1.2.0",
     "rimraf": "2.6.3",
-    "serve": "11.0.1"
+    "serve": "11.0.2"
   },
   "homepage": "https://github.com/Shuunen/what-now",
   "keywords": [
