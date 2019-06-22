@@ -4,7 +4,6 @@
   "config": {
     "port": 8000
   },
-  "description": "Minimalistic task coach",
   "dependencies": {
     "cross-var": "1.1.0",
     "cypress": "3.3.1",
@@ -24,6 +23,10 @@
     "rimraf": "2.6.3",
     "serve": "11.0.2"
   },
+  "description": "Minimalistic task coach",
+  "files": [
+    "src"
+  ],
   "homepage": "https://github.com/Shuunen/what-now",
   "keywords": [
     "minimalist",
@@ -35,6 +38,7 @@
   "optionalDependencies": {
     "acorn": "6.1.1"
   },
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/Shuunen/what-now.git"
@@ -47,6 +51,7 @@
     "prebuild": "npm run clean",
     "preserve": "npm run build",
     "serve": "cross-var serve dist --listen $npm_package_config_port --single",
+    "start": "npm run serve",
     "test": "npm-run-all lint build --parallel serve test:headless --race",
     "test:headless": "cypress run",
     "test:open": "cypress open",
