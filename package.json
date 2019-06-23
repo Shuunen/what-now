@@ -45,6 +45,7 @@
   },
   "scripts": {
     "build": "parcel build src/index.html --public-url . --no-source-maps",
+    "check": "npx repo-check",
     "clean": "rimraf dist/*",
     "dev": "run-p watch test:open",
     "lint": "eslint --fix {src/**,cypress/**,.}/*.{js,html} --no-ignore .eslintrc.js",
@@ -52,7 +53,7 @@
     "preserve": "npm run build",
     "serve": "cross-var serve dist --listen $npm_package_config_port --single",
     "start": "npm run serve",
-    "test": "npm-run-all lint build --parallel serve test:headless --race",
+    "test": "npm-run-all check lint build --parallel serve test:headless --race",
     "test:headless": "cypress run",
     "test:open": "cypress open",
     "watch": "cross-var parcel src/index.html --port $npm_package_config_port"
