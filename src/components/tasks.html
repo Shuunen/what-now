@@ -119,7 +119,7 @@
       }
     }
     showSuccessView () {
-      this.tasksTitle.innerHTML = 'You did everything for today.<br><em>GG</em> 🎖️'
+      this.tasksTitle.innerHTML = '<p>You did everything for today.</p><em>GG</em> 🎖️'
       this.tasksTitle.classList.add('success')
       this.showToast('info', '🎉🍾🥂🎉')
       emit('tasks-done', { })
@@ -141,14 +141,11 @@
 
   .tasks--title {
     background-image: radial-gradient(white 20%, var(--color-white, whitesmoke) 70%);
-    border-bottom: .2rem dashed;
     padding: 1rem;
     z-index: var(--elevation-child, 30);
   }
 
   .tasks--title.success {
-    border-style: dashed;
-    border-width: .4rem 0;
     color: var(--color-success, green);
   }
 
