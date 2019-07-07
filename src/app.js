@@ -18,11 +18,14 @@ class App {
   }
   setupListeners () {
     window.addEventListener('show-error', event => this.showError(event.detail))
+    window.addEventListener('fade-in', event => this.fadeIn(event.detail))
     window.addEventListener('fade-out', event => this.fadeOut(event.detail))
     window.addEventListener('set-loading', event => this.setLoading(event.detail))
     window.addEventListener('api-response', event => this.parseApiResponse(event.detail))
     window.addEventListener('api-set', event => this.onApiSet(event.detail.base, event.detail.key))
     window.addEventListener('task-update', event => this.onTaskUpdate(event.detail))
+    window.addEventListener('task-done', event => this.onTaskDone(event.detail))
+    window.addEventListener('tasks-done', event => this.onTasksDone(event.detail))
     window.addEventListener('tasks-loaded', () => (this.tasksLoaded = true))
   }
   async emit (eventName, eventData) {
@@ -60,6 +63,14 @@ class App {
       .then(() => this.sleep(500))
       .catch(err => this.showError(err.message))
       .then(() => this.setLoading(false))
+  }
+  async fadeIn (el) {
+    if (!el.classList.contains('hide')) {
+      return console.warn('please add "hide" class before mounting dom element and then call fade-in')
+    }
+    await this.sleep(10)
+    // eslint-disable-next-line require-atomic-updates
+    el.style.opacity = 1
   }
   async fadeOut (el) {
     el.classList.add('hide')
@@ -118,6 +129,12 @@ class App {
       .then(() => this.sleep(500))
       .catch(err => this.showError(err.message))
       .then(() => this.setLoading(false))
+  }
+  onTaskDone () {
+    this.emit('add-badge', '⭐')
+  }
+  onTasksDone () {
+    this.emit('add-badge', '🎖️')
   }
 }
 // eslint-disable-next-line no-new
