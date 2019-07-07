@@ -111,10 +111,10 @@ class App {
       return this.showError('cannot update task without api')
     }
     const url = `https://api.airtable.com/v0/${this.apiBase}/tasks/${task.id}?api_key=${this.apiKey}&view=todo`
+    const data = { fields: { 'completed-on': task['completed-on'], done: task.done } }
     return this.setLoading(true)
-      .then(() => this.patch(url, { fields: { 'completed-on': task['completed-on'] } }))
+      .then(() => this.patch(url, data))
       .then(res => res.json())
-      .then(data => console.log(data))
       .then(() => this.sleep(500))
       .catch(err => this.showError(err.message))
       .then(() => this.setLoading(false))
