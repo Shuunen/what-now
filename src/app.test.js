@@ -146,4 +146,39 @@ describe('App', () => {
       cy.get('.tasks--title.success').should('be.visible').contains('You did everything')
     })
   })
+  describe('Badges', () => {
+    const taskDone = { fields: { done: true } }
+    const taskTodo = { fields: { } }
+    it('has no badges at start', () => {
+      cy.visit('/')
+      cy.get('.badges').should('be.visible')
+    })
+    it('can display badges on demand', () => {
+      for (let emoji of '🌌✨💖') {
+        cy.window().then(w => w.dispatchEvent(new CustomEvent('add-badge', { detail: emoji })))
+        cy.get('.badge').should('be.visible').contains(emoji)
+      }
+    })
+    it('should display star badge on task complete', () => {
+      cy.visit('/')
+      cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: { records: [taskDone, taskTodo] } })))
+      cy.get('.badge').should('be.visible').contains('⭐')
+    })
+    it('should display n stars & 1 medal badge when all tasks complete', () => {
+      cy.visit('/')
+      cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: { records: [taskDone, taskDone, taskDone] } })))
+      cy.get('.badge').should('be.visible').should('have.length', 4) // 3 ⭐ & 1 🎖️
+      cy.get('.badge').should('be.visible').contains('🎖️')
+    })
+    it('should handle master badgerz or haxx0rz', () => {
+      cy.visit('/')
+      cy.get('.badge').should('have.length', 0)
+      const emojis = '😎🤓💻🖖⚗🤯'.repeat(30) // 6 emojis * 30 = 180
+      for (let emoji of emojis) {
+        cy.window().then(w => w.dispatchEvent(new CustomEvent('add-badge', { detail: emoji })))
+        cy.wait(1)
+      }
+      cy.get('.badge').should('have.length', 180)
+    })
+  })
 })
