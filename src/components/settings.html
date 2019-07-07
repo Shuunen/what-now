@@ -76,6 +76,10 @@
 </script>
 
 <style>
+  .settings {
+    z-index: var(--elevation-bear, 50);
+  }
+
   .settings--trigger {
     color: var(--color-grey, grey);
     cursor: pointer;
@@ -85,6 +89,7 @@
     right: 2rem;
     top: 2rem;
     width: 2.5rem;
+    z-index: var(--elevation-child, 30);
   }
 
   .settings--trigger.action-required {
@@ -103,7 +108,7 @@
     max-width: 40rem;
     padding: .7rem 2rem 0;
     width: var(--settings-width, 80vw);
-    z-index: 10;
+    z-index: var(--elevation-giraffe, 100);
   }
 
   .settings--footer {
@@ -111,12 +116,11 @@
   }
 
   .setting {
-    margin-top: .5rem;
     line-height: 3rem;
+    margin-top: .5rem;
   }
 
   @keyframes bounce {
-
     from,
     20%,
     53%,

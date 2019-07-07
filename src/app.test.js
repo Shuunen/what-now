@@ -89,6 +89,10 @@ describe('App', () => {
     it('load 5 tasks from json', () => {
       cy.visit('/')
       cy.fixture('get-tasks').then((json) => {
+        // set the 2 first tasks completed on yesterday, with this format "2019-07-14"
+        const yesterday = (d => new Date(d.setDate(d.getDate() - 1)))(new Date()).toISOString().split('T')[0]
+        json.records[0]['fields']['completed-on'] = yesterday
+        json.records[1]['fields']['completed-on'] = yesterday
         cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: json })))
         cy.get('.toast.info').should('be.visible').contains('5 tasks found')
       })
@@ -97,6 +101,7 @@ describe('App', () => {
       cy.get('.task--title').as('task-title').should('not.be.visible')
       cy.get('@button-done').as('button').should('not.be.visible')
       cy.get('@button-get').click()
+      // because of the important sort & completion dates previously set, 'Faire une lessive' should be the one to be suggested
       cy.get('@task-title').should('be.visible').contains('Faire une lessive')
     })
     it('mark task as done', () => {
@@ -108,7 +113,7 @@ describe('App', () => {
       cy.get('.toast.error').click()
     })
     it('mark all tasks as done', () => {
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 3; i++) {
         cy.wait(300)
         cy.get('@button-get').click()
         cy.get('@button-done').click()

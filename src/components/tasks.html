@@ -1,5 +1,5 @@
 <main class="tasks col center">
-  <h1 class="tasks--title task--get" onclick="tasks.getTask()">What <em>now</em> ?</h1>
+  <h1 class="tasks--title task--get" onclick="tasks.showTask()">What <em>now</em> ?</h1>
   <div class="task col hidden">
     <h2 class="task--title"></h2>
     <div>
@@ -9,6 +9,50 @@
 </main>
 
 <script>
+  // give the same format as 'completed-on' like "2019-07-14"
+  const today = () => new Date().toISOString().split('T')[0]
+
+  const emit = async (eventName, eventData) => {
+    console.log(`%c${eventName}`, 'color: blue', eventData)
+    window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
+  }
+
+  class Task {
+    constructor (data) {
+      Object.assign(this, data)
+      if (!this.active) {
+        emit('task-done', { already: true })
+      }
+    }
+    get completedOn () {
+      return this['completed-on']
+    }
+    get active () {
+      if (this.done) {
+        return false
+      }
+      if (!this.completedOn) {
+        return true
+      }
+      switch (this.once) {
+        case 'yes':
+          return true
+        case 'day':
+          return this.daysSinceCompletion >= 1
+        case 'week':
+          return this.daysSinceCompletion >= 7
+        case 'month':
+          return this.daysSinceCompletion >= 30
+        default:
+          console.error('unhandled case')
+      }
+      return false
+    }
+    get daysSinceCompletion () {
+      return ((new Date(today()) - new Date(this.completedOn)) / 1000 / (3600 * 24))
+    }
+  }
+
   class Tasks {
     constructor () {
       this.tasksTitle = document.querySelector('.tasks--title')
@@ -20,32 +64,37 @@
     }
     setupListeners () {
       window.addEventListener('tasks-loaded', (event) => {
-        this.tasks = event.detail
+        this.tasks = event.detail.sort(this.byImportant).map(data => new Task(data))
         this.showToast(this.tasks.length ? 'info' : 'error', (this.tasks.length || 'no') + ' tasks found')
         this.showMainView()
         this.checkTasks()
-        this.emit('action-required', false)
+        emit('action-required', false)
       })
     }
-    async emit (eventName, eventData) {
-      console.log(`%c${eventName}`, 'color: blue', eventData)
-      window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
+    byImportant (a, b) {
+      if (a.important && b.important) {
+        return 0
+      }
+      if (a.important && !b.important) {
+        return -1
+      }
+      if (!a.important && b.important) {
+        return 1
+      }
     }
     checkTasks () {
       const hadActiveTasks = this.tasks.length > 0
-      const today = this.getDate()
-      // TODO: prendre en charge les autres situations qu'une tache quotidienne
-      this.tasks = this.tasks.filter(t => (t['completed-on'] !== today))
+      this.tasks = this.tasks.filter(task => task.active)
+      this.activeTask = this.tasks[0]
       const hasActiveTasks = this.tasks.length > 0
       if (hadActiveTasks && !hasActiveTasks) {
         this.showSuccessView()
       }
     }
     showToast (type, message) {
-      return this.emit('show-toast', { type, message })
+      return emit('show-toast', { type, message })
     }
-    getTask () {
-      this.activeTask = this.tasks.find(t => !t.done)
+    showTask () {
       this.switchView()
     }
     switchView (el) {
@@ -55,13 +104,12 @@
     }
     doneTask () {
       this.showToast('success', 'well done')
-      this.activeTask['completed-on'] = this.getDate()
-      this.emit('task-update', Object.assign({}, this.activeTask))
+      this.activeTask['completed-on'] = today()
+      this.activeTask.done = (this.activeTask.once === 'yes')
+      emit('task-update', Object.assign({}, this.activeTask))
+      emit('task-done', { already: false })
       this.switchView()
       this.checkTasks()
-    }
-    getDate () {
-      return new Date().toISOString().split('T')[0]
     }
     showMainView () {
       this.tasksTitle.innerHTML = 'What <em>now</em> ?'
@@ -74,6 +122,7 @@
       this.tasksTitle.innerHTML = 'You did everything for today.<br><em>GG</em> 🎖️'
       this.tasksTitle.classList.add('success')
       this.showToast('info', '🎉🍾🥂🎉')
+      emit('tasks-done', { })
     }
   }
   // eslint-disable-next-line no-new
@@ -91,8 +140,10 @@
   }
 
   .tasks--title {
+    background-image: radial-gradient(white 20%, var(--color-white, whitesmoke) 70%);
     border-bottom: .2rem dashed;
     padding: 1rem;
+    z-index: var(--elevation-child, 30);
   }
 
   .tasks--title.success {

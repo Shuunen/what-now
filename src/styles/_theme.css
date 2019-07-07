@@ -8,4 +8,9 @@
   --color-success: green;
   --color-error: red;
   --color-error-light: rgba(250,0,0,.1);
+  --elevation-t-rex: 200;
+  --elevation-giraffe: 100;
+  --elevation-bear: 50;
+  --elevation-child: 30;
+  --elevation-ant: 10;
 }
