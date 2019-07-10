@@ -21,7 +21,7 @@
     "parcel-plugin-static-files-copy": "2.1.2",
     "posthtml-include": "1.2.0",
     "rimraf": "2.6.3",
-    "serve": "11.0.2"
+    "serve": "11.1.0"
   },
   "description": "Minimalistic task coach",
   "files": [
