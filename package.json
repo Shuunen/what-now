@@ -36,7 +36,7 @@
   "license": "GPL-3.0",
   "name": "@shuunen/what-now",
   "optionalDependencies": {
-    "acorn": "6.2.0"
+    "acorn": "6.2.1"
   },
   "private": true,
   "repository": {
