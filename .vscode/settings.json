@@ -1,21 +1,7 @@
 {
-    "cSpell.words": [
-        "Sheety",
-        "airtable",
-        "unitless",
-        "xdescribe"
-    ],
-    "cSpell.ignoreWords": [
-        "ae",
-        "appdx",
-        "aqkq",
-        "b",
-        "c",
-        "ei",
-        "key",
-        "oy",
-        "t",
-        "wtb",
-        "zl"
-    ]
+  "cSpell.words": [
+    "airtable",
+    "notificationclick",
+    "unitless"
+  ]
 }
