@@ -7,7 +7,7 @@ describe('App', () => {
     cy.visit('/')
     cy.get('h1').should('contain', 'What now')
   })
-  xdescribe('Toaster', () => {
+  describe('Toaster', () => {
     it('show success toast', () => {
       const message = 'nice success'
       cy.window().then(w => w.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'success', message } })))
@@ -24,7 +24,7 @@ describe('App', () => {
       cy.get('@toast').should('not.be.visible')
     })
   })
-  xdescribe('Settings', () => {
+  describe('Settings', () => {
     beforeEach(() => {
       cy.get('.settings--trigger').as('trigger')
       cy.get('.settings--modal').as('modal')
@@ -81,7 +81,7 @@ describe('App', () => {
       cy.get('@modal').should('not.be.visible')
     })
   })
-  xdescribe('Tasks', () => {
+  describe('Tasks', () => {
     beforeEach(() => {
       cy.get('.task--get').as('button-get')
       cy.get('.task--mark-as-done').as('button-done')
@@ -146,7 +146,7 @@ describe('App', () => {
       cy.get('.tasks--title.success').should('be.visible').contains('You did everything')
     })
   })
-  xdescribe('Badges', () => {
+  describe('Badges', () => {
     const taskDone = { fields: { done: true } }
     const taskTodo = { fields: { } }
     it('has no badges at start', () => {
