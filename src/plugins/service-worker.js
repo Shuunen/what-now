@@ -11,7 +11,7 @@ const check = async () => {
 
 const triggerSync = async (registration, type) => registration.sync.register(type)
 
-const startHourlyNotification = async (registration) => setInterval(() => triggerSync(registration, 'reminder'), 3600)
+const startHourlyNotification = async (registration) => setInterval(() => triggerSync(registration, 'reminder'), 3600 * 1000)
 
 const registerServiceWorker = async () => {
   const file = 'service-worker.js'
