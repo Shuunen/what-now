@@ -95,6 +95,9 @@
       return emit('show-toast', { type, message })
     }
     showTask () {
+      if (!this.activeTask) {
+        return
+      }
       this.switchView()
     }
     switchView (el) {
