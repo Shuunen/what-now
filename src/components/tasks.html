@@ -9,20 +9,16 @@
 </main>
 
 <script>
-  // give the same format as 'completed-on' like "2019-07-14"
-  const today = () => new Date().toISOString().split('T')[0]
-
-  const emit = async (eventName, eventData) => {
-    console.log(`%c${eventName}`, 'color: blue', eventData)
-    window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
-  }
-
   class Task {
     constructor (data) {
       Object.assign(this, data)
       if (!this.active) {
-        emit('task-done', { already: true })
+        this.emit('task-done', { already: true })
       }
+    }
+    async emit (eventName, eventData) {
+      console.log(`%c${eventName}`, 'color: blue', eventData)
+      window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
     }
     get completedOn () {
       return this['completed-on']
@@ -49,11 +45,28 @@
       return false
     }
     get daysSinceCompletion () {
-      return ((new Date(today()) - new Date(this.completedOn)) / 1000 / (3600 * 24))
+      return ((new Date(this.today()) - new Date(this.completedOn)) / 1000 / (3600 * 24))
+    }
+    today () {
+      // give the same format as 'completed-on' like "2019-07-14"
+      return new Date().toISOString().split('T')[0]
+    }
+    complete () {
+      this['completed-on'] = this.today()
+      // task is complete for today, but can be done totally is it was a one time job
+      this.done = (this.once === 'yes')
+      this.emit('task-update', Object.assign({}, this))
+      this.emit('task-done', { already: false })
     }
   }
 
   class Tasks {
+    get mainViewDisplayed () {
+      return this.taskEl.classList.contains('hidden')
+    }
+    get taskViewDisplayed () {
+      return !this.taskEl.classList.contains('hidden')
+    }
     constructor () {
       this.tasksTitle = document.querySelector('.tasks--title')
       this.taskEl = document.querySelector('.tasks .task')
@@ -62,14 +75,34 @@
       this.activeTask = null
       this.setupListeners()
     }
+    async emit (eventName, eventData) {
+      console.log(`%c${eventName}`, 'color: blue', eventData)
+      window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
+    }
     setupListeners () {
-      window.addEventListener('tasks-loaded', (event) => {
-        this.tasks = event.detail.sort(this.byImportant).map(data => new Task(data))
-        this.showToast(this.tasks.length ? 'info' : 'error', (this.tasks.length || 'no') + ' tasks found')
-        this.showMainView()
-        this.checkTasks()
-        emit('action-required', false)
-      })
+      window.addEventListener('tasks-loaded', event => this.onTasksLoaded(event.detail))
+      window.addEventListener('skip-task', event => this.onSkipTask())
+    }
+    onTasksLoaded (tasks) {
+      this.tasks = tasks.sort(this.byImportant).map(data => new Task(data))
+      this.showToast(this.tasks.length ? 'info' : 'error', (this.tasks.length || 'no') + ' tasks found')
+      this.showMainView()
+      this.checkTasks()
+      this.emit('action-required', false)
+    }
+    onSkipTask () {
+      if (!this.taskViewDisplayed || !this.activeTask) {
+        return console.log('cannot skip task if none displayed')
+      }
+      console.log('skipping active task :', this.activeTask)
+      const nextTask = this.tasks.find(task => task.id !== this.activeTask.id)
+      if (!nextTask) {
+        return console.log('cannot skip the only task')
+      }
+      this.activeTask = nextTask
+      console.log('new active task :', this.activeTask)
+      this.taskTitle.textContent = this.activeTask.name
+      this.emit('task-skipped')
     }
     byImportant (a, b) {
       if (a.important && b.important) {
@@ -92,7 +125,7 @@
       }
     }
     showToast (type, message) {
-      return emit('show-toast', { type, message })
+      return this.emit('show-toast', { type, message })
     }
     showTask () {
       if (!this.activeTask) {
@@ -107,17 +140,14 @@
     }
     doneTask () {
       this.showToast('success', 'well done')
-      this.activeTask['completed-on'] = today()
-      this.activeTask.done = (this.activeTask.once === 'yes')
-      emit('task-update', Object.assign({}, this.activeTask))
-      emit('task-done', { already: false })
+      this.activeTask.complete()
       this.switchView()
       this.checkTasks()
     }
     showMainView () {
       this.tasksTitle.innerHTML = 'What <em>now</em> ?'
       this.tasksTitle.classList.remove('success')
-      if (this.tasksTitle.classList.contains('hidden')) {
+      if (this.taskViewDisplayed) {
         this.switchView()
       }
     }
@@ -125,7 +155,7 @@
       this.tasksTitle.innerHTML = '<p>You did everything for today.</p><em>GG</em> 🎖️'
       this.tasksTitle.classList.add('success')
       this.showToast('info', '🎉🍾🥂🎉')
-      emit('tasks-done', { })
+      this.emit('tasks-done', {})
     }
   }
   // eslint-disable-next-line no-new
@@ -134,18 +164,19 @@
 
 <style>
   .tasks {
-    background-image: linear-gradient(var(--color-white, whitesmoke) 60%, var(--color-grey, grey) 170%);
     color: var(--color-primary, steelblue);
-    height: 100%;
-    justify-content: center;
-    padding-bottom: 2rem;
+    position: absolute;
+    top: 41vh;
     width: 100%;
+    z-index: var(--elevation-child, 30);
   }
 
   .tasks--title {
-    background-image: radial-gradient(white 20%, var(--color-white, whitesmoke) 70%);
-    padding: 1rem;
-    z-index: var(--elevation-child, 30);
+    margin: 0;
+  }
+
+  .tasks--title p {
+    margin-top: 0;
   }
 
   .tasks--title.success {

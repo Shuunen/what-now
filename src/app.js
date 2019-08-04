@@ -25,8 +25,9 @@ class App {
     window.addEventListener('api-response', event => this.parseApiResponse(event.detail))
     window.addEventListener('api-set', event => this.onApiSet(event.detail.base, event.detail.key))
     window.addEventListener('task-update', event => this.onTaskUpdate(event.detail))
-    window.addEventListener('task-done', event => this.onTaskDone(event.detail))
-    window.addEventListener('tasks-done', event => this.onTasksDone(event.detail))
+    window.addEventListener('task-done', () => this.onTaskDone())
+    window.addEventListener('task-skipped', () => this.onTaskSkipped())
+    window.addEventListener('tasks-done', () => this.onTasksDone())
     window.addEventListener('tasks-loaded', () => (this.tasksLoaded = true))
   }
   async emit (eventName, eventData) {
@@ -132,10 +133,13 @@ class App {
       .then(() => this.setLoading(false))
   }
   onTaskDone () {
-    this.emit('add-badge', '⭐')
+    this.emit('add-badge', { type: 'task-done', content: '⭐' })
+  }
+  onTaskSkipped () {
+    this.emit('remove-badge', { type: 'task-done' })
   }
   onTasksDone () {
-    this.emit('add-badge', '🎖️')
+    this.emit('add-badge', { type: 'tasks-done', content: '🎖️' })
   }
 }
 // eslint-disable-next-line no-new

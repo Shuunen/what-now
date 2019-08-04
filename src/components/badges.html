@@ -1,42 +1,54 @@
 <div class="badges row"></div>
 
 <script>
-    class Badges {
-      constructor () {
-        this.el = document.querySelector('.badges')
-        this.setupListeners()
-      }
-      setupListeners () {
-        window.addEventListener('add-badge', (event) => this.addBadge(event.detail || '🤔'))
-      }
-      addBadge (text) {
-        const el = document.createElement('span')
-        el.classList.add('badge', 'hide')
-        el.innerHTML = text
-        this.el.appendChild(el)
-        this.fadeIn(el)
-      }
-      fadeIn (el) {
-        window.dispatchEvent(new CustomEvent('fade-in', { detail: el }))
-      }
+  class Badges {
+    constructor () {
+      this.el = document.querySelector('.badges')
+      this.setupListeners()
     }
-    // eslint-disable-next-line no-new
-    new Badges()
+    async emit (eventName, eventData) {
+      console.log(`%c${eventName}`, 'color: blue', eventData)
+      window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
+    }
+    setupListeners () {
+      window.addEventListener('add-badge', (event) => this.addBadge(event.detail))
+      window.addEventListener('remove-badge', (event) => this.removeBadge(event.detail))
+    }
+    addBadge (data = { type: 'default', content: '🤔' }) {
+      const badgeEl = document.createElement('span')
+      badgeEl.classList.add('badge', 'hide', data.type)
+      badgeEl.innerHTML = data.content
+      badgeEl.onclick = () => this.emit('skip-task')
+      this.el.appendChild(badgeEl)
+      this.fadeIn(badgeEl)
+    }
+    removeBadge (data = { type: 'default' }) {
+      const badgeEl = this.el.querySelector('.badge.' + data.type)
+      if (!badgeEl) {
+        return console.log('cannot remove badge, no element found')
+      }
+      badgeEl.remove()
+    }
+    fadeIn (el) {
+      window.dispatchEvent(new CustomEvent('fade-in', { detail: el }))
+    }
+  }
+  // eslint-disable-next-line no-new
+  new Badges()
 </script>
 
 <style>
-.badges {
-  align-content: flex-start;
-  flex-wrap: wrap;
-  height: 100%;
-  justify-content: center;
-  overflow: hidden;
-  padding: 1.9rem 3.8rem;
-  pointer-events: none;
-  position: absolute;
-  z-index: var(--elevation-ant, 10);
-}
-.badge {
-  margin-right: 1rem;
-}
+  .badges {
+    align-content: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow: hidden;
+    padding: 1.9rem 3.8rem;
+    position: absolute;
+    z-index: var(--elevation-ant, 10);
+  }
+
+  .badge {
+    margin-right: 1rem;
+  }
 </style>
