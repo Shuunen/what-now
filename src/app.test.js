@@ -97,12 +97,20 @@ describe('App', () => {
         cy.get('.toast.info').should('be.visible').contains('5 tasks found')
       })
     })
+    it('has one task-done badge displayed because one task has been already completed', () => {
+      cy.get('.badge.task-done').should('be.visible')
+    })
     it('show task', () => {
       cy.get('.task--title').as('task-title').should('not.be.visible')
       cy.get('@button-done').as('button').should('not.be.visible')
       cy.get('@button-get').click()
       // because of the important sort & completion dates previously set, 'Faire une lessive' should be the one to be suggested
       cy.get('@task-title').should('be.visible').contains('Faire une lessive')
+    })
+    it('can skip the displayed task because a badge is available', () => {
+      cy.get('.badge.task-done').as('badge').click()
+      cy.get('.task--title').should('be.visible').contains('Trier les mails')
+      cy.get('@badge').should('not.be.visible')
     })
     it('mark task as done', () => {
       cy.get('@button-done').should('be.visible')
@@ -111,6 +119,10 @@ describe('App', () => {
       cy.get('.toast.success').should('be.visible').contains('well done')
       cy.get('.toast.error').should('be.visible').contains('cannot update task without api')
       cy.get('.toast.error').click()
+    })
+    it('cannot skip non displayed task even if a badge is available', () => {
+      cy.get('.badge.task-done').as('badge').should('be.visible').click()
+      cy.get('@badge').should('be.visible')
     })
     it('mark all tasks as done', () => {
       for (let i = 0; i < 3; i++) {
@@ -155,27 +167,27 @@ describe('App', () => {
     })
     it('can display badges on demand', () => {
       for (let emoji of '🌌✨💖') {
-        cy.window().then(w => w.dispatchEvent(new CustomEvent('add-badge', { detail: emoji })))
+        cy.window().then(w => w.dispatchEvent(new CustomEvent('add-badge', { detail: { type: 'test', content: emoji } })))
         cy.get('.badge').should('be.visible').contains(emoji)
       }
     })
-    it('should display star badge on task complete', () => {
+    it('should display task-done badge on task complete', () => {
       cy.visit('/')
       cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: { records: [taskDone, taskTodo] } })))
-      cy.get('.badge').should('be.visible').contains('⭐')
+      cy.get('.badge.task-done').should('be.visible')
     })
     it('should display n stars & 1 medal badge when all tasks complete', () => {
       cy.visit('/')
       cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: { records: [taskDone, taskDone, taskDone] } })))
-      cy.get('.badge').should('be.visible').should('have.length', 4) // 3 ⭐ & 1 🎖️
-      cy.get('.badge').should('be.visible').contains('🎖️')
+      cy.get('.badge').should('be.visible').should('have.length', 4) // 3 .task-done ⭐ & 1 .tasks-done 🎖️
+      cy.get('.badge.tasks-done').should('be.visible')
     })
     it('should handle master badgerz or haxx0rz', () => {
       cy.visit('/')
       cy.get('.badge').should('have.length', 0)
       const emojis = '😎🤓💻🖖⚗🤯'.repeat(30) // 6 emojis * 30 = 180
       for (let emoji of emojis) {
-        cy.window().then(w => w.dispatchEvent(new CustomEvent('add-badge', { detail: emoji })))
+        cy.window().then(w => w.dispatchEvent(new CustomEvent('add-badge', { detail: { type: 'test', content: emoji } })))
         cy.wait(1)
       }
       cy.get('.badge').should('have.length', 180)
