@@ -67,23 +67,28 @@
     get taskViewDisplayed () {
       return !this.taskEl.classList.contains('hidden')
     }
+    get activeTask () {
+      return this.tasks[this.index]
+    }
     constructor () {
-      this.tasksTitle = document.querySelector('.tasks--title')
-      this.taskEl = document.querySelector('.tasks .task')
-      this.taskTitle = this.taskEl.querySelector('.task--title')
-      this.tasks = []
-      this.activeTask = null
+      this.setupElements()
       this.setupListeners()
     }
     async emit (eventName, eventData) {
       console.log(`%c${eventName}`, 'color: blue', eventData)
       window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
     }
+    setupElements () {
+      this.tasksTitle = document.querySelector('.tasks--title')
+      this.taskEl = document.querySelector('.tasks .task')
+      this.taskTitle = this.taskEl.querySelector('.task--title')
+    }
     setupListeners () {
       window.addEventListener('tasks-loaded', event => this.onTasksLoaded(event.detail))
       window.addEventListener('skip-task', event => this.onSkipTask())
     }
     onTasksLoaded (tasks) {
+      this.index = 0
       this.tasks = tasks.sort(this.byImportant).map(data => new Task(data))
       this.showToast(this.tasks.length ? 'info' : 'error', (this.tasks.length || 'no') + ' tasks found')
       this.showMainView()
@@ -94,14 +99,10 @@
       if (!this.taskViewDisplayed || !this.activeTask) {
         return console.log('cannot skip task if none displayed')
       }
-      console.log('skipping active task :', this.activeTask)
-      const nextTask = this.tasks.find(task => task.id !== this.activeTask.id)
-      if (!nextTask) {
+      if (this.tasks.length === 1) {
         return console.log('cannot skip the only task')
       }
-      this.activeTask = nextTask
-      console.log('new active task :', this.activeTask)
-      this.taskTitle.textContent = this.activeTask.name
+      this.setupNextTask()
       this.emit('task-skipped')
     }
     byImportant (a, b) {
@@ -118,8 +119,10 @@
     checkTasks () {
       const hadActiveTasks = this.tasks.length > 0
       this.tasks = this.tasks.filter(task => task.active)
-      this.activeTask = this.tasks[0]
       const hasActiveTasks = this.tasks.length > 0
+      if (hasActiveTasks && this.activeTask === undefined) {
+        this.index = 0
+      }
       if (hadActiveTasks && !hasActiveTasks) {
         this.showSuccessView()
       }
@@ -143,6 +146,15 @@
       this.activeTask.complete()
       this.switchView()
       this.checkTasks()
+    }
+    setupNextTask () {
+      // console.log('active task :', this.activeTask.name, 'at index', this.index)
+      const nextTask = this.tasks[++this.index]
+      if (!nextTask) {
+        this.index = this.tasks.findIndex(task => task.id !== this.activeTask.id)
+      }
+      this.taskTitle.textContent = this.activeTask.name
+      // console.log('new active task :', this.activeTask.name, 'at index', this.index)
     }
     showMainView () {
       this.tasksTitle.innerHTML = 'What <em>now</em> ?'
