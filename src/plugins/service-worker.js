@@ -23,7 +23,7 @@ const sendReminder = () => navigator.serviceWorker.ready.then(registration => {
 
 const sendReminders = () => {
   sendReminder()
-  setInterval(sendReminder, 30 * 60 * 60)
+  setInterval(sendReminder, 30 * 60 * 1000)
 }
 
 const registerServiceWorker = async () => {
