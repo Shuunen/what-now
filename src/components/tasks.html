@@ -155,7 +155,7 @@
       this.tasksTitle.innerHTML = '<p>You did everything for today.</p><em>GG</em> 🎖️'
       this.tasksTitle.classList.add('success')
       this.showToast('info', '🎉🍾🥂🎉')
-      this.emit('tasks-done', { })
+      this.emit('tasks-done', {})
     }
   }
   // eslint-disable-next-line no-new
@@ -164,17 +164,19 @@
 
 <style>
   .tasks {
-    background-image: linear-gradient(var(--color-white, whitesmoke) 60%, var(--color-grey, grey) 170%);
     color: var(--color-primary, steelblue);
-    height: 100%;
-    justify-content: center;
-    padding-bottom: 2rem;
+    position: absolute;
+    top: 42vh;
     width: 100%;
+    z-index: var(--elevation-child, 30);
   }
 
   .tasks--title {
-    background-image: radial-gradient(white 20%, var(--color-white, whitesmoke) 70%);
-    padding: 1rem;
+    margin: 0;
+  }
+
+  .tasks--title p {
+    margin-top: 0;
   }
 
   .tasks--title.success {
@@ -184,10 +186,5 @@
   .tasks--title em {
     color: var(--color-black, #333333);
     font-style: normal;
-  }
-
-  .tasks--title,
-                                              .task {
-    z-index: var(--elevation-child, 30);
   }
 </style>
