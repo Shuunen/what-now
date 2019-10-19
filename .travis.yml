@@ -1,7 +1,21 @@
 language: node_js
 
-env: NODE_ENV=production
+node_js:
+  - 10.16
 
-install: npm install --production=false
+addons:
+  apt:
+    packages:
+    - libgconf-2-4
+
+cache:
+  # cache both npm modules and Cypress binary
+  directories:
+    - ~/.npm
+    - ~/.cache
+  # install dependencies and check that Cypress can run
+  override:
+    - npm ci
+    - npm run cy:verify
 
 script: npm run ci
