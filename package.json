@@ -7,21 +7,21 @@
   "dependencies": {
     "cross-var": "1.1.0",
     "cypress": "3.4.1",
-    "eslint": "6.1.0",
-    "eslint-config-standard": "12.0.0",
-    "eslint-plugin-cypress": "2.6.1",
+    "eslint": "6.5.1",
+    "eslint-config-standard": "14.1.0",
+    "eslint-plugin-cypress": "2.7.0",
     "eslint-plugin-html": "6.0.0",
     "eslint-plugin-import": "2.18.2",
-    "eslint-plugin-node": "9.1.0",
+    "eslint-plugin-node": "10.0.0",
     "eslint-plugin-promise": "4.2.1",
-    "eslint-plugin-standard": "4.0.0",
+    "eslint-plugin-standard": "4.0.1",
     "npm-run-all": "4.1.5",
-    "parcel-bundler": "1.12.3",
+    "parcel-bundler": "1.12.4",
     "parcel-plugin-purgecss": "2.1.2",
-    "parcel-plugin-static-files-copy": "2.2.0",
-    "posthtml-include": "1.2.0",
-    "rimraf": "2.6.3",
-    "serve": "11.1.0"
+    "parcel-plugin-static-files-copy": "2.2.1",
+    "posthtml-include": "1.3.0",
+    "rimraf": "3.0.0",
+    "serve": "11.2.0"
   },
   "description": "Minimalistic task coach",
   "files": [
@@ -36,7 +36,7 @@
   "license": "GPL-3.0",
   "name": "@shuunen/what-now",
   "optionalDependencies": {
-    "acorn": "6.2.1"
+    "acorn": "7.1.0"
   },
   "private": true,
   "repository": {
