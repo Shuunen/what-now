@@ -24,7 +24,9 @@
 // -- This is will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
+var pkg = require('../../package.json')
+
 Cypress.Commands.add('setLS', (key, value) => {
   console.log(`setting key "${key}" in LS with value :`, value)
-  window.localStorage.setItem('@shuunen/what-now_0.0.1_' + key, value)
+  window.localStorage.setItem(`@shuunen/what-now_${pkg.version}_${key}`, value)
 })

@@ -4,6 +4,7 @@
 *.log
 *.mp4
 *.tgz
+/cypress/screenshots
 dist
 node_modules
 sample.*
