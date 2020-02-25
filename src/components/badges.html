@@ -6,14 +6,17 @@
       this.el = document.querySelector('.badges')
       this.setupListeners()
     }
+
     async emit (eventName, eventData) {
       console.log(`%c${eventName}`, 'color: blue', eventData)
       window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
     }
+
     setupListeners () {
       window.addEventListener('add-badge', (event) => this.addBadge(event.detail))
       window.addEventListener('remove-badge', (event) => this.removeBadge(event.detail))
     }
+
     addBadge (data = { type: 'default', content: '🤔' }) {
       const badgeEl = document.createElement('span')
       badgeEl.classList.add('badge', 'hide', data.type)
@@ -22,6 +25,7 @@
       this.el.appendChild(badgeEl)
       this.fadeIn(badgeEl)
     }
+
     removeBadge (data = { type: 'default' }) {
       const badgeEl = this.el.querySelector('.badge.' + data.type)
       if (!badgeEl) {
@@ -29,6 +33,7 @@
       }
       badgeEl.remove()
     }
+
     fadeIn (el) {
       window.dispatchEvent(new CustomEvent('fade-in', { detail: el }))
     }

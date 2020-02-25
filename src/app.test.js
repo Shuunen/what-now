@@ -91,8 +91,8 @@ describe('App', () => {
       cy.fixture('get-tasks').then((json) => {
         // set the 2 first tasks completed on yesterday, with this format "2019-07-14"
         const yesterday = (d => new Date(d.setDate(d.getDate() - 1)))(new Date()).toISOString().split('T')[0]
-        json.records[0]['fields']['completed-on'] = yesterday
-        json.records[1]['fields']['completed-on'] = yesterday
+        json.records[0].fields['completed-on'] = yesterday
+        json.records[1].fields['completed-on'] = yesterday
         cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: json })))
         cy.get('.toast.info').should('be.visible').contains('5 tasks found')
       })
@@ -145,10 +145,10 @@ describe('App', () => {
       cy.visit('/')
       const today = new Date().toISOString().split('T')[0]
       const task = {
-        'id': 'some-id',
-        'fields': {
-          'name': 'Trier les mails',
-          'once': 'day',
+        id: 'some-id',
+        fields: {
+          name: 'Trier les mails',
+          once: 'day',
           'completed-on': today,
         },
       }
@@ -166,7 +166,7 @@ describe('App', () => {
       cy.get('.badges').should('be.visible')
     })
     it('can display badges on demand', () => {
-      for (let emoji of '🌌✨💖') {
+      for (const emoji of '🌌✨💖') {
         cy.window().then(w => w.dispatchEvent(new CustomEvent('add-badge', { detail: { type: 'test', content: emoji } })))
         cy.get('.badge').should('be.visible').contains(emoji)
       }
@@ -186,7 +186,7 @@ describe('App', () => {
       cy.visit('/')
       cy.get('.badge').should('have.length', 0)
       const emojis = '😎🤓💻🖖⚗🤯'.repeat(30) // 6 emojis * 30 = 180
-      for (let emoji of emojis) {
+      for (const emoji of emojis) {
         cy.window().then(w => w.dispatchEvent(new CustomEvent('add-badge', { detail: { type: 'test', content: emoji } })))
         cy.wait(1)
       }

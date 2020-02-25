@@ -1,3 +1,5 @@
+const rules = require('./.eslintrc.rules.js')
+
 module.exports = {
   env: {
     'cypress/globals': true,
@@ -7,13 +9,10 @@ module.exports = {
     'eslint:recommended',
     'standard',
   ],
-  rules: {
-    'no-console': 'off',
-    'func-names': ['error', 'always'],
-    'comma-dangle': ['error', 'always-multiline'],
-  },
+  rules,
   parserOptions: {
-    parser: 'babel-eslint',
+    ecmaVersion: 2018,
+    sourceType: 'module',
   },
   plugins: [
     'cypress',
