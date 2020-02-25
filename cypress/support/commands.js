@@ -24,9 +24,18 @@
 // -- This is will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
-var pkg = require('../../package.json')
+const getTasks = require('../fixtures/get-tasks.json')
 
 Cypress.Commands.add('setLS', (key, value) => {
   console.log(`setting key "${key}" in LS with value :`, value)
-  window.localStorage.setItem(`@shuunen/what-now_${pkg.version}_${key}`, value)
+  window.localStorage.setItem(key, value)
+})
+
+Cypress.on('window:before:load', win => {
+  win.fetch = (url, opts = { method: 'get' }) => {
+    let data = 'case not handled yet'
+    if (opts.method === 'get' && url.includes('/tasks')) data = getTasks
+    else console.log('fake fetch not handled yet :', url, opts)
+    return { json: () => data }
+  }
 })
