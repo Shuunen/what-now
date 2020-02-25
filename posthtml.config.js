@@ -1,7 +1,7 @@
 module.exports = {
-  'plugins': {
+  plugins: {
     'posthtml-include': {
-      'root': './src',
+      root: './src',
     },
   },
 }

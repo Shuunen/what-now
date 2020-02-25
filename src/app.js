@@ -11,12 +11,15 @@ class App {
     this.setupListeners()
     this.recoverApi()
   }
+
   async setLoading (active) {
     return this.loaderEl.classList.toggle('hidden', !active)
   }
+
   async sleep (ms) {
     return new Promise(resolve => setTimeout(resolve, (ms || 1000)))
   }
+
   setupListeners () {
     window.addEventListener('show-error', event => this.showError(event.detail))
     window.addEventListener('fade-in', event => this.fadeIn(event.detail))
@@ -30,10 +33,12 @@ class App {
     window.addEventListener('tasks-done', () => this.onTasksDone())
     window.addEventListener('tasks-loaded', () => (this.tasksLoaded = true))
   }
+
   async emit (eventName, eventData) {
     console.log(`%c${eventName}`, 'color: blue', eventData)
     window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
   }
+
   onApiSet (base, key) {
     return this.loadTasks(base, key)
       .then(() => {
@@ -45,6 +50,7 @@ class App {
         return storage.set('api-key', key)
       })
   }
+
   recoverApi () {
     this.sleep(10)
       .then(() => Promise.all([storage.get('api-base'), storage.get('api-key')]))
@@ -56,6 +62,7 @@ class App {
         }
       })
   }
+
   loadTasks (apiBase, apiKey) {
     return this.setLoading(true)
       .then(() => fetch(`https://api.airtable.com/v0/${apiBase}/tasks?api_key=${apiKey}&view=todo`))
@@ -66,6 +73,7 @@ class App {
       .catch(err => this.showError(err.message))
       .then(() => this.setLoading(false))
   }
+
   async fadeIn (el) {
     if (!el.classList.contains('hide')) {
       return console.warn('please add "hide" class before mounting dom element and then call fade-in')
@@ -74,20 +82,24 @@ class App {
     // eslint-disable-next-line require-atomic-updates
     el.style.opacity = 1
   }
+
   async fadeOut (el) {
     el.classList.add('hide')
     await this.sleep(350)
     el.classList.remove('hide')
     el.classList.add('hidden')
   }
+
   showError (message) {
     console.error('app show error :', message)
     this.emit('show-toast', { type: 'error', message })
   }
+
   showLog (message, data) {
     console.log('%c' + 'app show log :', 'font-weight: bold', message, data || '')
     return this.emit('show-toast', { type: 'info', message })
   }
+
   async parseApiResponse (data) {
     this.showLog('parsing api response...', data)
     if (!data.records) {
@@ -99,6 +111,7 @@ class App {
     }))
     this.emit('tasks-loaded', tasks)
   }
+
   parseTasks (json) {
     json = json.replace(/\w.*\[(\w+)\]/g, (m, m1) => m1.toLowerCase())
     try {
@@ -109,16 +122,18 @@ class App {
       return Promise.reject(new Error('api does not return the expected format'))
     }
   }
+
   patch (url, data) {
     return fetch(url, {
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
       },
       method: 'patch',
       body: JSON.stringify(data),
     })
   }
+
   onTaskUpdate (task) {
     if (this.apiBase === null || this.apiKey === null) {
       return this.showError('cannot update task without api')
@@ -132,12 +147,15 @@ class App {
       .catch(err => this.showError(err.message))
       .then(() => this.setLoading(false))
   }
+
   onTaskDone () {
     this.emit('add-badge', { type: 'task-done', content: '⭐' })
   }
+
   onTaskSkipped () {
     this.emit('remove-badge', { type: 'task-done' })
   }
+
   onTasksDone () {
     this.emit('add-badge', { type: 'tasks-done', content: '🎖️' })
   }

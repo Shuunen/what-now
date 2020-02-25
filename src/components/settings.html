@@ -35,6 +35,7 @@
     get isDisplayed () {
       return !this.settingsEl.classList.contains('hidden')
     }
+
     constructor () {
       this.settingsEl = document.querySelector('.settings')
       this.settingsTriggerEl = document.querySelector('.settings--trigger')
@@ -42,14 +43,17 @@
       this.settingApiKey = document.querySelector('.settings--modal input[name="airtable-api-key"]')
       this.setupListeners()
     }
+
     setupListeners () {
       window.addEventListener('api-set', event => this.preFillApi(event.detail.base, event.detail.key))
       window.addEventListener('action-required', event => this.settingsTriggerEl.classList.toggle('action-required', event.detail))
     }
+
     async emit (eventName, eventData) {
       console.log(`%c${eventName}`, 'color: blue', eventData)
       window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
     }
+
     toggleSettings () {
       if (this.isDisplayed) {
         this.fadeOut(this.settingsEl)
@@ -57,16 +61,19 @@
         this.settingsEl.classList.remove('hidden')
       }
     }
+
     preFillApi (base, key) {
       this.settingApiBase.value = base
       this.settingApiKey.value = key
     }
+
     validateSettings () {
       if (this.settingApiBase.checkValidity() && this.settingApiKey.checkValidity()) {
         this.emit('api-set', { base: this.settingApiBase.value, key: this.settingApiKey.value })
         this.toggleSettings()
       }
     }
+
     fadeOut (el) {
       this.emit('fade-out', el)
     }

@@ -48,7 +48,7 @@
     "check": "npx repo-check",
     "ci": "npm run test",
     "dev": "run-p watch test:open",
-    "lint": "eslint --fix {src/**,cypress/**,.}/*.{js,html} --no-ignore .eslintrc.js",
+    "lint": "eslint --fix --ignore-path .gitignore --ext .js,.html .",
     "prebuild": "rimraf dist/*",
     "prestart": "npm run build",
     "serve": "cross-var serve dist --listen $npm_package_config_port --single",

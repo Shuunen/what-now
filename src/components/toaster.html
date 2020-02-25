@@ -6,12 +6,14 @@
       this.toasterEl = document.querySelector('.toaster')
       this.setupListeners()
     }
+
     setupListeners () {
       window.addEventListener('show-toast', (event) => {
         const { type, message, delay } = Object.assign({ type: 'error', message: 'no message provided', delay: 3000 }, event.detail)
         this.showToast(type, message, delay)
       })
     }
+
     showToast (type, message, delay) {
       const toastEl = document.createElement('p')
       toastEl.classList.add('toast', type)
@@ -29,6 +31,7 @@
       }
       setTimeout(() => this.fadeOut(toastEl), delay)
     }
+
     fadeOut (el) {
       window.dispatchEvent(new CustomEvent('fade-out', { detail: el }))
     }
