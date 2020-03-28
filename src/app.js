@@ -35,7 +35,7 @@ class App {
   }
 
   async emit (eventName, eventData) {
-    console.log(`%c${eventName}`, 'color: blue', eventData)
+    console.log(eventName, eventData)
     window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
   }
 
@@ -96,7 +96,7 @@ class App {
   }
 
   showLog (message, data) {
-    console.log('%c' + 'app show log :', 'font-weight: bold', message, data || '')
+    console.log('app show log :', message, data || '')
     return this.emit('show-toast', { type: 'info', message })
   }
 

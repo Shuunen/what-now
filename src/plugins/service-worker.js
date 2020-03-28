@@ -10,7 +10,7 @@ const check = async () => {
 }
 
 const emit = (eventName, eventData) => {
-  console.log(`%c${eventName}`, 'color: blue', eventData)
+  console.log(eventName, eventData)
   window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
 }
 
