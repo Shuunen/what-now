@@ -1,6 +1,6 @@
 [data-progress] {
   background-repeat: no-repeat;
-  background-size: 10rem;
+  background-size: 30vh;
   transition: background-image .3s, background-color .3s, border-bottom-color .5s;
   border-bottom: 1rem solid;
   background-position-y: 95%;

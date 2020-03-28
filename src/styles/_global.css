@@ -58,13 +58,17 @@ h1, h2, h3 {
   font-size: 2.6rem;
   font-weight: normal;
   margin: -3rem 0 1.6rem 0;
-  background-color: var(--color-white-shade, rgba(255, 255, 255, 0.7));
+  background-color: var(--color-white, whitesmoke);
   padding: 1rem;
 }
 
 h1, h2, h3, a, p, .ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+p, em {
+  font-size: 5vh;
 }
 
 button, input, textarea {
