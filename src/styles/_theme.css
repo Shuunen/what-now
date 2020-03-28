@@ -1,13 +1,14 @@
 .what-now {
   --color-primary: #0c7ade;
   --color-white: whitesmoke;
+  --color-white-shade: rgba(255, 255, 255, 0.7);
   --color-black: #333;
   --color-grey: #666;
   --color-grey-light: #ebebeb;
   --color-shade: rgba(0, 0, 0, .4);
   --color-success: green;
   --color-error: red;
-  --color-error-light: rgba(250,0,0,.1);
+  --color-error-light: rgba(250, 0, 0, .1);
   --elevation-t-rex: 200;
   --elevation-giraffe: 100;
   --elevation-bear: 50;

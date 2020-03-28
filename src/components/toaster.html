@@ -9,7 +9,7 @@
 
     setupListeners () {
       window.addEventListener('show-toast', (event) => {
-        const { type, message, delay } = Object.assign({ type: 'error', message: 'no message provided', delay: 3000 }, event.detail)
+        const { type, message, delay } = Object.assign({ type: 'error', message: 'no message provided', delay: 4000 }, event.detail)
         this.showToast(type, message, delay)
       })
     }
@@ -49,7 +49,9 @@
   }
 
   .toast {
-    margin: .5rem 0;
+    margin: 0.1rem auto;
+    background-color: var(--color-white-shade, rgba(255,255,255,0.7));
+    padding: 0.1rem 0.5rem;
   }
 
   .toast.error {
