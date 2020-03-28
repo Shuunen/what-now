@@ -11,7 +11,9 @@ class Game {
   get progression () {
     if (this.level === 0) return 0
     // * 10) * 10 gives a round to 10's, ex: 47 => 50 & 51 => 50 too
-    return Math.min(Math.round(this._level / this.maxLevel * 10) * 10, 100)
+    const p = Math.min(Math.round(this._level / this.maxLevel * 10) * 10, 100)
+    console.log(`level ${this._level}/${this.maxLevel}, progression ${p}%`)
+    return p
   }
 
   constructor () {

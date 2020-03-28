@@ -110,8 +110,8 @@ class App {
       id: task.id,
       ...task.fields,
     }))
-    this.emit('tasks-loaded', tasks)
     this.emit('level-max', tasks.length)
+    this.emit('tasks-loaded', tasks)
   }
 
   patch (url, data) {
