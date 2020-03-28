@@ -4,13 +4,14 @@ class Game {
   }
 
   set level (newLevel = 0) {
-    this._level = Math.min(newLevel, this.maxLevel)
+    this._level = Math.max(Math.min(newLevel, this.maxLevel), 0)
     this.dispatchProgression()
   }
 
   get progression () {
     if (this.level === 0) return 0
-    return Math.min(Math.round(this._level / this.maxLevel * 100), 100)
+    // * 10) * 10 gives a round to 10's, ex: 47 => 50 & 51 => 50 too
+    return Math.min(Math.round(this._level / this.maxLevel * 10) * 10, 100)
   }
 
   constructor () {
@@ -18,7 +19,7 @@ class Game {
     this._level = 0
     this.maxLevel = 10
     this.setupListeners()
-    this.setupDevListeners()
+    // this.setupDevListeners()
   }
 
   setupListeners () {
