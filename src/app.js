@@ -1,5 +1,6 @@
 import './plugins/cypress-reload'
 import './plugins/service-worker'
+import './plugins/game'
 import * as storage from './plugins/storage'
 
 class App {
@@ -110,17 +111,7 @@ class App {
       ...task.fields,
     }))
     this.emit('tasks-loaded', tasks)
-  }
-
-  parseTasks (json) {
-    json = json.replace(/\w.*\[(\w+)\]/g, (m, m1) => m1.toLowerCase())
-    try {
-      this.emit('tasks-loaded', JSON.parse(json))
-      return Promise.resolve('tasks-loaded')
-    } catch (err) {
-      console.error(err)
-      return Promise.reject(new Error('api does not return the expected format'))
-    }
+    this.emit('level-max', tasks.length)
   }
 
   patch (url, data) {
@@ -150,10 +141,12 @@ class App {
 
   onTaskDone () {
     this.emit('add-badge', { type: 'task-done', content: '⭐' })
+    this.emit('level-up')
   }
 
   onTaskSkipped () {
     this.emit('remove-badge', { type: 'task-done' })
+    this.emit('level-down')
   }
 
   onTasksDone () {
