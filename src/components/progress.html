@@ -1,0 +1,239 @@
+<div class="progress">
+  <i class="level"></i>
+</div>
+
+<script>
+  class Progress {
+    get level () {
+      return this._level
+    }
+
+    set level (newLevel = 0) {
+      this._level = Math.max(Math.min(newLevel, this.maxLevel), 0)
+      this.dispatchProgression()
+    }
+
+    get progression () {
+      if (this.level === 0) return 0
+      // * 10) * 10 gives a round to 10's, ex: 47 => 50 & 51 => 50 too
+      const p = Math.min(Math.round(this._level / this.maxLevel * 10) * 10, 100)
+      console.log(`level ${this._level}/${this.maxLevel}, progression ${p}%`)
+      return p
+    }
+
+    constructor () {
+      this.levelEl = document.querySelector('.level')
+      this._level = 0
+      this.maxLevel = 10
+      this.setupListeners()
+      // this.setupDevListeners()
+    }
+
+    setupListeners () {
+      window.addEventListener('level-max', event => this.setLevelMax(event.detail))
+      window.addEventListener('level-up', () => this.onLevelUp())
+      window.addEventListener('level-down', () => this.onLevelDown())
+    }
+
+    setupDevListeners () {
+      window.addEventListener('keyup', (event) => {
+        if (event.key === '+') return this.onLevelUp()
+        if (event.key === '-') return this.onLevelDown()
+      })
+    }
+
+    async emit (eventName, eventData) {
+      console.log(eventName, eventData)
+      window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
+    }
+
+    setLevelMax (newMaxLevel = 0) {
+      if (!newMaxLevel === 0) return console.error('missing level max value')
+      console.log('setting level max to', newMaxLevel)
+      this.maxLevel = newMaxLevel
+      this.dispatchProgression()
+    }
+
+    onLevelUp () {
+      console.log('onLevelUp')
+      this.level++
+    }
+
+    onLevelDown () {
+      console.log('onLevelDown')
+      this.level--
+    }
+
+    dispatchProgression () {
+      document.body.setAttribute('data-progress', this.progression)
+      this.levelEl.className = 'level-' + this.progression
+    }
+  }
+
+  window.progress = new Progress()
+</script>
+
+<style>
+  .progress {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    bottom: -2rem;
+  }
+
+  [data-progress] {
+    border-bottom: .7rem solid;
+  }
+
+  [data-progress="0"] {
+    background-image: linear-gradient(hsl(0, 60%, 80%) 60%, hsl(0, 60%, 50%) 170%);
+    border-color: hsl(0, 60%, 50%);
+  }
+
+  [data-progress="10"] {
+    background-image: linear-gradient(hsl(10, 60%, 80%) 60%, hsl(10, 60%, 50%) 170%);
+    border-color: hsl(10, 60%, 50%);
+  }
+
+  [data-progress="20"] {
+    background-image: linear-gradient(hsl(20, 60%, 80%) 60%, hsl(20, 60%, 50%) 170%);
+    border-color: hsl(20, 60%, 50%);
+  }
+
+  [data-progress="30"] {
+    background-image: linear-gradient(hsl(30, 60%, 80%) 60%, hsl(30, 60%, 50%) 170%);
+    border-color: hsl(30, 60%, 50%);
+  }
+
+  [data-progress="40"] {
+    background-image: linear-gradient(hsl(40, 60%, 80%) 60%, hsl(40, 60%, 50%) 170%);
+    border-color: hsl(40, 60%, 50%);
+  }
+
+  [data-progress="50"] {
+    background-image: linear-gradient(hsl(50, 60%, 80%) 60%, hsl(50, 60%, 50%) 170%);
+    border-color: hsl(50, 60%, 50%);
+  }
+
+  [data-progress="60"] {
+    background-image: linear-gradient(hsl(60, 60%, 80%) 60%, hsl(60, 60%, 50%) 170%);
+    border-color: hsl(60, 60%, 50%);
+  }
+
+  [data-progress="70"] {
+    background-image: linear-gradient(hsl(70, 60%, 80%) 60%, hsl(70, 60%, 50%) 170%);
+    border-color: hsl(70, 60%, 50%);
+  }
+
+  [data-progress="80"] {
+    background-image: linear-gradient(hsl(80, 60%, 80%) 60%, hsl(80, 60%, 50%) 170%);
+    border-color: hsl(80, 60%, 50%);
+  }
+
+  [data-progress="90"] {
+    background-image: linear-gradient(hsl(90, 60%, 80%) 60%, hsl(90, 60%, 50%) 170%);
+    border-color: hsl(90, 60%, 50%);
+  }
+
+  [data-progress="100"] {
+    background-image: linear-gradient(hsl(100, 60%, 80%) 60%, hsl(100, 60%, 50%) 170%);
+    border-color: hsl(100, 60%, 50%);
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  [class^="level"] {
+    background-image: url('/assets/levels/levels.png');
+    background-repeat: no-repeat;
+    background-position: 0 300px;
+    height: 300px;
+    display: block;
+    width: 300px;
+    overflow: hidden;
+    transform: translateY(0px);
+    will-change: transform;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .icon-afraid,
+  .level-10 {
+    background-position: 0 0;
+  }
+
+  .icon-amazed {
+    background-position: 0 -300px;
+  }
+
+  .icon-celebrate {
+    background-position: 0 -600px;
+  }
+
+  .icon-cool,
+  .level-60 {
+    background-position: 0 -900px;
+  }
+
+  .icon-crying,
+  .level-0 {
+    background-position: 0 -1200px;
+  }
+
+  .icon-do-it,
+  .level-30 {
+    background-position: 0 -1500px;
+  }
+
+  .icon-eat,
+  .level-80 {
+    background-position: 0 -1800px;
+  }
+
+  .icon-hail,
+  .level-100 {
+    background-position: 0 -2097px;
+  }
+
+  .icon-love,
+  .level-90 {
+    background-position: 0 -2397px;
+  }
+
+  .icon-ok,
+  .level-70 {
+    background-position: 0 -2697px;
+  }
+
+  .icon-pissed,
+  .level-20 {
+    background-position: 0 -2997px;
+  }
+
+  .icon-serious,
+  .level-40 {
+    background-position: 0 -3297px;
+  }
+
+  .icon-whatever {
+    background-position: 0 -3597px;
+  }
+
+  .icon-wonder {
+    background-position: 0 -3897px;
+  }
+
+  .icon-working,
+  .level-50 {
+    background-position: 0 -4197px;
+  }
+</style>
