@@ -1,6 +1,5 @@
 import './plugins/cypress-reload'
 import './plugins/service-worker'
-import './plugins/game'
 import * as storage from './plugins/storage'
 
 class App {
