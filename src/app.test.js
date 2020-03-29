@@ -179,8 +179,8 @@ describe('App', () => {
     it('should display n stars & 1 medal badge when all tasks complete', () => {
       cy.visit('/')
       cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: { records: [taskDone, taskDone, taskDone] } })))
-      cy.get('.badge').should('be.visible').should('have.length', 4) // 3 .task-done ⭐ & 1 .tasks-done 🎖️
-      cy.get('.badge.tasks-done').should('be.visible')
+      cy.get('.badge').should('have.length', 4) // 3 .task-done ⭐ & 1 .tasks-done 🎖️
+      cy.get('.badge.tasks-done').should('have.length', 1)
     })
     it('should handle master badgerz or haxx0rz', () => {
       cy.visit('/')

@@ -1,0 +1,8 @@
+Microsoft Windows 10 Emojis
+
+Vendor: Microsoft
+Version: Windows 10 - May 2019 Update
+Release Date: May 21, 2019
+Emojis: 3249
+
+All set here : https://emojipedia.org/microsoft/windows-10-may-2019-update/

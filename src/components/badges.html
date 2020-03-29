@@ -48,14 +48,32 @@
     flex-wrap: wrap;
     justify-content: center;
     overflow: hidden;
-    padding: 1vh 1vh;
-    font-size: 3.3vh;
+    padding: 1rem;
     position: absolute;
     width: 100%;
     z-index: var(--elevation-ant, 10);
   }
 
   .badge {
-    margin-right: 1vh;
+    height: 2.2rem;
+    width: 2.2rem;
+    margin-right: 0.4rem;
+    font-size: 2rem;
+    line-height: 1.1;
+  }
+
+  .badge.task-done,
+  .badge.tasks-done {
+    font-size: 0;
+    margin-left: 0.4rem;
+    background-size: contain;
+  }
+
+  .badge.task-done {
+    background-image: url("/assets/emojis/star.png");
+  }
+
+  .badge.tasks-done {
+    background-image: url("/assets/emojis/medal.png");
   }
 </style>
