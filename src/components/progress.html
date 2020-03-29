@@ -48,7 +48,7 @@
     }
 
     setLevelMax (newMaxLevel = 0) {
-      if (!newMaxLevel === 0) return console.error('missing level max value')
+      if (newMaxLevel === 0) return console.error('missing level max value')
       console.log('setting level max to', newMaxLevel)
       this.maxLevel = newMaxLevel
       this.dispatchProgression()
