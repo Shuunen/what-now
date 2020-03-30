@@ -33,6 +33,7 @@
       window.addEventListener('level-max', event => this.setLevelMax(event.detail))
       window.addEventListener('level-up', () => this.onLevelUp())
       window.addEventListener('level-down', () => this.onLevelDown())
+      document.querySelector('.progress').addEventListener('dblclick', () => document.location.reload())
     }
 
     setupDevListeners () {
@@ -82,63 +83,123 @@
     bottom: -2rem;
   }
 
-  [data-progress] {
-    border-bottom: .7rem solid;
+  .progress::before {
+    content: '';
+    display: block;
+    width: 100%;
+    position: absolute;
+    height: 1rem;
+    bottom: 1.9rem;
+    background-repeat: no-repeat;
+    background-position: bottom;
   }
 
   [data-progress="0"] {
     background-image: linear-gradient(hsl(0, 60%, 80%) 60%, hsl(0, 60%, 50%) 170%);
-    border-color: hsl(0, 60%, 50%);
+  }
+
+  [data-progress="0"] .progress::before {
+    background-image: url('/assets/levels-bg/zombies.svg');
+    height: 100%;
+    background-size: 34rem;
   }
 
   [data-progress="10"] {
     background-image: linear-gradient(hsl(10, 60%, 80%) 60%, hsl(10, 60%, 50%) 170%);
-    border-color: hsl(10, 60%, 50%);
+  }
+
+  [data-progress="10"] .progress::before {
+    background-color: hsl(10, 60%, 50%);
   }
 
   [data-progress="20"] {
     background-image: linear-gradient(hsl(20, 60%, 80%) 60%, hsl(20, 60%, 50%) 170%);
-    border-color: hsl(20, 60%, 50%);
+  }
+
+  [data-progress="20"] .progress::before {
+    background-color: hsl(20, 60%, 50%);
   }
 
   [data-progress="30"] {
     background-image: linear-gradient(hsl(30, 60%, 80%) 60%, hsl(30, 60%, 50%) 170%);
-    border-color: hsl(30, 60%, 50%);
+  }
+
+  [data-progress="30"] .progress::before {
+    background-color: hsl(30, 60%, 50%);
   }
 
   [data-progress="40"] {
     background-image: linear-gradient(hsl(40, 60%, 80%) 60%, hsl(40, 60%, 50%) 170%);
-    border-color: hsl(40, 60%, 50%);
+  }
+
+  [data-progress="40"] .progress::before {
+    background-color: hsl(40, 60%, 50%);
   }
 
   [data-progress="50"] {
     background-image: linear-gradient(hsl(50, 60%, 80%) 60%, hsl(50, 60%, 50%) 170%);
-    border-color: hsl(50, 60%, 50%);
+  }
+
+  [data-progress="50"] .progress::before {
+    background-color: hsl(50, 60%, 50%);
   }
 
   [data-progress="60"] {
     background-image: linear-gradient(hsl(60, 60%, 80%) 60%, hsl(60, 60%, 50%) 170%);
-    border-color: hsl(60, 60%, 50%);
+  }
+
+  [data-progress="60"] .progress::before {
+    background-color: hsl(60, 60%, 50%);
   }
 
   [data-progress="70"] {
     background-image: linear-gradient(hsl(70, 60%, 80%) 60%, hsl(70, 60%, 50%) 170%);
-    border-color: hsl(70, 60%, 50%);
+  }
+
+  [data-progress="70"] .progress::before {
+    background-color: hsl(70, 60%, 50%);
   }
 
   [data-progress="80"] {
     background-image: linear-gradient(hsl(80, 60%, 80%) 60%, hsl(80, 60%, 50%) 170%);
-    border-color: hsl(80, 60%, 50%);
+  }
+
+  [data-progress="80"] .progress::before {
+    background-color: hsl(80, 60%, 50%);
   }
 
   [data-progress="90"] {
     background-image: linear-gradient(hsl(90, 60%, 80%) 60%, hsl(90, 60%, 50%) 170%);
-    border-color: hsl(90, 60%, 50%);
+  }
+
+  [data-progress="90"] .progress::before {
+    background-color: hsl(90, 60%, 50%);
   }
 
   [data-progress="100"] {
     background-image: linear-gradient(hsl(100, 60%, 80%) 60%, hsl(100, 60%, 50%) 170%);
-    border-color: hsl(100, 60%, 50%);
+  }
+
+  [data-progress="100"] .progress {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    padding-top: 10rem;
+    background-color: #edf3fa;
+  }
+
+  [data-progress="100"] .badges {
+    display: none;
+  }
+
+  [data-progress="100"] .progress::before {
+    background-image: url('/assets/levels-bg/heaven.svg');
+    background-size: contain;
+    height: 100%;
+    background-position: top;
   }
 
   @keyframes float {
