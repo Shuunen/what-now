@@ -67,10 +67,6 @@
   }
 
   class Tasks {
-    get mainViewDisplayed () {
-      return this.taskEl.classList.contains('hidden')
-    }
-
     get taskViewDisplayed () {
       return !this.taskEl.classList.contains('hidden')
     }
@@ -98,6 +94,13 @@
     setupListeners () {
       window.addEventListener('tasks-loaded', event => this.onTasksLoaded(event.detail))
       window.addEventListener('skip-task', event => this.onSkipTask())
+      window.addEventListener('keyup', (event) => {
+        if (event.code === 'Space') {
+          if (this.taskViewDisplayed) return this.doneTask()
+          return this.showTask()
+        }
+        if (event.code.includes('Arrow')) return this.onSkipTask()
+      })
     }
 
     onTasksLoaded (tasks) {
@@ -209,7 +212,8 @@
     z-index: var(--elevation-child, 30);
   }
 
-  .tasks--title, .task--title {
+  .tasks--title,
+  .task--title {
     box-shadow: 0 0 2rem -.8rem var(--color-black, #333333);
   }
 
