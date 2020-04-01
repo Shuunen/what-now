@@ -18,7 +18,7 @@ describe('App', () => {
       cy.window().then(w => w.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', message } })))
       cy.get('.toast.error').should('be.visible').contains(message)
     })
-    })
+  })
   describe('Settings', () => {
     beforeEach(() => {
       cy.visit('/')
@@ -181,6 +181,39 @@ describe('App', () => {
         cy.wait(1)
       }
       cy.get('.badge').should('have.length', 180)
+    })
+  })
+  describe('Progress', () => {
+    before(() => {
+      cy.visit('/')
+    })
+    it('has no progression by default', () => {
+      cy.get('.what-now').should('be.visible')
+      cy.get('[class^="level-"]').should('have.length', 0)
+    })
+    it('load 5 tasks from json', () => {
+      cy.fixture('get-tasks').then((json) => {
+        cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: json })))
+        cy.get('.toast.info').should('be.visible').contains('5 tasks found')
+      })
+    })
+    it('has default progress', () => {
+      cy.get('.what-now[data-progress="40"]').should('be.visible')
+      cy.get('.progress .level-40').should('be.visible')
+    })
+    it('gain levels via completing tasks', () => {
+      cy.get('.task--get').click()
+      cy.get('.task--mark-as-done').click()
+      cy.get('.what-now[data-progress="60"]').should('be.visible')
+      cy.get('.progress .level-60').should('be.visible')
+    })
+    it('complete all levels', () => {
+      cy.get('.task--get').click()
+      cy.get('.task--mark-as-done').click()
+      cy.get('.task--get').click()
+      cy.get('.task--mark-as-done').click()
+      cy.get('.what-now[data-progress="100"]').should('be.visible')
+      cy.get('.progress .level-100').should('be.visible')
     })
   })
 })
