@@ -20,6 +20,6 @@
 - [Shields.io](https://shields.io) : nice looking badges to be proud of
 - [Travis-ci.org](https://travis-ci.org) : for providing free continuous deployments
 
-
 ## License
+
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FShuunen%2Fwhat-now.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FShuunen%2Fwhat-now?ref=badge_large)
