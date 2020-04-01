@@ -18,14 +18,10 @@ describe('App', () => {
       cy.window().then(w => w.dispatchEvent(new CustomEvent('show-toast', { detail: { type: 'error', message } })))
       cy.get('.toast.error').should('be.visible').contains(message)
     })
-    it('dismiss error toast', () => {
-      cy.get('.toast.error').as('toast').should('be.visible')
-      cy.get('@toast').click()
-      cy.get('@toast').should('not.be.visible')
     })
-  })
   describe('Settings', () => {
     beforeEach(() => {
+      cy.visit('/')
       cy.get('.settings--trigger').as('trigger')
       cy.get('.settings--modal').as('modal')
       cy.get('.settings--close').as('close')
@@ -36,12 +32,9 @@ describe('App', () => {
     it('has a button to open modal', () => {
       cy.get('@trigger').should('be.visible')
     })
-    it('open modal', () => {
+    it('open & close modal', () => {
       cy.get('@modal').should('not.be.visible')
       cy.get('@trigger').click()
-      cy.get('@modal').should('be.visible')
-    })
-    it('close modal', () => {
       cy.get('@modal').should('be.visible')
       cy.get('@close').click()
       cy.get('@modal').should('not.be.visible')
@@ -56,13 +49,10 @@ describe('App', () => {
       cy.setLS('api-base', AIRTABLE_API_BASE_SAMPLE)
       cy.setLS('api-key', AIRTABLE_API_KEY_SAMPLE)
       cy.visit('/')
-      cy.get('@trigger').click()
-      cy.get('@modal').should('be.visible')
       cy.get('@input-base').should('have.value', AIRTABLE_API_BASE_SAMPLE)
       cy.get('@input-key').should('have.value', AIRTABLE_API_KEY_SAMPLE)
     })
     it('cannot submit invalid form', () => {
-      cy.visit('/')
       cy.get('@trigger').click()
       cy.get('@modal').should('be.visible')
       cy.get('@input-base').clear().type('abc')
@@ -75,19 +65,19 @@ describe('App', () => {
       cy.get('@modal').should('be.visible')
     })
     it('can submit valid form', () => {
-      cy.get('@input-base').clear().type(AIRTABLE_API_BASE_SAMPLE)
-      cy.get('@input-key').clear().type(AIRTABLE_API_KEY_SAMPLE)
+      cy.get('@trigger').click()
+      cy.get('@modal').should('be.visible')
+      cy.get('@input-base').type(AIRTABLE_API_BASE_SAMPLE)
+      cy.get('@input-key').type(AIRTABLE_API_KEY_SAMPLE)
       cy.get('@save').click()
       cy.get('@modal').should('not.be.visible')
     })
   })
   describe('Tasks', () => {
-    beforeEach(() => {
-      cy.get('.task--get').as('button-get')
-      cy.get('.task--mark-as-done').as('button-done')
+    before(() => {
+      cy.visit('/')
     })
     it('load 5 tasks from json', () => {
-      cy.visit('/')
       cy.fixture('get-tasks').then((json) => {
         // set the 2 first tasks completed on yesterday, with this format "2019-07-14"
         const yesterday = (d => new Date(d.setDate(d.getDate() - 1)))(new Date()).toISOString().split('T')[0]
@@ -101,34 +91,34 @@ describe('App', () => {
       cy.get('.badge.task-done').should('be.visible')
     })
     it('show task', () => {
-      cy.get('.task--title').as('task-title').should('not.be.visible')
-      cy.get('@button-done').as('button').should('not.be.visible')
-      cy.get('@button-get').click()
+      cy.get('.task--title').should('not.be.visible')
+      cy.get('.task--mark-as-done').should('not.be.visible')
+      cy.get('.task--get').click()
       // because of the important sort & completion dates previously set, 'Faire une lessive' should be the one to be suggested
-      cy.get('@task-title').should('be.visible').contains('Faire une lessive')
+      cy.get('.task--title').should('be.visible').contains('Faire une lessive')
     })
     it('can skip the displayed task because a badge is available', () => {
-      cy.get('.badge.task-done').as('badge').click()
+      cy.get('.badge.task-done').click()
       cy.get('.task--title').should('be.visible').contains('Trier les mails')
-      cy.get('@badge').should('not.be.visible')
+      cy.get('.badge.task-done').should('not.be.visible')
     })
     it('mark task as done', () => {
-      cy.get('@button-done').should('be.visible')
-      cy.get('@button-done').click()
-      cy.get('@button-done').should('not.be.visible')
+      cy.get('.task--mark-as-done').should('be.visible')
+      cy.get('.task--mark-as-done').click()
+      cy.get('.task--mark-as-done').should('not.be.visible')
       cy.get('.toast.success').should('be.visible').contains('well done')
       cy.get('.toast.error').should('be.visible').contains('cannot update task without api')
       cy.get('.toast.error').click()
     })
     it('cannot skip non displayed task even if a badge is available', () => {
-      cy.get('.badge.task-done').as('badge').should('be.visible').click()
-      cy.get('@badge').should('be.visible')
+      cy.get('.badge.task-done').should('be.visible').click()
+      cy.get('.badge.task-done').should('be.visible')
     })
     it('mark all tasks as done', () => {
       for (let i = 0; i < 3; i++) {
         cy.wait(300)
-        cy.get('@button-get').click()
-        cy.get('@button-done').click()
+        cy.get('.task--get').click()
+        cy.get('.task--mark-as-done').click()
         cy.wait(200)
         cy.get('.toast.error').click()
       }
