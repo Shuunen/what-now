@@ -16,14 +16,17 @@ const emit = (eventName, eventData) => {
 
 const triggerSync = async (registration, type) => registration.sync.register(type)
 
+const currentProgress = () => parseInt(document.body.getAttribute('data-progress') || 0)
+
 const sendReminder = () => navigator.serviceWorker.ready.then(registration => {
-  emit('show-toast', { type: 'info', message: 'sync reminder' })
+  if (currentProgress() === 100) return emit('show-toast', { type: 'info', message: 'no reminders in heaven' })
+  emit('show-toast', { type: 'info', message: 'trigger reminder' })
   triggerSync(registration, 'reminder')
 })
 
 const sendReminders = () => {
   sendReminder()
-  setInterval(sendReminder, 30 * 60 * 1000)
+  setInterval(sendReminder, 30 * 60 * 1000) // 30 minutes
 }
 
 const registerServiceWorker = async () => {
@@ -50,5 +53,5 @@ const handleServiceWorker = async () => {
 }
 
 handleServiceWorker()
-  .then(registration => console.log('service-worker has been registered'))
+  .then(() => console.log('service-worker has been registered'))
   .catch(err => console.error('failed to handle service worker', err))
