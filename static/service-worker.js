@@ -20,7 +20,7 @@ const showNotification = (title, icon = 'android-chrome-192x192.png', tag, perma
 
 const showReminder = async () => {
   if (await isCurrentClientFocused()) {
-    return console.log('avoid displaying reminders to an active client ^^')
+    return console.log('avoid displaying reminders to a client which already have what-now displayed (tab focus) ^^')
   }
   if (await getDisplayedReminder()) {
     return console.log('avoid displaying another reminder ^^')
