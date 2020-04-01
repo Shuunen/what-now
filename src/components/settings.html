@@ -1,15 +1,14 @@
-<div class="settings--trigger" onclick="settings.toggleSettings()">
-  <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-    class="feather feather-settings">
-    <circle cx="12" cy="12" r="3"></circle>
-    <path
-      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-    </path>
-  </svg>
-</div>
-
 <div class="settings backdrop hidden">
-  <div class="settings--modal col center">
+
+  <div class="settings--trigger hidden" onclick="settings.toggleSettings()">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="3" />
+      <path
+        d="M19 15a2 2 0 001 2h0a2 2 0 010 3 2 2 0 01-3 0h0a2 2 0 00-2-1 2 2 0 00-1 2v0a2 2 0 01-2 2 2 2 0 01-2-2v0a2 2 0 00-1-2 2 2 0 00-2 1h0a2 2 0 01-3 0 2 2 0 010-3h0a2 2 0 001-2 2 2 0 00-2-1h0a2 2 0 01-2-2 2 2 0 012-2h0a2 2 0 002-1 2 2 0 00-1-2h0a2 2 0 010-3 2 2 0 013 0h0a2 2 0 002 1h0a2 2 0 001-2v0a2 2 0 012-2 2 2 0 012 2v0a2 2 0 001 2 2 2 0 002-1h0a2 2 0 013 0 2 2 0 010 3h0a2 2 0 00-1 2v0a2 2 0 002 1h0a2 2 0 012 2 2 2 0 01-2 2h0a2 2 0 00-2 1z" />
+    </svg>
+  </div>
+
+  <div class="settings--modal hidden col center">
     <h2>Settings</h2>
     <label class="setting">
       <a href="//airtable.com/api" target="_blank">Airtable api base</a> :&nbsp;
@@ -28,25 +27,27 @@
       </div>
     </div>
   </div>
+
 </div>
 
 <script>
   class Settings {
-    get isDisplayed () {
-      return !this.settingsEl.classList.contains('hidden')
+    constructor () {
+      this.setupElements()
+      this.setupListeners()
     }
 
-    constructor () {
-      this.settingsEl = document.querySelector('.settings')
-      this.settingsTriggerEl = document.querySelector('.settings--trigger')
+    setupElements () {
+      this.backdropEl = document.querySelector('.settings')
+      this.triggerEl = document.querySelector('.settings--trigger')
+      this.modalEl = document.querySelector('.settings--modal')
       this.settingApiBase = document.querySelector('.settings--modal input[name="airtable-api-base"]')
       this.settingApiKey = document.querySelector('.settings--modal input[name="airtable-api-key"]')
-      this.setupListeners()
     }
 
     setupListeners () {
       window.addEventListener('api-set', event => this.preFillApi(event.detail.base, event.detail.key))
-      window.addEventListener('action-required', event => this.settingsTriggerEl.classList.toggle('action-required', event.detail))
+      window.addEventListener('action-required', event => this.onActionRequired(event.detail))
     }
 
     async emit (eventName, eventData) {
@@ -54,12 +55,14 @@
       window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
     }
 
+    onActionRequired (isRequired = false) {
+      this.triggerEl.classList.toggle('action-required', isRequired)
+      this.triggerEl.classList.toggle('hidden', !isRequired)
+      this.emit('fade-' + (isRequired ? 'in' : 'out'), this.backdropEl)
+    }
+
     toggleSettings () {
-      if (this.isDisplayed) {
-        this.fadeOut(this.settingsEl)
-      } else {
-        this.settingsEl.classList.remove('hidden')
-      }
+      this.modalEl.classList.toggle('hidden')
     }
 
     preFillApi (base, key) {
@@ -68,14 +71,10 @@
     }
 
     validateSettings () {
-      if (this.settingApiBase.checkValidity() && this.settingApiKey.checkValidity()) {
-        this.emit('api-set', { base: this.settingApiBase.value, key: this.settingApiKey.value })
-        this.toggleSettings()
-      }
-    }
-
-    fadeOut (el) {
-      this.emit('fade-out', el)
+      if (!this.settingApiBase.checkValidity() || !this.settingApiKey.checkValidity()) return console.error('settings invalid')
+      this.emit('api-set', { base: this.settingApiBase.value, key: this.settingApiKey.value })
+      this.toggleSettings()
+      this.emit('fade-out', this.backdropEl)
     }
   }
   window.settings = new Settings()
@@ -130,6 +129,7 @@
   }
 
   @keyframes bounce {
+
     from,
     20%,
     53%,
