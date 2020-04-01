@@ -26,7 +26,8 @@
   },
   "description": "Minimalistic task coach",
   "files": [
-    "src"
+    "src",
+    "static"
   ],
   "homepage": "https://github.com/Shuunen/what-now",
   "keywords": [
