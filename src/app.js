@@ -39,28 +39,19 @@ class App {
     window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
   }
 
-  onApiSet (base, key) {
-    return this.loadTasks(base, key)
-      .then(() => {
-        this.apiBase = base
-        return storage.set('api-base', base)
-      })
-      .then(() => {
-        this.apiKey = key
-        return storage.set('api-key', key)
-      })
+  async onApiSet (base, key) {
+    await this.loadTasks(base, key)
+    this.apiBase = await storage.set('api-base', base)
+    this.apiKey = await storage.set('api-key', key)
   }
 
-  recoverApi () {
-    this.sleep(10)
-      .then(() => Promise.all([storage.get('api-base'), storage.get('api-key')]))
-      .then(([base, key]) => this.emit('api-set', { base, key }))
-      .catch(() => {
-        if (!this.tasksLoaded) {
-          this.emit('show-toast', { type: 'info', message: 'please setup api in settings' })
-          this.emit('action-required', true)
-        }
-      })
+  async recoverApi () {
+    await this.sleep(10)
+    const base = await storage.get('api-base')
+    const key = await storage.get('api-key')
+    if (base && key) return this.emit('api-set', { base, key })
+    this.emit('show-toast', { type: 'info', message: 'please setup api in settings' })
+    this.emit('action-required', true)
   }
 
   loadTasks (apiBase, apiKey) {
