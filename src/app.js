@@ -75,11 +75,9 @@ class App {
   }
 
   async fadeIn (el) {
-    if (!el.classList.contains('hide')) {
-      return console.warn('please add "hide" class before mounting dom element and then call fade-in')
-    }
+    el.classList.remove('hidden')
+    el.classList.add('hide')
     await this.sleep(10)
-    // eslint-disable-next-line require-atomic-updates
     el.style.opacity = 1
   }
 
