@@ -11,6 +11,7 @@ class App {
     this.tasksLoaded = false
     this.setupListeners()
     this.recoverApi()
+    this.preventDeprecatedData()
   }
 
   async setLoading (active) {
@@ -148,6 +149,10 @@ class App {
     this.emit('send-reminder')
   }
 
+  preventDeprecatedData () {
+    const oneHour = 60 * 60 * 1000
+    setTimeout(() => document.location.reload(), oneHour)
+  }
 }
 // eslint-disable-next-line no-new
 new App()
