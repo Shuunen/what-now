@@ -171,14 +171,10 @@
       this.checkTasks()
     }
 
-    setupNextTask () {
-      // console.log('active task :', this.activeTask.name, 'at index', this.index)
-      const nextTask = this.tasks[++this.index]
-      if (!nextTask) {
-        this.index = this.tasks.findIndex(task => task.id !== this.activeTask.id)
-      }
+    setupNextTask (reverse) {
+      this.index += reverse ? -1 : 1
+      this.index = this.activeTask ? this.index : (reverse ? this.tasks.length - 1 : 0)
       this.taskTitle.textContent = this.activeTask.name
-      // console.log('new active task :', this.activeTask.name, 'at index', this.index)
     }
 
     showMainView () {
