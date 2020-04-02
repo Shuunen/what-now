@@ -1,5 +1,6 @@
 import './plugins/cypress-reload'
 import './plugins/service-worker'
+import './plugins/inactivity-detector'
 import * as storage from './plugins/storage'
 
 class App {
@@ -32,6 +33,7 @@ class App {
     window.addEventListener('task-skipped', () => this.onTaskSkipped())
     window.addEventListener('tasks-done', () => this.onTasksDone())
     window.addEventListener('tasks-loaded', () => (this.tasksLoaded = true))
+    window.addEventListener('user-inactivity', (event) => this.onUserInactivity(event.detail))
   }
 
   async emit (eventName, eventData) {
@@ -140,6 +142,12 @@ class App {
   onTasksDone () {
     this.emit('add-badge', { type: 'tasks-done', content: '🎖️' })
   }
+
+  onUserInactivity (totalMinutes = 0) {
+    if (totalMinutes !== 30 && totalMinutes !== 60) return
+    this.emit('send-reminder')
+  }
+
 }
 // eslint-disable-next-line no-new
 new App()
