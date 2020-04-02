@@ -99,7 +99,8 @@
           if (this.taskViewDisplayed) return this.doneTask()
           return this.showTask()
         }
-        if (event.code.includes('Arrow')) return this.onSkipTask()
+        if (event.code === 'ArrowLeft' || event.code === 'ArrowUp') return this.onSkipTask(true)
+        if (event.code === 'ArrowRight' || event.code === 'ArrowDown') return this.onSkipTask()
       })
     }
 
@@ -112,14 +113,14 @@
       this.emit('action-required', false)
     }
 
-    onSkipTask () {
+    onSkipTask (reverse = false) {
       if (!this.taskViewDisplayed || !this.activeTask) {
         return console.log('cannot skip task if none displayed')
       }
       if (this.tasks.length === 1) {
         return console.log('cannot skip the only task')
       }
-      this.setupNextTask()
+      this.setupNextTask(reverse)
       this.emit('task-skipped')
     }
 
