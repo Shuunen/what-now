@@ -31,7 +31,6 @@ class App {
     window.addEventListener('api-set', event => this.onApiSet(event.detail.base, event.detail.key))
     window.addEventListener('task-update', event => this.onTaskUpdate(event.detail))
     window.addEventListener('task-done', () => this.onTaskDone())
-    window.addEventListener('task-skipped', () => this.onTaskSkipped())
     window.addEventListener('tasks-done', () => this.onTasksDone())
     window.addEventListener('tasks-loaded', () => (this.tasksLoaded = true))
     window.addEventListener('user-inactivity', (event) => this.onUserInactivity(event.detail))
@@ -116,28 +115,18 @@ class App {
     })
   }
 
-  onTaskUpdate (task) {
+  async onTaskUpdate (task) {
     if (this.apiBase === null || this.apiKey === null) {
       return this.showError('cannot update task without api')
     }
     const url = `https://api.airtable.com/v0/${this.apiBase}/tasks/${task.id}?api_key=${this.apiKey}&view=todo`
     const data = { fields: { 'completed-on': task['completed-on'], done: task.done } }
-    return this.setLoading(true)
-      .then(() => this.patch(url, data))
-      .then(res => res.json())
-      .then(() => this.sleep(500))
-      .catch(err => this.showError(err.message))
-      .then(() => this.setLoading(false))
+    await this.patch(url, data).then(res => res.json()).catch(err => this.showError(err.message))
   }
 
   onTaskDone () {
     this.emit('add-badge', { type: 'task-done', content: '⭐' })
     this.emit('level-up')
-  }
-
-  onTaskSkipped () {
-    this.emit('remove-badge', { type: 'task-done' })
-    this.emit('level-down')
   }
 
   onTasksDone () {
