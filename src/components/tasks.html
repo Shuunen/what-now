@@ -85,17 +85,22 @@
       window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
     }
 
+    async sleep (ms) {
+      return new Promise(resolve => setTimeout(resolve, (ms || 1000)))
+    }
+
     setupElements () {
       this.tasksTitle = document.querySelector('.tasks--title')
       this.taskEl = document.querySelector('.tasks .task')
       this.taskTitle = this.taskEl.querySelector('.task--title')
+      this.doneButtonEl = this.taskEl.querySelector('.task--mark-as-done')
     }
 
     setupListeners () {
       window.addEventListener('tasks-loaded', event => this.onTasksLoaded(event.detail))
       window.addEventListener('skip-task', event => this.onSkipTask())
       window.addEventListener('keyup', (event) => {
-        if (event.code === 'Space') {
+        if (event.code === 'Space' || event.code === 'Enter') {
           if (this.taskViewDisplayed) return this.doneTask()
           return this.showTask()
         }
@@ -165,10 +170,15 @@
       this.tasksTitle.classList.toggle('hidden')
     }
 
-    doneTask () {
+    async doneTask () {
+      this.doneButtonEl.classList.toggle('hide')
+      this.taskTitle.style.animationName = 'bounceOutRight'
       this.showToast('success', 'well done')
       this.activeTask.complete()
+      await this.sleep(1000)
       this.switchView()
+      this.doneButtonEl.classList.toggle('hide')
+      this.taskTitle.style.animationName = ''
       this.checkTasks()
     }
 
@@ -222,6 +232,8 @@
   .task--title {
     font-size: 2rem;
     margin-bottom: 1rem;
+    animation-duration: 1s;
+    animation-fill-mode: both;
   }
 
   .tasks--title p {
@@ -236,5 +248,17 @@
   .tasks--title em {
     color: var(--color-primary, steelblue);
     font-style: normal;
+  }
+
+  @keyframes bounceOutRight {
+    20% {
+      opacity: 1;
+      transform: translate3d(-20px, 0, 0);
+    }
+
+    to {
+      opacity: 0;
+      transform: translate3d(2000px, 0, 0);
+    }
   }
 </style>
