@@ -100,7 +100,6 @@ describe('App', () => {
     it('can skip the displayed task because a badge is available', () => {
       cy.get('.badge.task-done').click()
       cy.get('.task--title').should('be.visible').contains('Trier les mails')
-      cy.get('.badge.task-done').should('not.be.visible')
     })
     it('mark task as done', () => {
       cy.get('.task--mark-as-done').should('be.visible')
@@ -110,17 +109,12 @@ describe('App', () => {
       cy.get('.toast.error').should('be.visible').contains('cannot update task without api')
       cy.get('.toast.error').click()
     })
-    it('cannot skip non displayed task even if a badge is available', () => {
-      cy.get('.badge.task-done').should('be.visible').click()
-      cy.get('.badge.task-done').should('be.visible')
-    })
     it('mark all tasks as done', () => {
       for (let i = 0; i < 3; i++) {
         cy.wait(300)
         cy.get('.task--get').click()
         cy.get('.task--mark-as-done').click()
         cy.wait(200)
-        cy.get('.toast.error').click()
       }
     })
     it('display everything done screen', () => {
