@@ -24,15 +24,11 @@ const sendReminder = () => navigator.serviceWorker.ready.then(registration => {
   triggerSync(registration, 'reminder')
 })
 
-const sendReminders = () => {
-  sendReminder()
-  setInterval(sendReminder, 30 * 60 * 1000) // 30 minutes
-}
+window.addEventListener('send-reminder', () => sendReminder())
 
 const registerServiceWorker = async () => {
   const file = 'service-worker.js'
   await navigator.serviceWorker.register(file)
-  sendReminders()
 }
 
 const requestNotificationPermission = async () => {
