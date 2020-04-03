@@ -3,7 +3,7 @@
   <div class="task col hidden">
     <h2 class="task--title"></h2>
     <div>
-      <button class="task--mark-as-done" onclick="tasks.doneTask()">Done</button>
+      <button class="task--mark-as-done" onclick="tasks.doneTask()">done.</button>
     </div>
   </div>
 </main>
@@ -196,6 +196,8 @@
 </script>
 
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Love+Ya+Like+A+Sister&display=swap');
+
   .tasks {
     color: var(--color-primary, steelblue);
     position: absolute;
@@ -205,6 +207,7 @@
     align-items: center;
     justify-content: center;
     z-index: var(--elevation-child, 30);
+    font-family: 'Love Ya Like A Sister', sans-serif;
   }
 
   .tasks--title,
@@ -214,11 +217,11 @@
 
   .tasks--title {
     color: var(--color-black, #333333);
-    font-size: 3rem;
+    font-size: 4rem;
   }
 
   .task--title {
-    font-size: 2rem;
+    font-size: 3rem;
     margin-bottom: 1rem;
     animation-duration: 1s;
     animation-fill-mode: both;
@@ -236,6 +239,10 @@
   .tasks--title em {
     color: var(--color-primary, steelblue);
     font-style: normal;
+  }
+
+  .task--mark-as-done {
+    font-size: 2rem;
   }
 
   @keyframes bounceOutRight {
