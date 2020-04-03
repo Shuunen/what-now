@@ -57,7 +57,7 @@ body {
 h1, h2, h3 {
   font-weight: normal;
   background-color: var(--color-white, whitesmoke);
-  padding: 0.8rem 1.4rem;
+  padding: 0.4rem 1.4rem;
 }
 
 h1, h2, h3, a, p, em, .ellipsis {
