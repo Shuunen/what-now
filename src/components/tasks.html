@@ -111,7 +111,7 @@
 
     onTasksLoaded (tasks) {
       this.index = 0
-      this.tasks = tasks.sort(this.byImportant).map(data => new Task(data))
+      this.tasks = tasks.map(data => new Task(data))
       this.showToast(this.tasks.length ? 'info' : 'error', (this.tasks.length || 'no') + ' tasks found')
       this.showMainView()
       this.checkTasks()
@@ -127,18 +127,6 @@
       }
       this.setupNextTask(reverse)
       this.emit('task-skipped')
-    }
-
-    byImportant (a, b) {
-      if (a.important && b.important) {
-        return 0
-      }
-      if (a.important && !b.important) {
-        return -1
-      }
-      if (!a.important && b.important) {
-        return 1
-      }
     }
 
     checkTasks () {

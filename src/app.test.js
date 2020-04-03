@@ -94,12 +94,11 @@ describe('App', () => {
       cy.get('.task--title').should('not.be.visible')
       cy.get('.task--mark-as-done').should('not.be.visible')
       cy.get('.task--get').click()
-      // because of the important sort & completion dates previously set, 'Faire une lessive' should be the one to be suggested
-      cy.get('.task--title').should('be.visible').contains('Faire une lessive')
+      cy.get('.task--title').should('be.visible').contains('Trier les mails')
     })
     it('can skip the displayed task because a badge is available', () => {
       cy.get('.badge.task-done').click()
-      cy.get('.task--title').should('be.visible').contains('Trier les mails')
+      cy.get('.task--title').should('be.visible').contains('Faire une lessive')
     })
     it('mark task as done', () => {
       cy.get('.task--mark-as-done').should('be.visible')
