@@ -1,9 +1,11 @@
-<div class="badges row"></div>
+<div class="badges row center">
+  <div class="container row center"></div>
+</div>
 
 <script>
   class Badges {
     constructor () {
-      this.el = document.querySelector('.badges')
+      this.el = document.querySelector('.badges .container')
       this.setupListeners()
     }
 
@@ -44,36 +46,22 @@
 
 <style>
   .badges {
-    align-content: flex-start;
-    flex-wrap: wrap;
-    justify-content: center;
-    overflow: hidden;
+    font-size: 4rem;
+    letter-spacing: .4rem;
+    line-height: 0.7;
     padding: 1rem;
     position: absolute;
     width: 100%;
     z-index: var(--elevation-ant, 10);
   }
 
-  .badge {
-    height: 2.2rem;
-    width: 2.2rem;
-    margin-right: 0.4rem;
-    font-size: 2rem;
-    line-height: 1.1;
+  .badges .container {
+    max-width: 50rem;
+    flex-wrap: wrap;
   }
 
-  .badge.task-done,
-  .badge.tasks-done {
-    font-size: 0;
-    margin-left: 0.4rem;
-    background-size: contain;
-  }
-
-  .badge.task-done {
-    background-image: url("/assets/emojis/star.png");
-  }
-
-  .badge.tasks-done {
-    background-image: url("/assets/emojis/medal.png");
+  .badge:nth-child(odd){
+    transform: rotate(5deg);
+    filter: invert(0.4);
   }
 </style>
