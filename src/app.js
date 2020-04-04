@@ -1,3 +1,4 @@
+import { type } from '@camwiegert/typical'
 import TinyGesture from 'tinygesture'
 import './plugins/cypress-reload'
 import './plugins/inactivity-detector'
@@ -154,6 +155,23 @@ class App {
   preventDeprecatedData () {
     const oneHour = 60 * 60 * 1000
     setTimeout(() => document.location.reload(), oneHour)
+  }
+
+  typeEffect (args) {
+    const el = args.shift()
+    el.textContent = '' // clear text content is quicker than animate the deletion of all chars
+    console.log('type args', args)
+    type(el, ...args).then(() => this.colorOneWord(el))
+  }
+
+  pickOne (arr) {
+    return arr[Math.floor(Math.random() * arr.length)]
+  }
+
+  colorOneWord (el) {
+    const words = el.textContent.split(' ')
+    const word = this.pickOne(words)
+    el.innerHTML = el.textContent.replace(word, `<em>${word}</em>`)
   }
 }
 // eslint-disable-next-line no-new
