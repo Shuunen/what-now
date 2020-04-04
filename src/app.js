@@ -1,14 +1,15 @@
+import TinyGesture from 'tinygesture'
 import './plugins/cypress-reload'
-import './plugins/service-worker'
 import './plugins/inactivity-detector'
+import './plugins/service-worker'
 import * as storage from './plugins/storage'
 
 class App {
   constructor () {
-    this.loaderEl = document.querySelector('.loader')
     this.apiBase = null
     this.apiKey = null
     this.tasksLoaded = false
+    this.setupElements()
     this.setupListeners()
     this.recoverApi()
     this.preventDeprecatedData()
@@ -22,18 +23,31 @@ class App {
     return new Promise(resolve => setTimeout(resolve, (ms || 1000)))
   }
 
+  setupElements () {
+    this.el = document.body
+    this.loaderEl = document.querySelector('.loader')
+  }
+
   setupListeners () {
-    window.addEventListener('show-error', event => this.showError(event.detail))
-    window.addEventListener('fade-in', event => this.fadeIn(event.detail))
-    window.addEventListener('fade-out', event => this.fadeOut(event.detail))
-    window.addEventListener('set-loading', event => this.setLoading(event.detail))
-    window.addEventListener('api-response', event => this.parseApiResponse(event.detail))
-    window.addEventListener('api-set', event => this.onApiSet(event.detail.base, event.detail.key))
-    window.addEventListener('task-update', event => this.onTaskUpdate(event.detail))
-    window.addEventListener('task-done', () => this.onTaskDone())
-    window.addEventListener('tasks-done', () => this.onTasksDone())
-    window.addEventListener('tasks-loaded', () => (this.tasksLoaded = true))
-    window.addEventListener('user-inactivity', (event) => this.onUserInactivity(event.detail))
+    this.on('show-error', this.showError)
+    this.on('fade-in', this.fadeIn)
+    this.on('fade-out', this.fadeOut)
+    this.on('set-loading', this.setLoading)
+    this.on('api-response', this.parseApiResponse)
+    this.on('api-set', this.onApiSet)
+    this.on('task-update', this.onTaskUpdate)
+    this.on('task-done', this.onTaskDone)
+    this.on('tasks-done', this.onTasksDone)
+    this.on('tasks-loaded', () => (this.tasksLoaded = true))
+    this.on('user-inactivity', this.onUserInactivity)
+    this.on('type-effect', this.typeEffect)
+    const gesture = new TinyGesture(this.el, { mouseSupport: true })
+    gesture.on('swiperight', () => this.emit('task-next', true))
+    gesture.on('swipeleft', () => this.emit('task-next'))
+  }
+
+  on (eventName, callback) {
+    window.addEventListener(eventName, event => callback.bind(this)(event.detail))
   }
 
   async emit (eventName, eventData) {
@@ -41,10 +55,11 @@ class App {
     window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
   }
 
-  async onApiSet (base, key) {
-    await this.loadTasks(base, key)
-    this.apiBase = await storage.set('api-base', base)
-    this.apiKey = await storage.set('api-key', key)
+  async onApiSet (data = {}) {
+    if (!data.base || !data.key) return console.error('cannot set api without base & key')
+    await this.loadTasks(data.base, data.key)
+    this.apiBase = await storage.set('api-base', data.base)
+    this.apiKey = await storage.set('api-key', data.key)
   }
 
   async recoverApi () {
@@ -116,16 +131,14 @@ class App {
   }
 
   async onTaskUpdate (task) {
-    if (this.apiBase === null || this.apiKey === null) {
-      return this.showError('cannot update task without api')
-    }
+    if (this.apiBase === null || this.apiKey === null) return this.showError('cannot update task without api')
     const url = `https://api.airtable.com/v0/${this.apiBase}/tasks/${task.id}?api_key=${this.apiKey}&view=todo`
     const data = { fields: { 'completed-on': task['completed-on'], done: task.done } }
     await this.patch(url, data).then(res => res.json()).catch(err => this.showError(err.message))
   }
 
   onTaskDone () {
-    this.emit('add-badge', { type: 'task-done', content: '⭐' })
+    this.emit('add-badge', { type: 'task-done', content: '*' })
     this.emit('level-up')
   }
 
