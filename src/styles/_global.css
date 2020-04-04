@@ -28,6 +28,10 @@ body {
   display: flex;
 }
 
+.row.center {
+  justify-content: center;
+}
+
 .col {
   display: flex;
   flex-direction: column;
@@ -66,42 +70,59 @@ h1, h2, h3, a, p, em, .ellipsis {
   text-overflow: ellipsis;
 }
 
-button, input, textarea {
+input {
+  border-radius: var(--border-radius, .3rem);
+  font-size: 1rem;
+}
+
+button, input {
   -webkit-appearance: none;
   border: .1rem solid var(--color-grey, grey);
-  border-radius: var(--border-radius, .3rem);
   font-family: inherit;
-  font-size: 1rem;
   margin: 0;
-  margin-left: .2rem;
   max-width: 100%;
-  padding: .4rem 0 .4rem .4rem;
-  transition: border .3s, background-color .3s;
+  padding: .4rem;
+  transition: background-color .3s;
 }
 
-button, input[type="button"], input[type="submit"] {
+button+button {
+  margin-left: .4rem;
+}
+
+button {
   background-color: var(--color-grey-light, #e8e8e8);
   cursor: pointer;
+  line-height: 1.6rem;
+  font-size: 1.6rem;
+  height: 2.4rem;
   margin-bottom: .5rem;
-  padding: 0.5rem 0.8rem;
+  padding: .4rem .8rem;
+  box-shadow: 20px 38px 34px -26px hsla(0, 0%, 0%, .2);
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
 }
 
-button:hover, input[type="button"]:hover, input[type="submit"]:hover {
+:focus {
+  outline: 0.1rem solid var(--color-primary, steelblue);
+  border-radius: 0;
+  border-width: 0;
+  box-shadow: 0 0 0.7rem var(--color-primary, steelblue);
+}
+
+button:hover {
   background-color: var(--color-white, whitesmoke);
-  border: .1rem solid var(--color-primary, steelblue);
 }
 
-button.text, input[type="button"].text, input[type="submit"].text {
+button.text {
   background-color: transparent;
   border: none;
   text-decoration: underline;
 }
 
-button.text:hover, input[type="button"].text:hover, input[type="submit"].text:hover {
+button.text:hover {
   color: var(--color-primary, steelblue);
 }
 
-input:invalid {
+input:invalid, .red {
   background-color: var(--color-error-light, #ff000014);
   border: .1rem solid var(--color-error, red);
 }
