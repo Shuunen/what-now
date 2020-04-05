@@ -8,9 +8,9 @@ html * {
 }
 
 body {
-  background-image: linear-gradient(var(--color-white, whitesmoke) 60%, var(--color-grey, grey) 170%);
+  background-image: linear-gradient( var(--color-white, whitesmoke) 60%, var(--color-grey, grey) 170%);
   color: var(--color-black, black);
-  font-family: sans-serif;
+  font-family: "Love Ya Like A Sister", sans-serif;
   height: 100%;
   justify-content: center;
   margin: 0;
@@ -58,13 +58,14 @@ body {
   display: none !important;
 }
 
-h1, h2, h3 {
-  font-weight: normal;
+h1, h2 {
   background-color: var(--color-white, whitesmoke);
-  padding: 0.4rem 1.4rem;
+  font-size: 2.2rem;
+  font-weight: normal;
+  padding: .4rem 1.4rem;
 }
 
-h1, h2, h3, a, p, em, .ellipsis {
+h1, h2, a, p, em, .ellipsis {
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -73,12 +74,12 @@ h1, h2, h3, a, p, em, .ellipsis {
 input {
   border-radius: var(--border-radius, .3rem);
   font-size: 1rem;
+  font-family: sans-serif;
 }
 
 button, input {
   -webkit-appearance: none;
   border: .1rem solid var(--color-grey, grey);
-  font-family: inherit;
   margin: 0;
   max-width: 100%;
   padding: .4rem;
@@ -91,21 +92,22 @@ button+button {
 
 button {
   background-color: var(--color-grey-light, #e8e8e8);
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  box-shadow: 20px 38px 34px -26px hsla(0, 0%, 0%, .2);
+  font-family: inherit;
   cursor: pointer;
-  line-height: 1.6rem;
   font-size: 1.6rem;
   height: 2.4rem;
+  line-height: 1.6rem;
   margin-bottom: .5rem;
   padding: .4rem .8rem;
-  box-shadow: 20px 38px 34px -26px hsla(0, 0%, 0%, .2);
-  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
 }
 
 :focus {
-  outline: 0.1rem solid var(--color-primary, steelblue);
   border-radius: 0;
   border-width: 0;
-  box-shadow: 0 0 0.7rem var(--color-primary, steelblue);
+  box-shadow: 0 0 .7rem var(--color-primary, steelblue);
+  outline: .1rem solid var(--color-primary, steelblue);
 }
 
 button:hover {
