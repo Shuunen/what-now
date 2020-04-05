@@ -75,7 +75,10 @@ describe('App', () => {
   })
   describe('Tasks', () => {
     before(() => {
+      cy.setLS('api-base', AIRTABLE_API_BASE_SAMPLE)
+      cy.setLS('api-key', AIRTABLE_API_KEY_SAMPLE)
       cy.visit('/')
+      cy.wait(2000)
     })
     it('load 5 tasks from json', () => {
       cy.fixture('get-tasks').then((json) => {
@@ -91,33 +94,25 @@ describe('App', () => {
       cy.get('.badge.task-done').should('be.visible')
     })
     it('show task', () => {
-      cy.get('.task--title').should('not.be.visible')
-      cy.get('.task--mark-as-done').should('not.be.visible')
-      cy.get('.task--get').click()
-      cy.get('.task--title').should('be.visible').contains('Trier les mails')
-    })
-    it('can skip the displayed task because a badge is available', () => {
-      cy.get('.badge.task-done').click()
+      cy.get('.task--title').should('be.visible').contains('What now')
+      cy.get('.task--done').should('be.visible').click()
       cy.get('.task--title').should('be.visible').contains('Faire une lessive')
     })
-    it('mark task as done', () => {
-      cy.get('.task--mark-as-done').should('be.visible')
-      cy.get('.task--mark-as-done').click()
-      cy.get('.task--mark-as-done').should('not.be.visible')
+    it('skip current task', () => {
+      cy.get('.task--title').should('be.visible').contains('Faire une lessive')
+      cy.get('.task--next').should('be.visible').click()
+      cy.get('.task--title').should('be.visible').contains('Ranger le garage')
+      // Trouver des choses à donner ou jeter
+    })
+    it('mark one task as done', () => {
+      cy.get('.task--title').should('be.visible').contains('Ranger le garage')
+      cy.get('.task--done').should('be.visible').click()
       cy.get('.toast.success').should('be.visible').contains('well done')
-      cy.get('.toast.error').should('be.visible').contains('cannot update task without api')
-      cy.get('.toast.error').click()
+      cy.get('.task--title').should('be.visible').contains('Trier les mails')
     })
-    it('mark all tasks as done', () => {
-      for (let i = 0; i < 3; i++) {
-        cy.wait(300)
-        cy.get('.task--get').click()
-        cy.get('.task--mark-as-done').click()
-        cy.wait(200)
-      }
-    })
-    it('display everything done screen', () => {
-      cy.get('.tasks--title.success').should('be.visible').contains('You did everything')
+    it('display all done / heaven screen', () => {
+      cy.get('.task--done').click()
+      cy.get('.level-100').should('be.visible')
     })
     it('load empty task list', () => {
       cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: { records: [] } })))
@@ -126,6 +121,7 @@ describe('App', () => {
     })
     it('load already done tasks', () => {
       cy.visit('/')
+      cy.wait(2000)
       const today = new Date().toISOString().split('T')[0]
       const task = {
         id: 'some-id',
@@ -138,7 +134,7 @@ describe('App', () => {
       cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: { records: [task] } })))
       cy.get('.toast.info').should('be.visible').contains('parsing api response')
       cy.get('.toast.info').should('be.visible').contains('1 tasks found')
-      cy.get('.tasks--title.success').should('be.visible').contains('You did everything')
+      cy.get('.level-100').should('be.visible')
     })
   })
   describe('Badges', () => {
@@ -159,11 +155,10 @@ describe('App', () => {
       cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: { records: [taskDone, taskTodo] } })))
       cy.get('.badge.task-done').should('be.visible')
     })
-    it('should display n stars & 1 medal badge when all tasks complete', () => {
+    it('should display n stars when n tasks completed', () => {
       cy.visit('/')
       cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: { records: [taskDone, taskDone, taskDone] } })))
-      cy.get('.badge').should('have.length', 4) // 3 .task-done ⭐ & 1 .tasks-done 🎖️
-      cy.get('.badge.tasks-done').should('have.length', 1)
+      cy.get('.badge').should('have.length', 3) // 3 .task-done ⭐
     })
     it('should handle master badgerz or haxx0rz', () => {
       cy.visit('/')
@@ -178,11 +173,14 @@ describe('App', () => {
   })
   describe('Progress', () => {
     before(() => {
+      cy.setLS('api-base', AIRTABLE_API_BASE_SAMPLE)
+      cy.setLS('api-key', AIRTABLE_API_KEY_SAMPLE)
       cy.visit('/')
+      cy.wait(2000)
     })
-    it('has no progression by default', () => {
-      cy.get('.what-now').should('be.visible')
-      cy.get('[class^="level-"]').should('have.length', 0)
+    it('has default progress', () => {
+      cy.get('.what-now[data-progress="40"]').should('be.visible')
+      cy.get('.progress .level-40').should('be.visible')
     })
     it('load 5 tasks from json', () => {
       cy.fixture('get-tasks').then((json) => {
@@ -190,21 +188,14 @@ describe('App', () => {
         cy.get('.toast.info').should('be.visible').contains('5 tasks found')
       })
     })
-    it('has default progress', () => {
-      cy.get('.what-now[data-progress="40"]').should('be.visible')
-      cy.get('.progress .level-40').should('be.visible')
-    })
+
     it('gain levels via completing tasks', () => {
-      cy.get('.task--get').click()
-      cy.get('.task--mark-as-done').click()
-      cy.get('.what-now[data-progress="60"]').should('be.visible')
-      cy.get('.progress .level-60').should('be.visible')
+      cy.get('.task--done').click()
+      cy.get('.what-now[data-progress="80"]').should('be.visible')
+      cy.get('.progress .level-80').should('be.visible')
     })
     it('complete all levels', () => {
-      cy.get('.task--get').click()
-      cy.get('.task--mark-as-done').click()
-      cy.get('.task--get').click()
-      cy.get('.task--mark-as-done').click()
+      cy.get('.task--done').click()
       cy.get('.what-now[data-progress="100"]').should('be.visible')
       cy.get('.progress .level-100').should('be.visible')
     })

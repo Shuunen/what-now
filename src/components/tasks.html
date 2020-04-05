@@ -1,16 +1,15 @@
 <main class="tasks col center">
-  <h1 class="tasks--title task--get" onclick="tasks.showTask()">What <em>now</em> ?</h1>
-  <div class="task col hidden">
-    <h2 class="task--title"></h2>
-    <div>
-      <button class="task--mark-as-done" onclick="tasks.doneTask()">done.</button>
-    </div>
+  <h1 class="task--title">What <em>now</em> ?</h1>
+  <div class="row center task--buttons">
+    <button class="task--prev hidden" onclick="tasks.prev()">&lt;</button>
+    <button class="task--done hidden" onclick="tasks.done()">get a task</button>
+    <button class="task--next hidden" onclick="tasks.next()">&gt;</button>
   </div>
 </main>
 
 <script>
   class Task {
-    constructor (data) {
+    constructor (data = { isDefault: true }) {
       Object.assign(this, data)
       if (!this.active) {
         this.emit('task-done', { already: true })
@@ -67,10 +66,6 @@
   }
 
   class Tasks {
-    get taskViewDisplayed () {
-      return !this.taskEl.classList.contains('hidden')
-    }
-
     get activeTask () {
       return this.tasks[this.index]
     }
@@ -78,6 +73,7 @@
     constructor () {
       this.setupElements()
       this.setupListeners()
+      setTimeout(() => this.titleIntro(), 100)
     }
 
     async emit (eventName, eventData) {
@@ -89,106 +85,86 @@
       return new Promise(resolve => setTimeout(resolve, (ms || 1000)))
     }
 
+    on (eventName, callback) {
+      window.addEventListener(eventName, event => callback.bind(this)(event.detail))
+    }
+
     setupElements () {
-      this.tasksTitle = document.querySelector('.tasks--title')
-      this.taskEl = document.querySelector('.tasks .task')
-      this.taskTitle = this.taskEl.querySelector('.task--title')
-      this.doneButtonEl = this.taskEl.querySelector('.task--mark-as-done')
+      this.titleEl = document.querySelector('.task--title')
+      this.btnEl = document.querySelector('.task--buttons')
+      this.doneEl = document.querySelector('.task--done')
     }
 
     setupListeners () {
-      window.addEventListener('tasks-loaded', event => this.onTasksLoaded(event.detail))
-      window.addEventListener('skip-task', event => this.onSkipTask())
-      window.addEventListener('keyup', (event) => {
-        if (event.code === 'Space' || event.code === 'Enter') {
-          if (this.taskViewDisplayed) return this.doneTask()
-          return this.showTask()
-        }
-        if (event.code === 'ArrowLeft' || event.code === 'ArrowUp') return this.onSkipTask(true)
-        if (event.code === 'ArrowRight' || event.code === 'ArrowDown') return this.onSkipTask()
-      })
+      this.on('tasks-loaded', this.onTasksLoaded)
+      this.on('task-next', this.next)
+      window.addEventListener('keyup', event => this.onKeyUp(event.code))
+    }
+
+    titleIntro () {
+      this.titleEl.innerHTML = '' // What <em>now</em> ?
+      this.emit('type-effect', [this.titleEl, 'What now', 500, 'What now...', 1000, 'What now ?'])
+    }
+
+    onKeyUp (code) {
+      if (code === 'Space' || code.includes('Enter')) return this.done()
+      if (code === 'ArrowLeft' || code === 'ArrowUp') return this.next(true)
+      if (code === 'ArrowRight' || code === 'ArrowDown') return this.next()
     }
 
     onTasksLoaded (tasks) {
       this.index = 0
       this.tasks = tasks.map(data => new Task(data))
       this.showToast(this.tasks.length ? 'info' : 'error', (this.tasks.length || 'no') + ' tasks found')
-      this.showMainView()
-      this.checkTasks()
-      this.emit('action-required', false)
+      this.showControls()
+      this.check()
     }
 
-    onSkipTask (reverse = false) {
-      if (!this.taskViewDisplayed || !this.activeTask) {
-        return console.log('cannot skip task if none displayed')
-      }
-      if (this.tasks.length === 1) {
-        return console.log('cannot skip the only task')
-      }
-      this.setupNextTask(reverse)
-      this.emit('task-skipped')
+    showControls () {
+      if (this.tasks.length === 0) return
+      this.tasks.unshift(new Task())
+      this.doneEl.classList.add('animate')
+      this.doneEl.classList.remove('hidden')
     }
 
-    checkTasks () {
+    handleDefaultTask (showNext = false) {
+      this.activeTask.done = true
+      this.doneEl.textContent = 'done !'
+      this.doneEl.classList.remove('animate')
+      document.querySelectorAll('.task--prev, .task--next').forEach(el => this.emit('fade-in', el))
+      this.check()
+      if (showNext) this.next()
+    }
+
+    done () {
+      if (this.activeTask.isDefault) return this.handleDefaultTask(true)
+      console.log('marking as done :', this.activeTask)
+      this.showToast('success', 'well done')
+      this.activeTask.complete()
+      this.check()
+      this.next()
+    }
+
+    check () {
       const hadActiveTasks = this.tasks.length > 0
       this.tasks = this.tasks.filter(task => task.active)
       const hasActiveTasks = this.tasks.length > 0
-      if (hasActiveTasks && this.activeTask === undefined) {
-        this.index = 0
-      }
-      if (hadActiveTasks && !hasActiveTasks) {
-        this.showSuccessView()
-      }
+      if (hadActiveTasks && !hasActiveTasks) this.emit('tasks-done', {})
     }
 
     showToast (type, message) {
       return this.emit('show-toast', { type, message })
     }
 
-    showTask () {
-      if (!this.activeTask) {
-        return
-      }
-      this.switchView()
+    prev () {
+      this.next(true)
     }
 
-    switchView (el) {
-      this.taskTitle.textContent = this.activeTask.name
-      this.taskEl.classList.toggle('hidden')
-      this.tasksTitle.classList.toggle('hidden')
-    }
-
-    async doneTask () {
-      this.doneButtonEl.classList.toggle('hide')
-      this.taskTitle.style.animationName = 'bounceOutRight'
-      this.showToast('success', 'well done')
-      this.activeTask.complete()
-      await this.sleep(1000)
-      this.switchView()
-      this.doneButtonEl.classList.toggle('hide')
-      this.taskTitle.style.animationName = ''
-      this.checkTasks()
-    }
-
-    setupNextTask (reverse) {
+    next (reverse) {
+      if (this.activeTask.isDefault) this.handleDefaultTask()
       this.index += reverse ? -1 : 1
       this.index = this.activeTask ? this.index : (reverse ? this.tasks.length - 1 : 0)
-      this.taskTitle.textContent = this.activeTask.name
-    }
-
-    showMainView () {
-      this.tasksTitle.innerHTML = 'What <em>now</em> ?'
-      this.tasksTitle.classList.remove('success')
-      if (this.taskViewDisplayed) {
-        this.switchView()
-      }
-    }
-
-    showSuccessView () {
-      this.tasksTitle.innerHTML = '<p>You did everything for today 🎖️</p>'
-      this.tasksTitle.classList.add('success')
-      this.showToast('info', '🎉🍾🥂🎉')
-      this.emit('tasks-done', {})
+      this.emit('type-effect', [this.titleEl, this.activeTask.name])
     }
   }
   // eslint-disable-next-line no-new
@@ -196,64 +172,90 @@
 </script>
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Love+Ya+Like+A+Sister&display=swap');
-
   .tasks {
-    color: var(--color-primary, steelblue);
     position: absolute;
     top: calc(50% - 5rem);
-    height: 10rem;
     width: 100%;
+    font-size: 2rem;
     align-items: center;
     justify-content: center;
     z-index: var(--elevation-child, 30);
-    font-family: 'Love Ya Like A Sister', sans-serif;
-  }
-
-  .tasks--title,
-  .task--title {
-    box-shadow: 0 0 2rem -.8rem var(--color-black, #333333);
-  }
-
-  .tasks--title {
-    color: var(--color-black, #333333);
-    font-size: 4rem;
   }
 
   .task--title {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    animation-duration: 1s;
-    animation-fill-mode: both;
-  }
-
-  .tasks--title p {
-    margin: 1rem 0;
-  }
-
-  .tasks--title.success {
-    color: var(--color-success, green);
-    margin-top: -4rem;
-  }
-
-  .tasks--title em {
+    display: flex;
     color: var(--color-primary, steelblue);
+    box-shadow: 0 0 2rem -.8rem var(--color-black, #333333);
+    margin-bottom: 1rem;
+  }
+
+  .task--title em {
+    color: var(--color-black, #333333);
     font-style: normal;
+    margin: 0 1rem;
   }
 
-  .task--mark-as-done {
-    font-size: 2rem;
+  .task--prev,
+  .task--next {
+    font-size: 3rem;
+    line-height: 0;
   }
 
-  @keyframes bounceOutRight {
-    20% {
-      opacity: 1;
-      transform: translate3d(-20px, 0, 0);
+  .task--title em {
+    display: inline-block;
+    animation-name: bounce;
+    animation-duration: .4s;
+    animation-fill-mode: both;
+    transform-origin: center bottom;
+  }
+
+  .task--done.animate {
+    animation-name: heartBeat;
+    animation-duration: 1.3s;
+    animation-delay: 1s;
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: both;
+    animation-iteration-count: 2;
+  }
+
+  @keyframes heartBeat {
+
+    0%,
+    28%,
+    70% {
+      transform: scale(1);
     }
 
+    14%,
+    42% {
+      transform: scale(1.3);
+    }
+  }
+
+  @keyframes bounce {
+
+    from,
+    20%,
+    53%,
+    80%,
     to {
-      opacity: 0;
-      transform: translate3d(2000px, 0, 0);
+      animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+      transform: translate3d(0, 0, 0);
+    }
+
+    40%,
+    43% {
+      animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+      transform: translate3d(0, -30px, 0);
+    }
+
+    70% {
+      animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+      transform: translate3d(0, -15px, 0);
+    }
+
+    90% {
+      transform: translate3d(0, -4px, 0);
     }
   }
 </style>
