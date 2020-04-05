@@ -48,7 +48,7 @@
   .badges {
     font-size: 4rem;
     letter-spacing: .4rem;
-    line-height: 0.7;
+    line-height: .7;
     padding: 1rem;
     position: absolute;
     width: 100%;
@@ -56,12 +56,12 @@
   }
 
   .badges .container {
-    max-width: 50rem;
     flex-wrap: wrap;
+    max-width: 50rem;
   }
 
-  .badge:nth-child(odd){
+  .badge:nth-child(odd) {
+    filter: invert(.4);
     transform: rotate(5deg);
-    filter: invert(0.4);
   }
 </style>
