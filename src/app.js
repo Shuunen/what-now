@@ -160,7 +160,6 @@ class App {
   typeEffect (args) {
     const el = args.shift()
     el.textContent = '' // clear text content is quicker than animate the deletion of all chars
-    console.log('type args', args)
     type(el, ...args).then(() => this.colorOneWord(el))
   }
 
