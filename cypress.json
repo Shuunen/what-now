@@ -2,6 +2,7 @@
   "baseUrl": "http://localhost:8000",
   "integrationFolder": "src",
   "testFiles": "**/*.test.js",
-  "viewportWidth": 400,
-  "viewportHeight": 600
+  "video": false,
+  "viewportHeight": 600,
+  "viewportWidth": 400
 }
