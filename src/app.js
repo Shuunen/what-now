@@ -1,4 +1,5 @@
 import { type } from '@camwiegert/typical'
+import { pickOne, sleep } from 'shuutils'
 import TinyGesture from 'tinygesture'
 import './plugins/cypress-reload'
 import './plugins/inactivity-detector'
@@ -18,10 +19,6 @@ class App {
 
   async setLoading (active) {
     return this.loaderEl.classList.toggle('hidden', !active)
-  }
-
-  async sleep (ms) {
-    return new Promise(resolve => setTimeout(resolve, (ms || 1000)))
   }
 
   setupElements () {
@@ -64,7 +61,7 @@ class App {
   }
 
   async recoverApi () {
-    await this.sleep(10)
+    await sleep(10)
     const base = await storage.get('api-base')
     const key = await storage.get('api-key')
     if (base && key) return this.emit('api-set', { base, key })
@@ -78,7 +75,7 @@ class App {
       .then(res => res.json())
       .then(data => this.parseApiResponse(data))
       .then(() => this.emit('action-required', false))
-      .then(() => this.sleep(500))
+      .then(() => sleep(500))
       .catch(err => this.showError(err.message))
       .then(() => this.setLoading(false))
   }
@@ -86,13 +83,13 @@ class App {
   async fadeIn (el) {
     el.classList.remove('hidden')
     el.classList.add('hide')
-    await this.sleep(10)
+    await sleep(10)
     el.style.opacity = 1
   }
 
   async fadeOut (el) {
     el.classList.add('hide')
-    await this.sleep(350)
+    await sleep(350)
     el.classList.remove('hide')
     el.classList.add('hidden')
   }
@@ -163,13 +160,9 @@ class App {
     type(el, ...args).then(() => this.colorOneWord(el))
   }
 
-  pickOne (arr) {
-    return arr[Math.floor(Math.random() * arr.length)]
-  }
-
   colorOneWord (el) {
     const words = el.textContent.split(' ')
-    const word = this.pickOne(words)
+    const word = pickOne(words)
     el.innerHTML = el.textContent.replace(word, `<em>${word}</em>`)
   }
 }
