@@ -1,5 +1,5 @@
 html {
-  font-size: min(max(14px, 4vw), 20px);
+  font-size: min(max(14px, 5vw), 20px);
   height: 100%;
 }
 
@@ -62,7 +62,7 @@ h1, h2 {
   background-color: var(--color-white, whitesmoke);
   font-size: 2.2rem;
   font-weight: normal;
-  padding: .4rem 1.4rem;
+  padding: 1vw 2vw;
 }
 
 h1, h2, a, p, em, .ellipsis {
@@ -73,8 +73,8 @@ h1, h2, a, p, em, .ellipsis {
 
 input {
   border-radius: var(--border-radius, .3rem);
-  font-size: 1rem;
   font-family: sans-serif;
+  font-size: 1rem;
 }
 
 button, input {
@@ -86,7 +86,7 @@ button, input {
   transition: background-color .3s;
 }
 
-button+button {
+button + button {
   margin-left: .4rem;
 }
 
@@ -94,8 +94,8 @@ button {
   background-color: var(--color-grey-light, #e8e8e8);
   border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
   box-shadow: 20px 38px 34px -26px hsla(0, 0%, 0%, .2);
-  font-family: inherit;
   cursor: pointer;
+  font-family: inherit;
   font-size: 1.6rem;
   height: 2.4rem;
   line-height: 1.6rem;
@@ -104,8 +104,8 @@ button {
 }
 
 :focus {
+  border-color: transparent;
   border-radius: 0;
-  border-width: 0;
   box-shadow: 0 0 .7rem var(--color-primary, steelblue);
   outline: .1rem solid var(--color-primary, steelblue);
 }
