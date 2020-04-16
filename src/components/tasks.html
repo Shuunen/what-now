@@ -103,7 +103,7 @@
 
     titleIntro () {
       this.titleEl.innerHTML = '' // What <em>now</em> ?
-      this.emit('type-effect', [this.titleEl, 'What now', 500, 'What now...', 1000, 'What now ?'])
+      this.emit('type-effect', { el: this.titleEl, text: 'What now ?' })
     }
 
     onKeyUp (code) {
@@ -168,7 +168,11 @@
       if (this.activeTask.isDefault) this.handleDefaultTask()
       this.index += reverse ? -1 : 1
       this.index = this.activeTask ? this.index : (reverse ? this.tasks.length - 1 : 0)
-      this.emit('type-effect', [this.titleEl, this.activeTask.name])
+      this.show()
+    }
+
+    show () {
+      this.emit('type-effect', { el: this.titleEl, text: this.activeTask.name })
     }
   }
   // eslint-disable-next-line no-new

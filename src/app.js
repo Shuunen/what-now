@@ -154,10 +154,17 @@ class App {
     setTimeout(() => document.location.reload(), oneHour)
   }
 
-  typeEffect (args) {
-    const el = args.shift()
-    el.textContent = '' // clear text content is quicker than animate the deletion of all chars
-    type(el, ...args).then(() => this.colorOneWord(el))
+  async typeEffect (target = { el: null, text: '' }) {
+    if (!target.el) return console.error('cannot apply type effect without a target dom el')
+    if (!target.text || !target.text.length) return console.error('cannot apply type effect without a target text')
+    if (target.el.classList.contains('is-typing')) {
+      console.log('delay type effect because another one is active')
+      return setTimeout(() => this.typeEffect(target), 200)
+    }
+    const toggle = (el) => el.classList.toggle('is-typing')
+    target.el.textContent = '' // clear text content is quicker than animate the deletion of all chars
+    await type(target.el, toggle, target.text, toggle)
+    this.colorOneWord(target.el)
   }
 
   colorOneWord (el) {
