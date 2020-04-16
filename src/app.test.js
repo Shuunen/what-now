@@ -96,19 +96,18 @@ describe('App', () => {
     it('show task', () => {
       cy.get('.task--title').should('be.visible').contains('What now')
       cy.get('.task--done').should('be.visible').click()
-      cy.get('.task--title').should('be.visible').contains('Faire une lessive')
+      cy.get('.task--title').should('be.visible').contains('Trier les mails')
     })
     it('skip current task', () => {
-      cy.get('.task--title').should('be.visible').contains('Faire une lessive')
+      cy.get('.task--title').should('be.visible').contains('Trier les mails')
       cy.get('.task--next').should('be.visible').click()
-      cy.get('.task--title').should('be.visible').contains('Ranger le garage')
-      // Trouver des choses à donner ou jeter
+      cy.get('.task--title').should('be.visible').contains('Faire une lessive')
     })
     it('mark one task as done', () => {
-      cy.get('.task--title').should('be.visible').contains('Ranger le garage')
+      cy.get('.task--title').should('be.visible').contains('Faire une lessive')
       cy.get('.task--done').should('be.visible').click()
       cy.get('.toast.success').should('be.visible').contains('well done')
-      cy.get('.task--title').should('be.visible').contains('Trier les mails')
+      cy.get('.task--title').should('be.visible').contains('Ranger le garage')
     })
     it('display all done / heaven screen', () => {
       cy.get('.task--done').click()

@@ -127,28 +127,29 @@
       this.doneEl.classList.remove('hidden')
     }
 
-    handleDefaultTask (showNext = false) {
+    handleDefaultTask () {
       this.activeTask.done = true
       this.doneEl.textContent = 'done !'
       this.doneEl.classList.remove('animate')
       document.querySelectorAll('.task--prev, .task--next').forEach(el => this.emit('fade-in', el))
       this.check()
-      if (showNext) this.next()
+      this.show()
     }
 
     done () {
-      if (this.activeTask.isDefault) return this.handleDefaultTask(true)
+      if (this.activeTask.isDefault) return this.handleDefaultTask()
       console.log('marking as done :', this.activeTask)
       this.showToast('success', 'well done')
       this.activeTask.complete()
       this.check()
-      this.next()
+      this.show()
     }
 
     check () {
       const hadActiveTasks = this.tasks.length > 0
       this.tasks = this.tasks.filter(task => task.active)
       const hasActiveTasks = this.tasks.length > 0
+      console.log('active tasks remaining', this.tasks)
       if (hadActiveTasks && !hasActiveTasks) return this.emit('tasks-done', {})
       if (this.tasks.length === 1) return this.showToast('info', 'only one tasks left for today !')
       this.showToast('info', `${this.tasks.length} tasks remaining`)
@@ -165,7 +166,6 @@
     next (reverse) {
       if (!this.activeTask) this.index = 0
       if (!this.activeTask) return console.log('no tasks left')
-      if (this.activeTask.isDefault) this.handleDefaultTask()
       this.index += reverse ? -1 : 1
       this.index = this.activeTask ? this.index : (reverse ? this.tasks.length - 1 : 0)
       this.show()
