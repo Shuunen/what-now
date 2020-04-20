@@ -20,7 +20,7 @@
     get isOneTime () { return this.once === 'yes' }
 
     get isActive () {
-      if (this.done) return false
+      if (this.done || (this.isBonus && !this.activated)) return false
       if (!this.completedOn || this.isOneTime) return true
       if (this.once === 'day') return this.daysSinceCompletion >= 1
       if (this.once === 'week') return this.daysSinceCompletion >= 7
@@ -40,6 +40,7 @@
     complete () {
       this['completed-on'] = today() // task is complete for today
       this.done = this.isOneTime // but it also can be done totally if it was a one time job
+      this.activated = false
       emit('task-update', this)
       emit('task-done', { already: false })
     }
@@ -84,6 +85,7 @@
       this.tasks = tasks.map(data => new Task(data))
       showToast(this.tasks.length ? 'info' : 'error', (this.tasks.length || 'no') + ' tasks found')
       this.showControls()
+      this.handleBonusTask()
       this.check()
     }
 
@@ -92,6 +94,15 @@
       this.tasks.unshift(new Task())
       this.doneEl.classList.add('animate')
       this.doneEl.classList.remove('hidden')
+    }
+
+    handleBonusTask () {
+      const bonusTasks = this.tasks.filter(t => t.isBonus) || []
+      if (!bonusTasks.length) return console.log('no bonus tasks found')
+      if (bonusTasks.find(t => t.completedOn === today())) return console.log('bonus task already done today')
+      const bonusTask = bonusTasks[0]
+      console.log('bonus task for today is :', bonusTask)
+      bonusTask.activated = true
     }
 
     handleDefaultTask () {
