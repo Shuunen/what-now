@@ -71,7 +71,6 @@ class App {
       .then(() => fetch(`https://api.airtable.com/v0/${apiBase}/tasks?api_key=${apiKey}&view=todo`))
       .then(res => res.json())
       .then(data => this.parseApiResponse(data))
-      .then(() => emit('action-required', false))
       .then(() => sleep(500))
       .catch(err => showError(err.message))
       .then(() => this.setLoading(false))
@@ -95,7 +94,7 @@ class App {
     showLog('parsing api response...', data)
     if (!data.records) throw new Error('api does not return the expected format')
     const tasks = data.records.map(task => ({ id: task.id, ...task.fields }))
-    emit('level-max', tasks.length)
+    emit('action-required', false)
     emit('tasks-loaded', tasks)
   }
 

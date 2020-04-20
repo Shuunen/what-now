@@ -75,19 +75,23 @@ describe('App', () => {
   })
   describe('Tasks', () => {
     before(() => {
-      cy.setLS('api-base', AIRTABLE_API_BASE_SAMPLE)
-      cy.setLS('api-key', AIRTABLE_API_KEY_SAMPLE)
       cy.visit('/')
-      cy.wait(2000)
+      cy.wait(1000)
     })
-    it('load 5 tasks from json', () => {
+    it('load tasks from json', () => {
       cy.fixture('get-tasks').then((json) => {
         // set the 2 first tasks completed on yesterday, with this format "2019-07-14"
         const yesterday = (d => new Date(d.setDate(d.getDate() - 1)))(new Date()).toISOString().split('T')[0]
-        json.records[0].fields['completed-on'] = yesterday
-        json.records[1].fields['completed-on'] = yesterday
+        const today = new Date().toISOString().split('T')[0]
+        json.records.forEach(record => {
+          const on = record.fields['completed-on']
+          if (!on) return
+          if (on === '{{ yesterday }}') return (record.fields['completed-on'] = yesterday)
+          if (on === '{{ today }}') record.fields['completed-on'] = today
+        })
         cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: json })))
-        cy.get('.toast.info').should('be.visible').contains('5 tasks found')
+        cy.get('.toast.info').should('be.visible').contains('7 tasks found')
+        cy.get('.toast.info').should('be.visible').contains('5 tasks remaining')
       })
     })
     it('has one task-done badge displayed because one task has been already completed', () => {
@@ -103,14 +107,20 @@ describe('App', () => {
       cy.get('.task--next').should('be.visible').click()
       cy.get('.task--title').should('be.visible').contains('Faire une lessive')
     })
-    it('mark one task as done', () => {
+    it('mark some tasks as done', () => {
       cy.get('.task--title').should('be.visible').contains('Faire une lessive')
       cy.get('.task--done').should('be.visible').click()
       cy.get('.toast.success').should('be.visible').contains('well done')
       cy.get('.task--title').should('be.visible').contains('Ranger le garage')
-    })
-    it('display all done / heaven screen', () => {
       cy.get('.task--done').click()
+      cy.get('.task--title').should('be.visible').contains('Trouver des choses à donner ou jeter')
+      cy.get('.task--done').click()
+    })
+    it('show previously skipped task', () => {
+      cy.get('.task--title').should('be.visible').contains('Trier les mails')
+      cy.get('.task--done').should('be.visible').click()
+    })
+    it('last task is done, should see final screen', () => {
       cy.get('.level-100').should('be.visible')
     })
     it('load empty task list', () => {
@@ -120,25 +130,38 @@ describe('App', () => {
     })
     it('load already done tasks', () => {
       cy.visit('/')
-      cy.wait(2000)
+      cy.wait(1000)
       const today = new Date().toISOString().split('T')[0]
       const task = {
         id: 'some-id',
-        fields: {
-          name: 'Trier les mails',
-          once: 'day',
-          'completed-on': today,
-        },
+        fields: { name: 'Trier les mails', once: 'day', 'completed-on': today },
       }
       cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: { records: [task] } })))
       cy.get('.toast.info').should('be.visible').contains('parsing api response')
       cy.get('.toast.info').should('be.visible').contains('1 tasks found')
       cy.get('.level-100').should('be.visible')
     })
+    it('handle bonus task for today', () => {
+      cy.visit('/')
+      cy.wait(1000)
+      const today = new Date().toISOString().split('T')[0]
+      const task = { id: 'some-id', fields: { name: 'Trier les mails', once: 'day', 'completed-on': today } }
+      const bonusTask1 = { id: 'some-other-id', fields: { name: 'Journée sans sucre', once: 'bonus' } }
+      const bonusTask2 = { id: 'same-other-id', fields: { name: 'Journée sans sel', once: 'bonus' } }
+      cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: { records: [task, bonusTask1, bonusTask2] } })))
+      cy.get('.toast.info').should('be.visible').contains('parsing api response')
+      cy.get('.toast.info').should('be.visible').contains('3 tasks found')
+      cy.get('.toast.info').should('be.visible').contains('2 tasks remaining')
+      cy.get('.task--title').should('be.visible').contains('What now')
+      cy.get('.task--done').should('be.visible').click()
+      cy.get('.task--title').should('be.visible').contains(bonusTask1.fields.name)
+      cy.get('.task--done').should('be.visible').click()
+      cy.get('.level-100').should('be.visible')
+    })
   })
   describe('Badges', () => {
     const taskDone = { fields: { done: true } }
-    const taskTodo = { fields: { } }
+    const taskTodo = { fields: {} }
     it('has no badges at start', () => {
       cy.visit('/')
       cy.get('.badges').should('be.visible')
@@ -172,28 +195,25 @@ describe('App', () => {
   })
   describe('Progress', () => {
     before(() => {
-      cy.setLS('api-base', AIRTABLE_API_BASE_SAMPLE)
-      cy.setLS('api-key', AIRTABLE_API_KEY_SAMPLE)
       cy.visit('/')
-      cy.wait(2000)
+      cy.wait(1000)
+      cy.fixture('get-tasks').then((json) => {
+        cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: json })))
+        cy.get('.toast.info').should('be.visible').contains('7 tasks found')
+      })
     })
     it('has default progress', () => {
       cy.get('.what-now[data-progress="40"]').should('be.visible')
       cy.get('.progress .level-40').should('be.visible')
     })
-    it('load 5 tasks from json', () => {
-      cy.fixture('get-tasks').then((json) => {
-        cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: json })))
-        cy.get('.toast.info').should('be.visible').contains('5 tasks found')
-      })
-    })
-
     it('gain levels via completing tasks', () => {
       cy.get('.task--done').click()
-      cy.get('.what-now[data-progress="80"]').should('be.visible')
-      cy.get('.progress .level-80').should('be.visible')
+      cy.get('.task--done').click()
+      cy.get('.what-now[data-progress="60"]').should('be.visible')
+      cy.get('.progress .level-60').should('be.visible')
     })
     it('complete all levels', () => {
+      cy.get('.task--done').click()
       cy.get('.task--done').click()
       cy.get('.what-now[data-progress="100"]').should('be.visible')
       cy.get('.progress .level-100').should('be.visible')

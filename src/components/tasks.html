@@ -21,7 +21,7 @@
 
     get isActive () {
       if (this.done || (this.isBonus && !this.activated)) return false
-      if (!this.completedOn || this.isOneTime) return true
+      if (!this.completedOn || this.isOneTime || this.activated) return true
       if (this.once === 'day') return this.daysSinceCompletion >= 1
       if (this.once === 'week') return this.daysSinceCompletion >= 7
       if (this.once === 'month') return this.daysSinceCompletion >= 30
@@ -33,7 +33,7 @@
 
     constructor (data = { isDefault: true }) {
       Object.assign(this, data)
-      if (this.isActive) return
+      if (this.isActive || this.isBonus) return
       emit('task-done', { already: true })
     }
 
@@ -87,6 +87,7 @@
       this.showControls()
       this.handleBonusTask()
       this.check()
+      if (this.tasks.length) emit('level-max', this.tasks.length)
     }
 
     showControls () {
@@ -129,6 +130,7 @@
       const hasActiveTasks = this.tasks.length > 0
       console.log('active tasks remaining', this.tasks)
       if (hadActiveTasks && !hasActiveTasks) return emit('tasks-done', {})
+      if (hasActiveTasks && !this.activeTask) this.index = 0
       if (this.tasks.length === 1) return showToast('info', 'only one tasks left for today !')
       showToast('info', `${this.tasks.length} tasks remaining`)
     }
@@ -143,7 +145,10 @@
       this.show()
     }
 
-    show () { emit('type-effect', { el: this.titleEl, text: this.activeTask.name }) }
+    show () {
+      if (!this.activeTask) return console.log('no more task to show')
+      emit('type-effect', { el: this.titleEl, text: this.activeTask.name })
+    }
   }
   // eslint-disable-next-line no-new
   window.tasks = new Tasks()
