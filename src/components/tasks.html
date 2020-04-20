@@ -107,7 +107,7 @@
     }
 
     onKeyUp (code) {
-      if (code === 'Space' || code.includes('Enter')) return this.done()
+      if (code === 'End') return this.done()
       if (code === 'ArrowLeft' || code === 'ArrowUp') return this.next(true)
       if (code === 'ArrowRight' || code === 'ArrowDown') return this.next()
     }
