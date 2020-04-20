@@ -6,6 +6,12 @@ import './plugins/inactivity-detector'
 import './plugins/service-worker'
 import * as storage from './plugins/storage'
 
+const emit = async (eventName, eventData) => { console.log(eventName, eventData); window.dispatchEvent(new CustomEvent(eventName, { detail: eventData })) }
+const showError = message => emit('show-toast', { type: 'error', message })
+const showLog = message => emit('show-toast', { type: 'info', message })
+const headers = { Accept: 'application/json', 'Content-Type': 'application/json' }
+const patch = (url, data) => fetch(url, { headers, method: 'patch', body: JSON.stringify(data) })
+
 class App {
   constructor () {
     this.apiBase = null
@@ -17,9 +23,7 @@ class App {
     this.preventDeprecatedData()
   }
 
-  async setLoading (active) {
-    return this.loaderEl.classList.toggle('hidden', !active)
-  }
+  async setLoading (active) { return this.loaderEl.classList.toggle('hidden', !active) }
 
   setupElements () {
     this.el = document.body
@@ -27,7 +31,7 @@ class App {
   }
 
   setupListeners () {
-    this.on('show-error', this.showError)
+    this.on('show-error', showError)
     this.on('fade-in', this.fadeIn)
     this.on('fade-out', this.fadeOut)
     this.on('set-loading', this.setLoading)
@@ -40,18 +44,11 @@ class App {
     this.on('user-inactivity', this.onUserInactivity)
     this.on('type-effect', this.typeEffect)
     const gesture = new TinyGesture(this.el, { mouseSupport: true })
-    gesture.on('swiperight', () => this.emit('task-next', true))
-    gesture.on('swipeleft', () => this.emit('task-next'))
+    gesture.on('swiperight', () => emit('task-next', true))
+    gesture.on('swipeleft', () => emit('task-next'))
   }
 
-  on (eventName, callback) {
-    window.addEventListener(eventName, event => callback.bind(this)(event.detail))
-  }
-
-  async emit (eventName, eventData) {
-    console.log(eventName, eventData)
-    window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
-  }
+  on (eventName, callback) { window.addEventListener(eventName, event => callback.bind(this)(event.detail)) }
 
   async onApiSet (data = {}) {
     if (!data.base || !data.key) return console.error('cannot set api without base & key')
@@ -64,9 +61,9 @@ class App {
     await sleep(10)
     const base = await storage.get('api-base')
     const key = await storage.get('api-key')
-    if (base && key) return this.emit('api-set', { base, key })
-    this.emit('show-toast', { type: 'info', message: 'please setup api in settings' })
-    this.emit('action-required', true)
+    if (base && key) return emit('api-set', { base, key })
+    emit('show-toast', { type: 'info', message: 'please setup api in settings' })
+    emit('action-required', true)
   }
 
   loadTasks (apiBase, apiKey) {
@@ -74,9 +71,9 @@ class App {
       .then(() => fetch(`https://api.airtable.com/v0/${apiBase}/tasks?api_key=${apiKey}&view=todo`))
       .then(res => res.json())
       .then(data => this.parseApiResponse(data))
-      .then(() => this.emit('action-required', false))
+      .then(() => emit('action-required', false))
       .then(() => sleep(500))
-      .catch(err => this.showError(err.message))
+      .catch(err => showError(err.message))
       .then(() => this.setLoading(false))
   }
 
@@ -94,59 +91,33 @@ class App {
     el.classList.add('hidden')
   }
 
-  showError (message) {
-    console.error('app show error :', message)
-    this.emit('show-toast', { type: 'error', message })
-  }
-
-  showLog (message, data) {
-    console.log('app show log :', message, data || '')
-    return this.emit('show-toast', { type: 'info', message })
-  }
-
   async parseApiResponse (data) {
-    this.showLog('parsing api response...', data)
-    if (!data.records) {
-      throw Error('api does not return the expected format')
-    }
-    const tasks = data.records.map(task => ({
-      id: task.id,
-      ...task.fields,
-    }))
-    this.emit('level-max', tasks.length)
-    this.emit('tasks-loaded', tasks)
-  }
-
-  patch (url, data) {
-    return fetch(url, {
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      method: 'patch',
-      body: JSON.stringify(data),
-    })
+    showLog('parsing api response...', data)
+    if (!data.records) throw new Error('api does not return the expected format')
+    const tasks = data.records.map(task => ({ id: task.id, ...task.fields }))
+    emit('level-max', tasks.length)
+    emit('tasks-loaded', tasks)
   }
 
   async onTaskUpdate (task) {
-    if (this.apiBase === null || this.apiKey === null) return this.showError('cannot update task without api')
+    if (this.apiBase === null || this.apiKey === null) return showError('cannot update task without api')
     const url = `https://api.airtable.com/v0/${this.apiBase}/tasks/${task.id}?api_key=${this.apiKey}&view=todo`
     const data = { fields: { 'completed-on': task['completed-on'], done: task.done } }
-    await this.patch(url, data).then(res => res.json()).catch(err => this.showError(err.message))
+    await patch(url, data).then(res => res.json()).catch(err => showError(err.message))
   }
 
   onTaskDone () {
-    this.emit('add-badge', { type: 'task-done', content: '*' })
-    this.emit('level-up')
+    emit('add-badge', { type: 'task-done', content: '*' })
+    emit('level-up')
   }
 
   onTasksDone () {
-    this.emit('add-badge', { type: 'tasks-done', content: '🎖️' })
+    emit('add-badge', { type: 'tasks-done', content: '🎖️' })
   }
 
   onUserInactivity (totalMinutes = 0) {
     if (totalMinutes !== 30 && totalMinutes !== 60) return
-    this.emit('send-reminder')
+    emit('send-reminder')
   }
 
   preventDeprecatedData () {

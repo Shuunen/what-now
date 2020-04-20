@@ -8,67 +8,45 @@
 </main>
 
 <script>
+  const emit = async (eventName, eventData) => { console.log(eventName, eventData); window.dispatchEvent(new CustomEvent(eventName, { detail: eventData })) }
+  const showToast = (type, message) => emit('show-toast', { type, message })
+  const today = () => new Date().toISOString().split('T')[0] // "2019-07-14"
+
   class Task {
-    constructor (data = { isDefault: true }) {
-      Object.assign(this, data)
-      if (!this.active) {
-        this.emit('task-done', { already: true })
-      }
-    }
+    get completedOn () { return this['completed-on'] }
 
-    async emit (eventName, eventData) {
-      console.log(eventName, eventData)
-      window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
-    }
+    get isBonus () { return this.once === 'bonus' }
 
-    get completedOn () {
-      return this['completed-on']
-    }
+    get isOneTime () { return this.once === 'yes' }
 
-    get active () {
-      if (this.done) {
-        return false
-      }
-      if (!this.completedOn) {
-        return true
-      }
-      switch (this.once) {
-        case 'yes':
-          return true
-        case 'day':
-          return this.daysSinceCompletion >= 1
-        case 'week':
-          return this.daysSinceCompletion >= 7
-        case 'month':
-          return this.daysSinceCompletion >= 30
-        default:
-          console.error('unhandled case')
-      }
+    get isActive () {
+      if (this.done) return false
+      if (!this.completedOn || this.isOneTime) return true
+      if (this.once === 'day') return this.daysSinceCompletion >= 1
+      if (this.once === 'week') return this.daysSinceCompletion >= 7
+      if (this.once === 'month') return this.daysSinceCompletion >= 30
+      console.error('unhandled case')
       return false
     }
 
-    get daysSinceCompletion () {
-      return ((new Date(this.today()) - new Date(this.completedOn)) / 1000 / (3600 * 24))
-    }
+    get daysSinceCompletion () { return ((new Date(today()) - new Date(this.completedOn)) / 1000 / (3600 * 24)) }
 
-    today () {
-      // give the same format as 'completed-on' like "2019-07-14"
-      return new Date().toISOString().split('T')[0]
+    constructor (data = { isDefault: true }) {
+      Object.assign(this, data)
+      if (this.isActive) return
+      emit('task-done', { already: true })
     }
 
     complete () {
-      this['completed-on'] = this.today()
-      // task is complete for today, but can be done totally is it was a one time job
-      this.done = (this.once === 'yes')
-      this.emit('task-update', Object.assign({}, this))
-      this.emit('task-done', { already: false })
+      this['completed-on'] = today() // task is complete for today
+      this.done = this.isOneTime // but it also can be done totally if it was a one time job
+      emit('task-update', this)
+      emit('task-done', { already: false })
     }
   }
 
   class Tasks {
-    get activeTask () {
-      return this.tasks[this.index]
-    }
+    get activeTask () { return this.tasks[this.index] }
 
     constructor () {
       this.setupElements()
@@ -76,18 +54,7 @@
       setTimeout(() => this.titleIntro(), 100)
     }
 
-    async emit (eventName, eventData) {
-      console.log(eventName, eventData)
-      window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
-    }
-
-    async sleep (ms) {
-      return new Promise(resolve => setTimeout(resolve, (ms || 1000)))
-    }
-
-    on (eventName, callback) {
-      window.addEventListener(eventName, event => callback.bind(this)(event.detail))
-    }
+    on (eventName, callback) { window.addEventListener(eventName, event => callback.bind(this)(event.detail)) }
 
     setupElements () {
       this.titleEl = document.querySelector('.task--title')
@@ -103,7 +70,7 @@
 
     titleIntro () {
       this.titleEl.innerHTML = '' // What <em>now</em> ?
-      this.emit('type-effect', { el: this.titleEl, text: 'What now ?' })
+      emit('type-effect', { el: this.titleEl, text: 'What now ?' })
     }
 
     onKeyUp (code) {
@@ -115,7 +82,7 @@
     onTasksLoaded (tasks) {
       this.index = 0
       this.tasks = tasks.map(data => new Task(data))
-      this.showToast(this.tasks.length ? 'info' : 'error', (this.tasks.length || 'no') + ' tasks found')
+      showToast(this.tasks.length ? 'info' : 'error', (this.tasks.length || 'no') + ' tasks found')
       this.showControls()
       this.check()
     }
@@ -131,7 +98,7 @@
       this.activeTask.done = true
       this.doneEl.textContent = 'done !'
       this.doneEl.classList.remove('animate')
-      document.querySelectorAll('.task--prev, .task--next').forEach(el => this.emit('fade-in', el))
+      document.querySelectorAll('.task--prev, .task--next').forEach(el => emit('fade-in', el))
       this.check()
       this.show()
     }
@@ -139,7 +106,7 @@
     done () {
       if (this.activeTask.isDefault) return this.handleDefaultTask()
       console.log('marking as done :', this.activeTask)
-      this.showToast('success', 'well done')
+      showToast('success', 'well done')
       this.activeTask.complete()
       this.check()
       this.show()
@@ -147,21 +114,15 @@
 
     check () {
       const hadActiveTasks = this.tasks.length > 0
-      this.tasks = this.tasks.filter(task => task.active)
+      this.tasks = this.tasks.filter(task => task.isActive)
       const hasActiveTasks = this.tasks.length > 0
       console.log('active tasks remaining', this.tasks)
-      if (hadActiveTasks && !hasActiveTasks) return this.emit('tasks-done', {})
-      if (this.tasks.length === 1) return this.showToast('info', 'only one tasks left for today !')
-      this.showToast('info', `${this.tasks.length} tasks remaining`)
+      if (hadActiveTasks && !hasActiveTasks) return emit('tasks-done', {})
+      if (this.tasks.length === 1) return showToast('info', 'only one tasks left for today !')
+      showToast('info', `${this.tasks.length} tasks remaining`)
     }
 
-    showToast (type, message) {
-      return this.emit('show-toast', { type, message })
-    }
-
-    prev () {
-      this.next(true)
-    }
+    prev () { this.next(true) }
 
     next (reverse) {
       if (!this.activeTask) this.index = 0
@@ -171,9 +132,7 @@
       this.show()
     }
 
-    show () {
-      this.emit('type-effect', { el: this.titleEl, text: this.activeTask.name })
-    }
+    show () { emit('type-effect', { el: this.titleEl, text: this.activeTask.name }) }
   }
   // eslint-disable-next-line no-new
   window.tasks = new Tasks()

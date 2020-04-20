@@ -4,6 +4,7 @@
     "notificationclick",
     "swipeleft",
     "swiperight",
+    "tinygesture",
     "unitless"
   ]
 }
