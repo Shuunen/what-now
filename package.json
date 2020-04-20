@@ -43,7 +43,7 @@
     "url": "https://github.com/Shuunen/what-now.git"
   },
   "scripts": {
-    "build": "parcel build src/index.html --public-url . --no-source-maps",
+    "build": "parcel build src/index.html --public-url . --no-source-maps --detailed-report",
     "check": "repo-check",
     "ci": "npm run test",
     "dev": "run-p watch test:open",
