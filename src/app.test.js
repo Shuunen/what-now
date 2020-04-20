@@ -184,13 +184,14 @@ describe('App', () => {
     })
     it('should handle master badgerz or haxx0rz', () => {
       cy.visit('/')
+      cy.window().then(w => w.dispatchEvent(new CustomEvent('action-required', { detail: false })))
       cy.get('.badge').should('have.length', 0)
-      const emojis = '😎🤓💻🖖⚗🤯'.repeat(30) // 6 emojis * 30 = 180
+      const emojis = Array.from('😎🤓💻🖖⚗🤯'.repeat(6))
       for (const emoji of emojis) {
         cy.window().then(w => w.dispatchEvent(new CustomEvent('add-badge', { detail: { type: 'test', content: emoji } })))
         cy.wait(1)
       }
-      cy.get('.badge').should('have.length', 180)
+      cy.get('.badge').should('have.length', emojis.length)
     })
   })
   describe('Progress', () => {
@@ -206,14 +207,20 @@ describe('App', () => {
       cy.get('.what-now[data-progress="40"]').should('be.visible')
       cy.get('.progress .level-40').should('be.visible')
     })
+    it('ask a task, gain no level', () => {
+      cy.get('.task--done').click()
+    })
     it('gain levels via completing tasks', () => {
       cy.get('.task--done').click()
+      cy.get('.toast.error').click()
+      cy.get('.task--title').should('be.visible').contains('Ranger le garage')
       cy.get('.task--done').click()
-      cy.get('.what-now[data-progress="60"]').should('be.visible')
-      cy.get('.progress .level-60').should('be.visible')
+      cy.get('.toast.error').click()
+      cy.get('.what-now[data-progress="80"]').should('be.visible')
+      cy.get('.progress .level-80').should('be.visible')
     })
-    it('complete all levels', () => {
-      cy.get('.task--done').click()
+    it('complete last task to reach level max', () => {
+      cy.get('.task--title').should('be.visible').contains('Trouver des choses à donner ou jeter')
       cy.get('.task--done').click()
       cy.get('.what-now[data-progress="100"]').should('be.visible')
       cy.get('.progress .level-100').should('be.visible')
