@@ -38,8 +38,6 @@ class App {
     this.on('api-response', this.parseApiResponse)
     this.on('api-set', this.onApiSet)
     this.on('task-update', this.onTaskUpdate)
-    this.on('task-done', this.onTaskDone)
-    this.on('tasks-done', this.onTasksDone)
     this.on('tasks-loaded', () => (this.tasksLoaded = true))
     this.on('user-inactivity', this.onUserInactivity)
     this.on('type-effect', this.typeEffect)
@@ -103,15 +101,6 @@ class App {
     const url = `https://api.airtable.com/v0/${this.apiBase}/tasks/${task.id}?api_key=${this.apiKey}&view=todo`
     const data = { fields: { 'completed-on': task['completed-on'], done: task.done } }
     await patch(url, data).then(res => res.json()).catch(err => showError(err.message))
-  }
-
-  onTaskDone () {
-    emit('add-badge', { type: 'task-done', content: '*' })
-    emit('level-up')
-  }
-
-  onTasksDone () {
-    emit('add-badge', { type: 'tasks-done', content: '🎖️' })
   }
 
   onUserInactivity (totalMinutes = 0) {

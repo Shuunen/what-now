@@ -33,8 +33,6 @@
 
     constructor (data = { isDefault: true }) {
       Object.assign(this, data)
-      if (this.isActive || this.isBonus) return
-      emit('task-done', { already: true })
     }
 
     complete () {
@@ -42,7 +40,6 @@
       this.done = this.isOneTime // but it also can be done totally if it was a one time job
       this.activated = false
       emit('task-update', this)
-      emit('task-done', { already: false })
     }
   }
 
@@ -87,7 +84,6 @@
       this.showControls()
       this.handleBonusTask()
       this.check()
-      if (this.tasks.length) emit('level-max', this.tasks.length)
     }
 
     showControls () {
@@ -125,14 +121,14 @@
     }
 
     check () {
-      const hadActiveTasks = this.tasks.length > 0
       this.tasks = this.tasks.filter(task => task.isActive)
       const hasActiveTasks = this.tasks.length > 0
       console.log('active tasks remaining', this.tasks)
-      if (hadActiveTasks && !hasActiveTasks) return emit('tasks-done', {})
       if (hasActiveTasks && !this.activeTask) this.index = 0
-      if (this.tasks.length === 1) return showToast('info', 'only one tasks left for today !')
-      showToast('info', `${this.tasks.length} tasks remaining`)
+      const remaining = this.activeTask && this.activeTask.isDefault ? (this.tasks.length - 1) : this.tasks.length
+      if (remaining === 1) return showToast('info', 'only one task left for today !')
+      showToast('info', `${remaining} tasks remaining`)
+      emit('tasks-remaining', remaining)
     }
 
     prev () { this.next(true) }

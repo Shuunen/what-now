@@ -91,11 +91,8 @@ describe('App', () => {
         })
         cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: json })))
         cy.get('.toast.info').should('be.visible').contains('7 tasks found')
-        cy.get('.toast.info').should('be.visible').contains('5 tasks remaining')
+        cy.get('.toast.info').should('be.visible').contains('4 tasks remaining')
       })
-    })
-    it('has one task-done badge displayed because one task has been already completed', () => {
-      cy.get('.badge.task-done').should('be.visible')
     })
     it('show task', () => {
       cy.get('.task--title').should('be.visible').contains('What now')
@@ -151,47 +148,12 @@ describe('App', () => {
       cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: { records: [task, bonusTask1, bonusTask2] } })))
       cy.get('.toast.info').should('be.visible').contains('parsing api response')
       cy.get('.toast.info').should('be.visible').contains('3 tasks found')
-      cy.get('.toast.info').should('be.visible').contains('2 tasks remaining')
+      cy.get('.toast.info').should('be.visible').contains('only one task left for today')
       cy.get('.task--title').should('be.visible').contains('What now')
       cy.get('.task--done').should('be.visible').click()
       cy.get('.task--title').should('be.visible').contains(bonusTask1.fields.name)
       cy.get('.task--done').should('be.visible').click()
       cy.get('.level-100').should('be.visible')
-    })
-  })
-  describe('Badges', () => {
-    const taskDone = { fields: { done: true } }
-    const taskTodo = { fields: {} }
-    it('has no badges at start', () => {
-      cy.visit('/')
-      cy.get('.badges').should('be.visible')
-    })
-    it('can display badges on demand', () => {
-      for (const emoji of '🌌✨💖') {
-        cy.window().then(w => w.dispatchEvent(new CustomEvent('add-badge', { detail: { type: 'test', content: emoji } })))
-        cy.get('.badge').should('be.visible').contains(emoji)
-      }
-    })
-    it('should display task-done badge on task complete', () => {
-      cy.visit('/')
-      cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: { records: [taskDone, taskTodo] } })))
-      cy.get('.badge.task-done').should('be.visible')
-    })
-    it('should display n stars when n tasks completed', () => {
-      cy.visit('/')
-      cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: { records: [taskDone, taskDone, taskDone] } })))
-      cy.get('.badge').should('have.length', 3) // 3 .task-done ⭐
-    })
-    it('should handle master badgerz or haxx0rz', () => {
-      cy.visit('/')
-      cy.window().then(w => w.dispatchEvent(new CustomEvent('action-required', { detail: false })))
-      cy.get('.badge').should('have.length', 0)
-      const emojis = Array.from('😎🤓💻🖖⚗🤯'.repeat(6))
-      for (const emoji of emojis) {
-        cy.window().then(w => w.dispatchEvent(new CustomEvent('add-badge', { detail: { type: 'test', content: emoji } })))
-        cy.wait(1)
-      }
-      cy.get('.badge').should('have.length', emojis.length)
     })
   })
   describe('Progress', () => {
@@ -204,8 +166,8 @@ describe('App', () => {
       })
     })
     it('has default progress', () => {
-      cy.get('.what-now[data-progress="40"]').should('be.visible')
-      cy.get('.progress .level-40').should('be.visible')
+      cy.get('.what-now[data-progress="60"]').should('be.visible')
+      cy.get('.progress .level-60').should('be.visible')
     })
     it('ask a task, gain no level', () => {
       cy.get('.task--done').click()
@@ -221,6 +183,8 @@ describe('App', () => {
     })
     it('complete last task to reach level max', () => {
       cy.get('.task--title').should('be.visible').contains('Trouver des choses à donner ou jeter')
+      cy.get('.task--done').click()
+      cy.get('.task--title').should('be.visible').contains('Journée sans alcool !')
       cy.get('.task--done').click()
       cy.get('.what-now[data-progress="100"]').should('be.visible')
       cy.get('.progress .level-100').should('be.visible')

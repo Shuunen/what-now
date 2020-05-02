@@ -4,43 +4,16 @@
 
 <script>
   class Progress {
-    get level () {
-      return this._level
-    }
-
-    set level (newLevel = 0) {
-      this._level = Math.max(Math.min(newLevel, this.maxLevel), 0)
-      this.dispatchProgression()
-    }
-
-    get progression () {
-      if (this.level === 0) return 0
-      // * 10) * 10 gives a "floor" round to 10's, ex: 47 => 50 & 51 => 50 too
-      const p = Math.min(Math.floor(this._level / this.maxLevel * 10) * 10, 100)
-      // console.log(`level ${this._level}/${this.maxLevel}, progression ${p}%`)
-      return p
-    }
-
     constructor () {
       this.levelEl = document.querySelector('.level')
-      this._level = 0
-      this.maxLevel = 10
       this.setupListeners()
-      // this.setupDevListeners()
     }
+
+    on (eventName, callback) { window.addEventListener(eventName, event => callback.bind(this)(event.detail)) }
 
     setupListeners () {
-      window.addEventListener('level-max', event => this.setLevelMax(event.detail))
-      window.addEventListener('level-up', () => this.onLevelUp())
-      window.addEventListener('level-down', () => this.onLevelDown())
+      this.on('tasks-remaining', this.setProgression)
       document.querySelector('.progress').addEventListener('dblclick', () => document.location.reload())
-    }
-
-    setupDevListeners () {
-      window.addEventListener('keyup', (event) => {
-        if (event.key === '+') return this.onLevelUp()
-        if (event.key === '-') return this.onLevelDown()
-      })
     }
 
     async emit (eventName, eventData) {
@@ -48,24 +21,11 @@
       window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
     }
 
-    setLevelMax (newMaxLevel = 0) {
-      if (newMaxLevel === 0) return console.error('missing level max value')
-      console.log('setting level max to', newMaxLevel)
-      this.maxLevel = newMaxLevel
-      this.dispatchProgression()
-    }
-
-    onLevelUp () {
-      this.level++
-    }
-
-    onLevelDown () {
-      this.level--
-    }
-
-    dispatchProgression () {
-      document.body.setAttribute('data-progress', this.progression)
-      this.levelEl.className = 'level-' + this.progression
+    setProgression (tasksRemaining = 0) {
+      const progression = Math.max(10 - tasksRemaining, 0) * 10
+      console.log('set progression to', progression, '%')
+      document.body.setAttribute('data-progress', progression)
+      this.levelEl.className = 'level-' + progression
     }
   }
 
@@ -187,10 +147,6 @@
     z-index: 100;
     padding-top: 10rem;
     background-color: #edf3fa;
-  }
-
-  [data-progress="100"] .badges {
-    display: none;
   }
 
   [data-progress="100"] .progress::before {
