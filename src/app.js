@@ -89,7 +89,7 @@ class App {
   }
 
   async parseApiResponse (data) {
-    showLog('parsing api response...', data)
+    showLog('parsing api response...')
     if (!data.records) throw new Error('api does not return the expected format')
     const tasks = data.records.map(task => ({ id: task.id, ...task.fields }))
     emit('action-required', false)
