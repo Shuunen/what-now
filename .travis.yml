@@ -17,12 +17,9 @@ cache:
     - ~/.npm
     - ~/.cache
   override:
-    # npm ci install all dependencies 
+    # npm ci install all dependencies
     - npm ci
     - npm run cy:verify
     - npm run cy:info
 
-script:
-  # print all Travis environment variables for debugging
-  - $(npm bin)/print-env TRAVIS
-  - npm run ci
+script: npm run ci
