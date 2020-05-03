@@ -1,12 +1,11 @@
 language: node_js
 
 node_js:
-  - 10.16
+  # Node 10.3+ includes npm@6 which has good "npm ci" command
+  - 10.8
 
-env: NODE_ENV=production
-
-install: npm install --production=false
-
+# if using Ubuntu 16 need this library
+# https://github.com/cypress-io/cypress-documentation/pull/1647
 addons:
   apt:
     packages:
@@ -17,9 +16,13 @@ cache:
   directories:
     - ~/.npm
     - ~/.cache
-  # install dependencies and check that Cypress can run
   override:
+    # npm ci install all dependencies 
     - npm ci
     - npm run cy:verify
+    - npm run cy:info
 
-script: npm run ci
+script:
+  # print all Travis environment variables for debugging
+  - $(npm bin)/print-env TRAVIS
+  - npm run ci
