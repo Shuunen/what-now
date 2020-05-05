@@ -1,53 +1,70 @@
 // Thanks https://github.com/master-atul/web-push-demo
 
-const check = async () => {
-  if (!('serviceWorker' in navigator)) {
-    throw new Error('No Service Worker support!')
+class AppServiceWorker {
+  get currentProgress () {
+    return parseInt(document.body.getAttribute('data-progress') || 0)
   }
-  if (!('permission' in Notification)) {
-    throw new Error('No Push API Support!')
+
+  get canNotify () {
+    return this.notificationPerm === 'granted'
+  }
+
+  constructor () {
+    this.setupListeners()
+    this.setupWorker()
+    this.checkNotificationPerm()
+  }
+
+  on (eventName, callback) { window.addEventListener(eventName, event => callback.bind(this)(event.detail)) }
+  showError (message) { this.emit('show-toast', { type: 'error', message }) }
+  showInfo (message) { this.emit('show-toast', { type: 'info', message }) }
+
+  setupListeners () {
+    this.on('ask-notification-perm', this.askNotificationPerm)
+    this.on('send-reminder', this.sendReminder)
+  }
+
+  async setupWorker () {
+    this.registerServiceWorker()
+      .then(() => console.log('service-worker has been registered'))
+      .catch(err => console.error('failed to handle service worker', err))
+  }
+
+  async emit (eventName, eventData) {
+    console.log(eventName, eventData)
+    window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
+  }
+
+  async sendReminder () {
+    if (!this.canNotify) return
+    const registration = await navigator.serviceWorker.ready
+    if (this.currentProgress === 100) return this.showInfo('no reminders in heaven')
+    this.showInfo('trigger reminder')
+    return registration.sync.register('reminder')
+  }
+
+  checkNotificationPerm () {
+    this.notificationPerm = window.Notification.permission
+    // default: user has never been asked
+    // denied: user has refused
+    if (this.notificationPerm === 'default') this.emit('suggest-notification')
+  }
+
+  async askNotificationPerm () {
+    if (!('permission' in Notification)) return this.showError('Notifications cannot be enabled on this device.')
+    this.notificationPerm = await window.Notification.requestPermission()
+    // granted: user has accepted the request
+    // default: user has dismissed the notification permission popup by clicking on x
+    // denied: user has denied the request.
+    if (!this.canNotify) return this.showInfo('Notification permission not granted')
+    // this.showInfo('Notification are now enabled')
+  }
+
+  async registerServiceWorker () {
+    if (!('serviceWorker' in navigator)) throw new Error('No Service Worker support!')
+    const file = 'service-worker.js'
+    return navigator.serviceWorker.register(file)
   }
 }
 
-const emit = (eventName, eventData) => {
-  console.log(eventName, eventData)
-  window.dispatchEvent(new CustomEvent(eventName, { detail: eventData }))
-}
-
-const triggerSync = async (registration, type) => registration.sync.register(type)
-
-const currentProgress = () => parseInt(document.body.getAttribute('data-progress') || 0)
-
-const sendReminder = () => navigator.serviceWorker.ready.then(registration => {
-  if (currentProgress() === 100) return emit('show-toast', { type: 'info', message: 'no reminders in heaven' })
-  emit('show-toast', { type: 'info', message: 'trigger reminder' })
-  triggerSync(registration, 'reminder')
-})
-
-window.addEventListener('send-reminder', () => sendReminder())
-
-const registerServiceWorker = async () => {
-  const file = 'service-worker.js'
-  await navigator.serviceWorker.register(file)
-}
-
-const requestNotificationPermission = async () => {
-  const permission = await window.Notification.requestPermission()
-  // value of permission can be 'granted', 'default', 'denied'
-  // granted: user has accepted the request
-  // default: user has dismissed the notification permission popup by clicking on x
-  // denied: user has denied the request.
-  if (permission !== 'granted') {
-    throw new Error('Permission not granted for Notification')
-  }
-}
-
-const handleServiceWorker = async () => {
-  await check()
-  await requestNotificationPermission()
-  await registerServiceWorker()
-}
-
-handleServiceWorker()
-  .then(() => console.log('service-worker has been registered'))
-  .catch(err => console.error('failed to handle service worker', err))
+export const appServiceWorker = new AppServiceWorker()
