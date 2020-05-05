@@ -1,4 +1,5 @@
 <main class="tasks col center">
+  <button class="activate-notifications hidden" onclick="tasks.activateNotifications()">🛎️</button>
   <h1 class="task--title">What <em>now</em> ?</h1>
   <div class="row center task--buttons">
     <button class="task--prev hidden" onclick="tasks.prev()">&lt;</button>
@@ -58,11 +59,13 @@
       this.titleEl = document.querySelector('.task--title')
       this.btnEl = document.querySelector('.task--buttons')
       this.doneEl = document.querySelector('.task--done')
+      this.activateNotificationsEl = document.querySelector('.activate-notifications')
     }
 
     setupListeners () {
       this.on('tasks-loaded', this.onTasksLoaded)
       this.on('task-next', this.next)
+      this.on('suggest-notification', this.toggleNotificationBtn)
       window.addEventListener('keyup', event => this.onKeyUp(event.code))
     }
 
@@ -126,8 +129,8 @@
       console.log('active tasks remaining', this.tasks)
       if (hasActiveTasks && !this.activeTask) this.index = 0
       const remaining = this.activeTask && this.activeTask.isDefault ? (this.tasks.length - 1) : this.tasks.length
-      if (remaining === 1) return showToast('info', 'only one task left for today !')
-      showToast('info', `${remaining} tasks remaining`)
+      if (remaining === 1) showToast('info', 'only one task left for today !')
+      else showToast('info', `${remaining} tasks remaining`)
       emit('tasks-remaining', remaining)
     }
 
@@ -144,6 +147,13 @@
     show () {
       if (!this.activeTask) return console.log('no more task to show')
       emit('type-effect', { el: this.titleEl, text: this.activeTask.name })
+    }
+
+    toggleNotificationBtn () { this.activateNotificationsEl.classList.toggle('hidden') }
+    activateNotifications () {
+      emit('ask-notification-perm')
+      // whatever user choose, button shall be hidden now
+      this.toggleNotificationBtn()
     }
   }
   // eslint-disable-next-line no-new
@@ -190,6 +200,17 @@
     animation-iteration-count: 1;
     animation-name: heartBeat;
     animation-timing-function: ease-in-out;
+  }
+
+  .activate-notifications {
+    border: 0;
+    height: 3rem;
+    width: 3rem;
+    background: none;
+    padding: 0;
+    text-shadow: 0 0 1rem white;
+    position: absolute;
+    bottom: 8rem;
   }
 
   @keyframes heartBeat {
