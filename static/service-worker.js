@@ -13,7 +13,7 @@ const isCurrentClientFocused = async () => getCurrentClient().then(client => (cl
 const getNotifications = async () => self.registration.getNotifications()
 const getDisplayedReminder = async () => getNotifications().then(notifications => notifications.find(notification => notification.tag === 'reminder'))
 
-const showNotification = (title, icon = 'android-chrome-192x192.png', tag, permanent = false) => {
+const showNotification = (title, icon = 'android-chrome-192x192.png', tag = '', permanent = false) => {
   const options = { tag, icon, renotify: permanent, requireInteraction: permanent }
   self.registration.showNotification(title, options)
 }

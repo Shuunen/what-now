@@ -18,7 +18,7 @@ class Idle {
   }
 
   setupListeners () {
-    var events = ['mousedown', 'touchstart', 'visibilitychange']
+    const events = ['mousedown', 'touchstart', 'visibilitychange']
     events.forEach((name) => document.addEventListener(name, event => this.resetTimer(event.type), true))
   }
 
