@@ -2,7 +2,7 @@ const storage = localStorage
 
 export async function get (key) {
   const data = storage[key]
-  if (!data) return null
+  if (!data) return
   return (data[0] === '{') ? JSON.parse(data) : data
 }
 

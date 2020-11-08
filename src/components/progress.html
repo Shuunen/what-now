@@ -24,7 +24,7 @@
     setProgression (tasksRemaining = 0) {
       const progression = Math.max(10 - tasksRemaining, 0) * 10
       console.log('set progression to', progression, '%')
-      document.body.setAttribute('data-progress', progression)
+      document.body.dataset.progress = progression
       this.levelEl.className = 'level-' + progression
     }
   }

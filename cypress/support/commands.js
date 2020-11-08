@@ -32,10 +32,11 @@ Cypress.Commands.add('setLS', (key, value) => {
 })
 
 Cypress.on('window:before:load', win => {
-  win.fetch = (url, opts = { method: 'get' }) => {
+  win.fetch = (url, options) => {
     let data = 'case not handled yet'
-    if (opts.method === 'get' && url.includes('/tasks')) data = getTasks
-    else console.log('fake fetch not handled yet :', url, opts)
+    options = options || { method: 'get' }
+    if (options.method === 'get' && url.includes('/tasks')) data = getTasks
+    else console.log('fake fetch not handled yet :', url, options)
     return { json: () => data }
   }
 })

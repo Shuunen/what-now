@@ -2,7 +2,7 @@
 
 class AppServiceWorker {
   get currentProgress () {
-    return parseInt(document.body.getAttribute('data-progress') || 0)
+    return Number.parseInt(document.body.getAttribute('data-progress') || 0)
   }
 
   get canNotify () {
@@ -27,7 +27,7 @@ class AppServiceWorker {
   async setupWorker () {
     this.registerServiceWorker()
       .then(() => console.log('service-worker has been registered'))
-      .catch(err => console.error('failed to handle service worker', err))
+      .catch(error => console.error('failed to handle service worker', error))
   }
 
   async emit (eventName, eventData) {

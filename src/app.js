@@ -14,8 +14,8 @@ const patch = (url, data) => fetch(url, { headers, method: 'patch', body: JSON.s
 
 class App {
   constructor () {
-    this.apiBase = null
-    this.apiKey = null
+    this.apiBase = undefined
+    this.apiKey = undefined
     this.tasksLoaded = false
     this.setupElements()
     this.setupListeners()
@@ -67,25 +67,25 @@ class App {
   loadTasks (apiBase, apiKey) {
     return this.setLoading(true)
       .then(() => fetch(`https://api.airtable.com/v0/${apiBase}/tasks?api_key=${apiKey}&view=todo`))
-      .then(res => res.json())
+      .then(response => response.json())
       .then(data => this.parseApiResponse(data))
       .then(() => sleep(500))
-      .catch(err => showError(err.message))
+      .catch(error => showError(error.message))
       .then(() => this.setLoading(false))
   }
 
-  async fadeIn (el) {
-    el.classList.remove('hidden')
-    el.classList.add('hide')
+  async fadeIn (element) {
+    element.classList.remove('hidden')
+    element.classList.add('hide')
     await sleep(10)
-    el.style.opacity = 1
+    element.style.opacity = 1
   }
 
-  async fadeOut (el) {
-    el.classList.add('hide')
+  async fadeOut (element) {
+    element.classList.add('hide')
     await sleep(350)
-    el.classList.remove('hide')
-    el.classList.add('hidden')
+    element.classList.remove('hide')
+    element.classList.add('hidden')
   }
 
   async parseApiResponse (data) {
@@ -100,7 +100,7 @@ class App {
     if (this.apiBase === null || this.apiKey === null) return showError('cannot update task without api')
     const url = `https://api.airtable.com/v0/${this.apiBase}/tasks/${task.id}?api_key=${this.apiKey}&view=todo`
     const data = { fields: { 'completed-on': task['completed-on'], done: task.done } }
-    await patch(url, data).then(res => res.json()).catch(err => showError(err.message))
+    await patch(url, data).then(response => response.json()).catch(error => showError(error.message))
   }
 
   onUserInactivity (totalMinutes = 0) {
@@ -113,23 +113,25 @@ class App {
     setTimeout(() => document.location.reload(), oneHour)
   }
 
-  async typeEffect (target = { el: null, text: '' }) {
+  async typeEffect (target) {
+    target = target || { el: undefined, text: '' }
     if (!target.el) return console.error('cannot apply type effect without a target dom el')
-    if (!target.text || !target.text.length) return console.error('cannot apply type effect without a target text')
+    if (!target.text || target.text.length === 0) return console.error('cannot apply type effect without a target text')
     if (target.el.classList.contains('is-typing')) {
       console.log('delay type effect because another one is active')
       return setTimeout(() => this.typeEffect(target), 200)
     }
-    const toggle = (el) => el.classList.toggle('is-typing')
+    // eslint-disable-next-line unicorn/consistent-function-scoping
+    const toggle = (element) => element.classList.toggle('is-typing')
     target.el.textContent = '' // clear text content is quicker than animate the deletion of all chars
     await type(target.el, toggle, target.text, toggle)
     this.colorOneWord(target.el)
   }
 
-  colorOneWord (el) {
-    const words = el.textContent.split(' ')
+  colorOneWord (element) {
+    const words = element.textContent.split(' ')
     const word = pickOne(words)
-    el.innerHTML = el.textContent.replace(word, `<em>${word}</em>`)
+    element.innerHTML = element.textContent.replace(word, `<em>${word}</em>`)
   }
 }
 // eslint-disable-next-line no-new

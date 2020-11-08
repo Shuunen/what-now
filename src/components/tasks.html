@@ -32,8 +32,8 @@
 
     get daysSinceCompletion () { return ((new Date(today()) - new Date(this.completedOn)) / 1000 / (3600 * 24)) }
 
-    constructor (data = { isDefault: true }) {
-      Object.assign(this, data)
+    constructor (data) {
+      Object.assign(this, data || { isDefault: true })
     }
 
     complete () {
@@ -83,7 +83,7 @@
     onTasksLoaded (tasks) {
       this.index = 0
       this.tasks = tasks.map(data => new Task(data))
-      showToast(this.tasks.length ? 'info' : 'error', (this.tasks.length || 'no') + ' tasks found')
+      showToast(this.tasks.length > 0 ? 'info' : 'error', (this.tasks.length || 'no') + ' tasks found')
       this.showControls()
       this.handleBonusTask()
       this.check()
@@ -98,7 +98,7 @@
 
     handleBonusTask () {
       const bonusTasks = this.tasks.filter(t => t.isBonus) || []
-      if (!bonusTasks.length) return console.log('no bonus tasks found')
+      if (bonusTasks.length === 0) return console.log('no bonus tasks found')
       if (bonusTasks.find(t => t.completedOn === today())) return console.log('bonus task already done today')
       const bonusTask = bonusTasks[0]
       console.log('bonus task for today is :', bonusTask)
@@ -109,7 +109,7 @@
       this.activeTask.done = true
       this.doneEl.textContent = 'done !'
       this.doneEl.classList.remove('animate')
-      document.querySelectorAll('.task--prev, .task--next').forEach(el => emit('fade-in', el))
+      document.querySelectorAll('.task--prev, .task--next').forEach(element => emit('fade-in', element))
       this.check()
       this.show()
     }

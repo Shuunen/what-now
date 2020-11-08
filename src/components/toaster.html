@@ -15,25 +15,25 @@
     }
 
     showToast (type, message, delay) {
-      const toastEl = document.createElement('p')
-      toastEl.classList.add('toast', type)
-      toastEl.innerHTML = message
+      const toastElement = document.createElement('p')
+      toastElement.classList.add('toast', type)
+      toastElement.innerHTML = message
       if (type === 'success') {
-        toastEl.innerHTML += ' ✔️'
+        toastElement.innerHTML += ' ✔️'
       }
-      this.toasterEl.appendChild(toastEl)
-      toastEl.addEventListener('click', () => {
-        this.fadeOut(toastEl)
-        setTimeout(() => toastEl.remove(), 400)
+      this.toasterEl.append(toastElement)
+      toastElement.addEventListener('click', () => {
+        this.fadeOut(toastElement)
+        setTimeout(() => toastElement.remove(), 400)
       })
       if (type === 'error') {
         return
       }
-      setTimeout(() => this.fadeOut(toastEl), delay)
+      setTimeout(() => this.fadeOut(toastElement), delay)
     }
 
-    fadeOut (el) {
-      window.dispatchEvent(new CustomEvent('fade-out', { detail: el }))
+    fadeOut (element) {
+      window.dispatchEvent(new CustomEvent('fade-out', { detail: element }))
     }
   }
   // eslint-disable-next-line no-new
@@ -50,7 +50,7 @@
 
   .toast {
     margin: 0.1rem auto;
-    background-color: var(--color-white-shade, rgba(255,255,255,0.7));
+    background-color: var(--color-white-shade, rgba(255, 255, 255, 0.7));
     padding: 0.1rem 0.5rem;
   }
 

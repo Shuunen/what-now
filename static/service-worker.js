@@ -3,7 +3,7 @@
 const version = 9
 const url = new URL('', self.location.origin).href
 
-const pickOne = (arr) => arr[Math.floor(Math.random() * arr.length)]
+const pickOne = (array) => array[Math.floor(Math.random() * array.length)]
 const getWindowClients = async () => clients.matchAll({ type: 'window', includeUncontrolled: true })
 const getClientByUrl = async (url) => getWindowClients().then(clients => clients.find(client => client.url === url))
 const getCurrentClient = async () => getClientByUrl(url)

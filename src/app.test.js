@@ -174,10 +174,8 @@ describe('App', () => {
     })
     it('gain levels via completing tasks', () => {
       cy.get('.task--done').click()
-      cy.get('.toast.error').click()
       cy.get('.task--title').should('be.visible').contains('Ranger le garage')
       cy.get('.task--done').click()
-      cy.get('.toast.error').click()
       cy.get('.what-now[data-progress="80"]').should('be.visible')
       cy.get('.progress .level-80').should('be.visible')
     })

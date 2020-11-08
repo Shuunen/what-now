@@ -8,6 +8,7 @@ module.exports = {
     'plugin:cypress/recommended',
     'eslint:recommended',
     'standard',
+    'plugin:unicorn/recommended',
   ],
   rules,
   parserOptions: {
@@ -17,5 +18,6 @@ module.exports = {
   plugins: [
     'cypress',
     'html',
+    'unicorn',
   ],
 }

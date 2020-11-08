@@ -41,4 +41,4 @@ class Idle {
   }
 }
 
-window.onload = new Idle()
+window.addEventListener('load', new Idle())
