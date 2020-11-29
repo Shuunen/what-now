@@ -165,29 +165,35 @@ describe('App', () => {
     before(() => {
       cy.visit('/')
       cy.wait(1000)
-      cy.fixture('get-tasks').then((json) => {
-        cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: json })))
-        cy.get('.toast.info').should('be.visible').contains('7 tasks found')
+    })
+    it('load mocked tasks from json', () => {
+      cy.fixture('progress').then((json) => {
+        cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: fillDates(json) })))
+        cy.get('.toast.info').should('be.visible').contains('9 tasks found')
+        // one of the 9 tasks is another bonus, and 3 tasks already completed so -4 inactives tasks
+        cy.get('.toast.info').should('be.visible').contains('5 tasks remaining')
       })
     })
     it('has default progress', () => {
-      cy.get('.what-now[data-progress="60"]').should('be.visible')
-      cy.get('.progress .level-60').should('be.visible')
+      cy.get('.what-now[data-progress="50"]').should('be.visible')
+      cy.get('.progress .level-50').should('be.visible')
     })
     it('ask a task, gain no level', () => {
       cy.get('.task--done').click()
     })
     it('gain levels via completing tasks', () => {
       cy.get('.task--done').click()
-      cy.get('.task--title').should('be.visible').contains('Ranger le garage')
+      cy.get('.task--title').should('be.visible').contains('name-4')
+      cy.get('.task--done').click()
+      cy.get('.task--title').should('be.visible').contains('name-5')
       cy.get('.task--done').click()
       cy.get('.what-now[data-progress="80"]').should('be.visible')
       cy.get('.progress .level-80').should('be.visible')
     })
     it('complete last task to reach level max', () => {
-      cy.get('.task--title').should('be.visible').contains('Trouver des choses à donner ou jeter')
+      cy.get('.task--title').should('be.visible').contains('name-6')
       cy.get('.task--done').click()
-      cy.get('.task--title').should('be.visible').contains('Journée sans alcool !')
+      cy.get('.task--title').should('be.visible').contains('name-8')
       cy.get('.task--done').click()
       cy.get('.what-now[data-progress="100"]').should('be.visible')
       cy.get('.progress .level-100').should('be.visible')

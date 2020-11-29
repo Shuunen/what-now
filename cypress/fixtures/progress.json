@@ -1,0 +1,72 @@
+{
+  "records": [
+    {
+      "id": "task-1-should-NOT-be-active",
+      "fields": {
+        "name": "name-1",
+        "once": "week",
+        "completed-on": "{{ today }}"
+      }
+    },
+    {
+      "id": "task-2-should-be-active",
+      "fields": {
+        "name": "name-2",
+        "once": "day",
+        "completed-on": "2018-12-30"
+      }
+    },
+    {
+      "id": "task-3-should-NOT-be-active",
+      "fields": {
+        "name": "name-3",
+        "once": "day",
+        "completed-on": "{{ today }}"
+      }
+    },
+    {
+      "id": "task-4-should-be-active",
+      "fields": {
+        "name": "name-4",
+        "once": "yes"
+      }
+    },
+    {
+      "id": "task-5-should-be-active",
+      "fields": {
+        "name": "name-5",
+        "once": "month"
+      }
+    },
+    {
+      "id": "task-6-should-be-active",
+      "fields": {
+        "name": "name-6",
+        "once": "bonus"
+      }
+    },
+    {
+      "id": "task-7-should-NOT-be-active",
+      "fields": {
+        "name": "name-7",
+        "once": "bonus"
+      }
+    },
+    {
+      "id": "task-8-should-be-active",
+      "fields": {
+        "name": "name-8",
+        "once": "3-days",
+        "completed-on": "{{ 3-days-ago }}"
+      }
+    },
+    {
+      "id": "task-9-should-NOT-be-active",
+      "fields": {
+        "name": "name-9",
+        "once": "4-days",
+        "completed-on": "{{ 3-days-ago }}"
+      }
+    }
+  ]
+}
