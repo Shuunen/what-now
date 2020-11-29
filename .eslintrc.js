@@ -11,10 +11,6 @@ module.exports = {
     'plugin:unicorn/recommended',
   ],
   rules,
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
-  },
   plugins: [
     'cypress',
     'html',
