@@ -1,0 +1,72 @@
+{
+  "records": [
+    {
+      "id": "task-1-should-NOT-be-active",
+      "fields": {
+        "name": "Appeler les parents",
+        "once": "week",
+        "completed-on": "{{ yesterday }}"
+      }
+    },
+    {
+      "id": "task-2-should-be-active",
+      "fields": {
+        "name": "Trier les mails",
+        "once": "day",
+        "completed-on": "{{ yesterday }}"
+      }
+    },
+    {
+      "id": "task-3-should-be-active",
+      "fields": {
+        "name": "Faire une lessive",
+        "once": "day"
+      }
+    },
+    {
+      "id": "task-4-should-be-active",
+      "fields": {
+        "name": "Ranger le garage",
+        "once": "yes"
+      }
+    },
+    {
+      "id": "task-5-should-be-active",
+      "fields": {
+        "name": "Trouver des choses à donner ou jeter",
+        "once": "month"
+      }
+    },
+    {
+      "id": "task-6-should-NOT-be-active",
+      "fields": {
+        "name": "Journée sans alcool !",
+        "once": "bonus",
+        "completed-on": "{{ today }}"
+      }
+    },
+    {
+      "id": "task-7",
+      "fields": {
+        "name": "Faire 10 000 pas",
+        "once": "bonus"
+      }
+    },
+    {
+      "id": "task-8-should-be-active",
+      "fields": {
+        "name": "Imiter parfaitement le bruit de l'otarie",
+        "once": "3-days",
+        "completed-on": "{{ 3-days-ago }}"
+      }
+    },
+    {
+      "id": "task-9-should-NOT-be-active",
+      "fields": {
+        "name": "Faire la chenille",
+        "once": "4-days",
+        "completed-on": "{{ 3-days-ago }}"
+      }
+    }
+  ]
+}

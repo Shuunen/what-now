@@ -23,10 +23,11 @@
     get isActive () {
       if (this.done || (this.isBonus && !this.activated)) return false
       if (!this.completedOn || this.isOneTime || this.activated) return true
-      if (this.once === 'day') return this.daysSinceCompletion >= 1
-      if (this.once === 'week') return this.daysSinceCompletion >= 7
-      if (this.once === 'month') return this.daysSinceCompletion >= 30
-      console.error('unhandled case')
+      const [, number = 1, unit = ''] = this.once.match(/(\d)?-?(day|week|month)/)
+      if (unit === 'day') return this.daysSinceCompletion >= number
+      if (unit === 'week') return this.daysSinceCompletion >= number * 7
+      if (unit === 'month') return this.daysSinceCompletion >= number * 30
+      console.error('tasks : unhandled "once" value')
       return false
     }
 
@@ -178,18 +179,18 @@
   }
 
   .task--prev,
-  .task--next {
+          .task--next {
     font-size: 3rem;
     line-height: 0;
   }
 
   .task--title em {
-    color: var(--color-black, #333333);
-    font-style: normal;
-    display: inline-flex;
     animation-duration: .4s;
     animation-fill-mode: both;
     animation-name: bounce;
+    color: var(--color-black, #333333);
+    display: inline-flex;
+    font-style: normal;
     transform-origin: center bottom;
   }
 
@@ -203,18 +204,17 @@
   }
 
   .activate-notifications {
-    border: 0;
-    height: 3rem;
-    width: 3rem;
     background: none;
-    padding: 0;
-    text-shadow: 0 0 1rem white;
-    position: absolute;
+    border: 0;
     bottom: 8rem;
+    height: 3rem;
+    padding: 0;
+    position: absolute;
+    text-shadow: 0 0 1rem white;
+    width: 3rem;
   }
 
   @keyframes heartBeat {
-
     0%,
     28%,
     70% {
@@ -228,7 +228,6 @@
   }
 
   @keyframes bounce {
-
     from,
     20%,
     53%,

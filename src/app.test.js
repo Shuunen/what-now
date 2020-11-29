@@ -2,6 +2,18 @@
 const AIRTABLE_API_BASE_SAMPLE = 'appdxOY0ei028c0AE'
 const AIRTABLE_API_KEY_SAMPLE = 'keyWtbZlAQKQ10t1b'
 
+const daysAgo = (nbDays = 0) => (d => new Date(d.setDate(d.getDate() - nbDays)))(new Date()).toISOString().split('T')[0]
+const fillDates = json => {
+  json.records.forEach(record => {
+    const on = record.fields['completed-on']
+    if (!on) return
+    if (on === '{{ 3-days-ago }}') return (record.fields['completed-on'] = daysAgo(3))
+    if (on === '{{ yesterday }}') return (record.fields['completed-on'] = daysAgo(1))
+    if (on === '{{ today }}') record.fields['completed-on'] = daysAgo(0)
+  })
+  return json
+}
+
 describe('App', () => {
   it('successfully loads', () => {
     cy.visit('/')
@@ -78,20 +90,11 @@ describe('App', () => {
       cy.visit('/')
       cy.wait(1000)
     })
-    it('load tasks from json', () => {
-      cy.fixture('get-tasks').then((json) => {
-        // set the 2 first tasks completed on yesterday, with this format "2019-07-14"
-        const yesterday = (d => new Date(d.setDate(d.getDate() - 1)))(new Date()).toISOString().split('T')[0]
-        const today = new Date().toISOString().split('T')[0]
-        json.records.forEach(record => {
-          const on = record.fields['completed-on']
-          if (!on) return
-          if (on === '{{ yesterday }}') return (record.fields['completed-on'] = yesterday)
-          if (on === '{{ today }}') record.fields['completed-on'] = today
-        })
-        cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: json })))
-        cy.get('.toast.info').should('be.visible').contains('7 tasks found')
-        cy.get('.toast.info').should('be.visible').contains('4 tasks remaining')
+    it('load mocked tasks from json', () => {
+      cy.fixture('tasks').then((json) => {
+        cy.window().then(w => w.dispatchEvent(new CustomEvent('api-response', { detail: fillDates(json) })))
+        cy.get('.toast.info').should('be.visible').contains('9 tasks found')
+        cy.get('.toast.info').should('be.visible').contains('5 tasks remaining')
       })
     })
     it('show task', () => {
@@ -114,10 +117,12 @@ describe('App', () => {
       cy.get('.task--done').click()
     })
     it('show previously skipped task', () => {
-      cy.get('.task--title').should('be.visible').contains('Trier les mails')
+      cy.get('.task--title').should('be.visible').contains("Imiter parfaitement le bruit de l'otarie")
       cy.get('.task--done').should('be.visible').click()
     })
-    it('last task is done, should see final screen', () => {
+    it('mark last task as done, should see final screen', () => {
+      cy.get('.task--title').should('be.visible').contains('Trier les mails')
+      cy.get('.task--done').should('be.visible').click()
       cy.get('.level-100').should('be.visible')
     })
     it('load empty task list', () => {
