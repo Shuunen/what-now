@@ -10,7 +10,7 @@ const emit = async (eventName, eventData) => { console.log(eventName, eventData)
 const showError = message => emit('show-toast', { type: 'error', message })
 const showLog = message => emit('show-toast', { type: 'info', message })
 const headers = { Accept: 'application/json', 'Content-Type': 'application/json' }
-const patch = (url, data) => fetch(url, { headers, method: 'patch', body: JSON.stringify(data) })
+const patch = async (url, data) => fetch(url, { headers, method: 'patch', body: JSON.stringify(data) })
 
 class App {
   constructor () {
@@ -100,7 +100,7 @@ class App {
     if (this.apiBase === null || this.apiKey === null) return showError('cannot update task without api')
     const url = `https://api.airtable.com/v0/${this.apiBase}/tasks/${task.id}?api_key=${this.apiKey}&view=todo`
     const data = { fields: { 'completed-on': task['completed-on'], done: task.done } }
-    await patch(url, data).then(response => response.json()).catch(error => showError(error.message))
+    await patch(url, data).catch(error => showError(error.message))
   }
 
   onUserInactivity (totalMinutes = 0) {
