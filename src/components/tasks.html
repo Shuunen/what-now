@@ -51,7 +51,7 @@
     constructor () {
       this.setupElements()
       this.setupListeners()
-      setTimeout(() => this.titleIntro(), 100)
+      setTimeout(() => this.titleIntro(), 1000)
     }
 
     on (eventName, callback) { window.addEventListener(eventName, event => callback.bind(this)(event.detail)) }
@@ -179,7 +179,7 @@
   }
 
   .task--prev,
-          .task--next {
+              .task--next {
     font-size: 3rem;
     line-height: 0;
   }
