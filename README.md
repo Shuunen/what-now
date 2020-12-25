@@ -10,6 +10,16 @@
 
 > Minimalistic task coach
 
+## Todo
+
+- [ ] remove notification on click
+- [ ] remove arrows when only one task remain
+- [ ] show estimated time remaining
+- [ ] handle themes
+- [ ] drop cypress ?
+- [ ] drop parcel ?
+- [ ] drop eslint ?
+
 ## Thanks
 
 - [Animate.css](https://daneden.github.io/animate.css) : nice collection of css animations
