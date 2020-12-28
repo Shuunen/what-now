@@ -1,8 +1,0 @@
-{
-  "baseUrl": "http://localhost:8000",
-  "integrationFolder": "src",
-  "testFiles": "**/*.test.js",
-  "video": false,
-  "viewportHeight": 600,
-  "viewportWidth": 400
-}
