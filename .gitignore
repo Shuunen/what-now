@@ -9,3 +9,4 @@ node_modules
 sample.*
 .nyc_output
 coverage
+_tailwind.css

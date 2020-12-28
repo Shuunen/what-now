@@ -1,0 +1,7 @@
+html, body {
+  height: 100%;
+}
+
+.task[data-active="true"]::first-letter {
+  opacity: 0.5;
+}
