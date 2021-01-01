@@ -1,4 +1,3 @@
-import './assets/style.css'
 import { landing } from './views'
 
 const app = document.querySelector('#app')
