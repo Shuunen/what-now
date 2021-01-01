@@ -1,16 +1,13 @@
-import { dateIso10, storage } from 'shuutils'
+import { emit, on, storage } from 'shuutils'
 import { AirtableResponse, Task } from '../models'
-import { button } from '../utils'
+import { getTasks } from '../services/tasks'
+import { button, div, dom, p } from '../utils'
+import { progress } from './counter'
 
-export const tasks = document.createElement('div')
+export const tasks = div()
 
-const message = document.createElement('p')
-message.textContent = 'Fetching data from Airtable...'
-message.className = 'font-light mb-3 text-2xl mb-2'
+const message = p('Fetching data from Airtable...', 'message font-light mb-3 text-2xl mb-2')
 tasks.append(message)
-
-const progress = document.createElement('hr')
-progress.className = 'mb-2'
 tasks.append(progress)
 
 const retry = button('Setup credentials', 'mt-4')
@@ -28,73 +25,40 @@ const handleError = (response: AirtableResponse) => {
   tasks.append(retry)
 }
 
+on('get-tasks-error', handleError)
+
 const taskLine = (task: Task) => {
   const active = task.isActive()
-  const line = document.createElement('button')
-  line.className = 'task transition-transform duration-500 transform mr-auto px-2 py-1 -ml-2'
+  const line = dom('button', '', 'task transition-transform duration-500 transform mr-auto px-2 py-1 -ml-2')
   line.dataset.taskId = task.id
   line.innerHTML = `  &nbsp;${task.name}`
   updateLine(line, active)
   return line
 }
 
-const updateLine = (line: HTMLButtonElement, active = false) => {
-  console.log(`updating newly ${active ? 'active' : 'inactive'} line :`, line.textContent)
+const updateLine = (line: HTMLElement, active = false) => {
   line.dataset.active = String(active)
   line.classList.toggle('translate-x-6', !active)
   line.classList.toggle('opacity-60', !active)
   line.textContent = `${active ? '◦' : '🗸'}  ${(line.textContent ?? '').slice(2)}`
 }
 
-const counterText = (total = 0, remaining = 0, percent = 0) => {
-  const done = total - remaining
-  if (done === 0) return 'Nothing done... yet'
-  if (percent <= 25) return 'Amuse-bouche : check'
-  if (percent <= 45) return 'Now we are talking'
-  if (percent <= 55) return 'Halfway to heaven'
-  if (percent <= 85) return `Final chapter, ${remaining} tasks remaining`
-  if (percent < 100 && remaining > 1) return `Only ${remaining} tasks remaining`
-  if (remaining === 1) return 'Last task ^^'
-  return 'You made it, well done dude :)'
-}
-
-const updateProgress = (percent = 0) => {
-  progress.style.width = `${percent}%`
-}
-
-const updateCounter = () => {
-  const total = document.querySelectorAll('[data-task-id]').length
-  const remaining = document.querySelectorAll('[data-active="true"]').length
-  const percent = 100 - Math.round(remaining / total * 100)
-  message.textContent = counterText(total, remaining, percent)
-  updateProgress(percent)
+const onClick = (button: HTMLElement, list: Task[]) => {
+  if (button === null || button.dataset.taskId === undefined) return
+  const target = list.find(t => t.id === button.dataset.taskId)
+  if (target === undefined) return console.error('failed to find this task in list')
+  target.toggleComplete()
+  updateLine(button, target.activated)
+  emit('update-counter')
 }
 
 const addList = (list: Task[]) => {
-  const div = document.createElement('div')
-  div.className = 'grid gap-2'
-  list.forEach(task => div.append(taskLine(task)))
-  tasks.append(div)
-
-  div.addEventListener('click', (event: Event) => {
-    if (event.target === null) return
-    const button = event.target as HTMLButtonElement
-    if (button.dataset.taskId === undefined) return
-    const target = list.find(t => t.id === button.dataset.taskId)
-    if (target === undefined) return console.error('failed to find this task in list')
-    target.toggleComplete()
-    updateLine(button, target.activated)
-    updateCounter()
-  })
+  message.textContent = `Found ${list.length} tasks for today !`
+  const container = div('grid gap-2')
+  list.forEach(task => container.append(taskLine(task)))
+  tasks.append(container)
+  emit('update-counter')
+  container.addEventListener('click', (event: Event) => onClick(event.target as HTMLElement, list))
 }
 
-Promise.all([storage.get('api-base'), storage.get('api-key')]).then(async ([base, key]) => {
-  if (base === undefined || key === undefined) return
-  const data: AirtableResponse = await fetch(`https://api.airtable.com/v0/${String(base)}/tasks?api_key=${String(key)}&view=todo`).then(async response => response.json())
-  if (data.error) return handleError(data)
-  const today = dateIso10()
-  const list = data.records.map(record => new Task(String(record.id), record.fields.name, record.fields.once, record.fields['completed-on'])).filter(task => (task.completedOn === today || task.isActive()))
-  message.textContent = `Found ${list.length} tasks for today !`
-  addList(list)
-  updateCounter()
-}).catch(error => console.error(error))
+getTasks().then(list => addList(list)).catch(error => console.error(error))

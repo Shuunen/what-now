@@ -1,0 +1,28 @@
+import { on } from 'shuutils'
+import { dom } from '../utils'
+
+export const progress = dom('hr', '', 'mb-2')
+
+const counterText = (total = 0, remaining = 0, percent = 0) => {
+  const done = total - remaining
+  if (done === 0) return 'Nothing done... yet'
+  if (percent <= 25) return 'Amuse-bouche : check'
+  if (percent <= 45) return 'Now we are talking'
+  if (percent <= 55) return 'Halfway to heaven'
+  if (percent <= 85) return `Final chapter, ${remaining} tasks remaining`
+  if (percent < 100 && remaining > 1) return `Only ${remaining} tasks remaining`
+  if (remaining === 1) return 'Last task ^^'
+  return 'You made it, well done dude :)'
+}
+
+const updateCounter = () => {
+  const message = document.querySelector('.message')
+  if (message === null) return console.error('cannot update counter, failed to find the message element')
+  const total = document.querySelectorAll('[data-task-id]').length
+  const remaining = document.querySelectorAll('[data-active="true"]').length
+  const percent = 100 - Math.round(remaining / total * 100)
+  message.textContent = counterText(total, remaining, percent)
+  progress.style.width = `${percent}%`
+}
+
+on('update-counter', updateCounter)

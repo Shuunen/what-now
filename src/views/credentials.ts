@@ -1,18 +1,16 @@
 import { storage } from 'shuutils'
+import { button, div, dom, p } from '../utils'
 
-export const credentials = document.createElement('div')
+export const credentials = div()
 
-const message = document.createElement('p')
-message.innerHTML = `
+const message = p(`
   This webapp rely on <a class="border-b" href="https://airtable.com" target="_blank">Airtable</a> to store your tasks.<br>
   You can create a Airtable free account and type your credentials below. <br>
   Your data will stay between you and Airtable, check this open-source code <a class="border-b" href="https://github.com/Shuunen/what-now" target="_blank">on Github</a>.
-`
-message.className = 'leading-6 py-2'
+`, 'leading-6 py-2')
 credentials.append(message)
 
-const form = document.createElement('form')
-form.className = 'gap-4 grid mt-4'
+const form = dom('form', '', 'gap-4 grid mt-4') as HTMLFormElement
 const fields = [
   {
     name: 'airtable-api-base',
@@ -37,10 +35,7 @@ form.innerHTML = fields.map(field => `<label class="grid gap-4 sm:grid-cols-3">
       <svg class="h-4 inline ml-2 w-4"><use xlink:href="icons.svg#external"></use></svg>
     </a>
   </label>`).join('')
-const submit = document.createElement('button')
-submit.className = 'bg-blue-800 m-auto sm:ml-0 px-4 py-1'
-submit.textContent = 'Use these'
-form.append(submit)
+form.append(button('Use these'))
 credentials.append(form)
 
 form.addEventListener('submit', async (event: Event) => {
