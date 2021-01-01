@@ -53,6 +53,7 @@ const onClick = (button: HTMLElement, list: Task[]) => {
 }
 
 const addList = (list: Task[]) => {
+  if (list.length === 0) return
   message.textContent = `Found ${list.length} tasks for today !`
   const container = div('grid gap-2')
   list.forEach(task => container.append(taskLine(task)))
