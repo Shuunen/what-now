@@ -1,5 +1,6 @@
+import { dateIso10, storage } from 'shuutils'
 import { AirtableResponse, Task } from '../models'
-import { button, clear, dateIso10, get } from '../utils'
+import { button } from '../utils'
 
 export const tasks = document.createElement('div')
 
@@ -14,8 +15,8 @@ tasks.append(progress)
 
 const retry = button('Setup credentials', 'mt-4')
 retry.addEventListener('click', () => {
-  clear('api-base')
-  clear('api-key')
+  storage.clear('api-base')
+  storage.clear('api-key')
   document.location.reload()
 })
 
@@ -87,7 +88,7 @@ const addList = (list: Task[]) => {
   })
 }
 
-Promise.all([get('api-base'), get('api-key')]).then(async ([base, key]) => {
+Promise.all([storage.get('api-base'), storage.get('api-key')]).then(async ([base, key]) => {
   if (base === undefined || key === undefined) return
   const data: AirtableResponse = await fetch(`https://api.airtable.com/v0/${String(base)}/tasks?api_key=${String(key)}&view=todo`).then(async response => response.json())
   if (data.error) return handleError(data)

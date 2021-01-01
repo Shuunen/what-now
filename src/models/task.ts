@@ -1,4 +1,4 @@
-import { checkProp, dateIso10, emit } from '../utils'
+import { dateIso10, emit } from 'shuutils'
 
 export class Task {
   activated = false
@@ -8,8 +8,6 @@ export class Task {
   /* istanbul ignore next */
   /* eslint-disable-next-line max-params */
   constructor(public id: string, public name: string, public once = 'day', public completedOn = '', public done = false) {
-    checkProp('id', this)
-    checkProp('name', this)
     this.isBonus = this.once === 'bonus'
     this.isOneTime = this.once === 'yes'
   }

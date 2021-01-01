@@ -1,7 +1,7 @@
 
 import { strictEqual as is, throws } from 'assert'
+import { daysAgoIso10 } from 'shuutils'
 import { Task } from '../src/models'
-import { daysAgoIso10 } from '../src/utils'
 
 describe('task', () => {
   const name = 'a super task'

@@ -1,4 +1,4 @@
-import { has } from '../utils'
+import { storage } from 'shuutils'
 import { credentials } from './credentials'
 import { tasks } from './tasks'
 
@@ -9,7 +9,7 @@ title.textContent = 'What now'
 title.className = 'text-5xl sm:text-7xl mb-4 text-blue-300'
 landing.append(title)
 
-Promise.all([has('api-base'), has('api-key')]).then(exists => {
+Promise.all([storage.has('api-base'), storage.has('api-key')]).then(exists => {
   const credentialsExists = !exists.includes(false)
   title.textContent += credentialsExists ? ' ?' : ''
   landing.append(credentialsExists ? tasks : credentials)

@@ -1,4 +1,4 @@
-import { set } from '../utils'
+import { storage } from 'shuutils'
 
 export const credentials = document.createElement('div')
 
@@ -45,7 +45,7 @@ credentials.append(form)
 
 form.addEventListener('submit', async (event: Event) => {
   event.preventDefault()
-  await set('api-base', (form.elements[0] as HTMLInputElement).value).catch(error => console.error(error))
-  await set('api-key', (form.elements[1] as HTMLInputElement).value).catch(error => console.error(error))
+  await storage.set('api-base', (form.elements[0] as HTMLInputElement).value)
+  await storage.set('api-key', (form.elements[1] as HTMLInputElement).value)
   document.location.reload()
 })
