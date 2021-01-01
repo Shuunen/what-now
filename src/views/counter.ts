@@ -2,6 +2,7 @@ import { on } from 'shuutils'
 import { dom } from '../utils'
 
 export const progress = dom('hr', '', 'mb-2')
+progress.style.width = '0'
 
 const counterText = (total = 0, remaining = 0, percent = 0) => {
   const done = total - remaining
