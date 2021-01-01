@@ -37,7 +37,7 @@
   },
   "scripts": {
     "build": "npm run env NODE_ENV=production -- run-s build:css build:js",
-    "build:js": "poi --prod",
+    "build:js": "poi src/index.html --prod",
     "build:css": "tailwindcss-cli build -o src/assets/_tailwind.css",
     "check": "repo-check",
     "ci": "run-s lint test build",
@@ -45,7 +45,7 @@
     "lint": "xo --fix",
     "postversion": "git push && git push --tags",
     "preversion": "npm run ci",
-    "serve": "poi --serve",
+    "serve": "poi src/index.html --serve",
     "start": "npm run dev",
     "test": "nyc mocha",
     "test:watch": "onchange --initial \"src/**/*.ts\" \"tests/**/*.ts\" -- npm test",
