@@ -28,3 +28,8 @@ export const form = (fields: FormField[], validate = '') => {
   element.append(button(validate))
   return element
 }
+
+export const preventDeprecatedData = () => {
+  const oneHour = 60 * 60 * 1000
+  setTimeout(() => document.location.reload(), oneHour)
+}
