@@ -1,12 +1,11 @@
 import { storage } from 'shuutils'
+import { div, dom } from '../utils'
 import { credentials } from './credentials'
 import { tasks } from './tasks'
 
-export const landing = document.createElement('div')
+export const landing = div()
 
-const title = document.createElement('h1')
-title.textContent = 'What now'
-title.className = 'text-5xl sm:text-7xl mb-4 text-blue-300'
+const title = dom('h1', 'What now', 'text-5xl sm:text-7xl mb-4 text-blue-300')
 landing.append(title)
 
 Promise.all([storage.has('api-base'), storage.has('api-key')]).then(exists => {

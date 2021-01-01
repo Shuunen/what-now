@@ -1,5 +1,5 @@
 
-import { strictEqual as equal, throws } from 'assert'
+import { strictEqual as equal } from 'assert'
 import { daysAgoIso10 } from 'shuutils'
 import { Task } from '../src/models'
 
@@ -69,11 +69,6 @@ describe('task', () => {
   it('a one time task is active by default', () => {
     const task = new Task(id, name, 'yes')
     equal(task.isActive(), true)
-  })
-
-  it('require some mandatory data to instantiate a task', () => {
-    throws(() => new Task('', name))
-    throws(() => new Task(id, ''))
   })
 
   it('complete a task update completed on date', () => {
