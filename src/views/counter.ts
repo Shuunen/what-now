@@ -26,6 +26,7 @@ const updateCounter = () => {
   const total = document.querySelectorAll('[data-task-id]').length
   const remaining = document.querySelectorAll('[data-active="true"]').length
   const percent = 100 - Math.round(remaining / total * 100)
+  message.classList.add('opacity-80', 'italic')
   message.textContent = counterText(total, remaining, percent)
   setProgress(percent)
 }
