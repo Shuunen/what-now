@@ -39,7 +39,7 @@ const updateLine = (line: HTMLElement, active = false) => {
   line.dataset.active = String(active)
   line.classList.toggle('translate-x-6', !active)
   line.classList.toggle('opacity-60', !active)
-  line.textContent = `${active ? '◦' : '🗸'}  ${(line.textContent ?? '').slice(2)}`
+  line.textContent = `${active ? '◦' : '✔️'}  ${(line.textContent ?? '').slice(2)}`
 }
 
 const onClick = (button: HTMLElement, list: Task[]) => {

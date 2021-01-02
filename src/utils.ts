@@ -9,8 +9,9 @@ export const dom = (type: string, content = '', classes = '') => {
 
 export const div = (classes: string) => dom('div', '', classes)
 
-export const img = (src: string, classes = '') => {
+export const img = (alt: string, src: string, classes = '') => {
   const element = dom('img', '', classes) as HTMLImageElement
+  element.alt = alt
   element.src = src
   return element
 }
