@@ -9,6 +9,12 @@ export const dom = (type = 'div', content = '', classes = '') => {
 
 export const div = (classes = '') => dom('div', '', classes)
 
+export const img = (src = '', classes = '') => {
+  const element = dom('img', '', classes) as HTMLImageElement
+  element.src = src
+  return element
+}
+
 export const button = (content = '', classes = '') => {
   return dom('button', content, `bg-blue-800 m-auto sm:ml-0 px-4 py-1 ${classes}`)
 }

@@ -1,7 +1,6 @@
 import { storage } from 'shuutils'
+import { credentials, tasks } from '.'
 import { div, dom } from '../utils'
-import { credentials } from './credentials'
-import { tasks } from './tasks'
 
 export const landing = div()
 

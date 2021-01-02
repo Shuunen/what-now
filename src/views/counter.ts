@@ -2,7 +2,11 @@ import { on } from 'shuutils'
 import { dom } from '../utils'
 
 export const progress = dom('hr', '', 'mb-2')
-progress.style.width = '0'
+
+const setProgress = (percent = 0) => {
+  progress.style.width = `${percent}%`
+  document.body.dataset.progress = `${percent}`
+}
 
 const counterText = (total = 0, remaining = 0, percent = 0) => {
   const done = total - remaining
@@ -23,7 +27,8 @@ const updateCounter = () => {
   const remaining = document.querySelectorAll('[data-active="true"]').length
   const percent = 100 - Math.round(remaining / total * 100)
   message.textContent = counterText(total, remaining, percent)
-  progress.style.width = `${percent}%`
+  setProgress(percent)
 }
 
 on('update-counter', updateCounter)
+setProgress(0)

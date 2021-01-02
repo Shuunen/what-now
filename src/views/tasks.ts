@@ -1,8 +1,8 @@
 import { emit, on, storage } from 'shuutils'
+import { progress } from '.'
 import { AirtableResponse, Task } from '../models'
-import { getTasks } from '../services/tasks'
+import { getTasks } from '../services'
 import { button, div, dom, p } from '../utils'
-import { progress } from './counter'
 
 export const tasks = div()
 
