@@ -3,7 +3,7 @@ import { emit } from 'shuutils'
 const MINUTE = 60 * 1000
 const CHECK_EVERY = 10 * MINUTE
 
-class Idle {
+class IdleService {
   inactiveSince = 0
   timer!: NodeJS.Timeout
 
@@ -37,8 +37,8 @@ class Idle {
     const inactivePeriod = this.now - this.inactiveSince
     const minutes = Math.round(inactivePeriod / MINUTE)
     console.log('user has been inactive for', minutes, 'minute(s)')
-    emit('user-inactivity', minutes)
+    if (minutes === 30) emit('send-reminder')
   }
 }
 
-export const idle = new Idle()
+export const idleService = new IdleService()

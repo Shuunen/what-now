@@ -1,27 +1,27 @@
 import { FormField } from './models'
 
-export const dom = (type = 'div', content = '', classes = '') => {
+export const dom = (type: string, content = '', classes = '') => {
   const element = document.createElement(type)
   element.className = classes
   element.innerHTML = content
   return element
 }
 
-export const div = (classes = '') => dom('div', '', classes)
+export const div = (classes: string) => dom('div', '', classes)
 
-export const img = (src = '', classes = '') => {
+export const img = (src: string, classes = '') => {
   const element = dom('img', '', classes) as HTMLImageElement
   element.src = src
   return element
 }
 
-export const button = (content = '', classes = '') => {
+export const button = (content: string, classes = '') => {
   return dom('button', content, `bg-blue-800 m-auto sm:ml-0 px-4 py-1 ${classes}`)
 }
 
-export const p = (content = '', classes = '') => dom('p', content, classes)
+export const p = (content: string, classes = '') => dom('p', content, classes)
 
-export const form = (fields: FormField[], validate = '') => {
+export const form = (fields: FormField[], validate = 'Send form') => {
   const element = dom('form', '', 'gap-4 grid mt-4') as HTMLFormElement
   element.innerHTML = fields.map(field => `<label class="grid gap-4 sm:grid-cols-3">
     <span>${field.label}</span>
@@ -35,7 +35,5 @@ export const form = (fields: FormField[], validate = '') => {
   return element
 }
 
-export const preventDeprecatedData = () => {
-  const oneHour = 60 * 60 * 1000
-  setTimeout(() => document.location.reload(), oneHour)
-}
+const headersJson = { Accept: 'application/json', 'Content-Type': 'application/json' }
+export const patch = async (url: string, data: Record<string, unknown>) => fetch(url, { headers: headersJson, method: 'patch', body: JSON.stringify(data) })

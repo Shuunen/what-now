@@ -1,4 +1,4 @@
-import { dateIso10, emit } from 'shuutils'
+import { dateIso10, daysAgoIso10, emit } from 'shuutils'
 
 export class Task {
   activated = false
@@ -15,19 +15,24 @@ export class Task {
   isActive(): boolean {
     if (this.done || (this.isBonus && !this.activated)) return false
     if (this.completedOn === '' || this.isOneTime || this.activated) return true
+    const recurrence = this.daysRecurrence()
+    const days = this.daysSinceCompletion()
+    // console.log(`active if days since completion (${days}) superior or equal to ${number} ${unit}(s)`)
+    return days >= recurrence
+  }
+
+  daysRecurrence(): number {
     const matches = /(\d)?-?(day|week|month)/.exec(this.once) ?? []
     if (matches.length === 0) {
-      console.error('unhandled "once" format, setting task as active by default')
-      return true
+      console.error('unhandled "once" format')
+      return 0
     }
 
     const [, numberString = '1', unit] = matches
     const number = Number.parseInt(numberString, 10)
-    const days = this.daysSinceCompletion()
-    // console.log(`active if days since completion (${days}) superior or equal to ${number} ${unit}(s)`)
-    if (unit === 'day') return days >= number
-    if (unit === 'week') return days >= number * 7
-    return days >= number * 30 // unit === 'month'
+    if (unit === 'day') return number
+    if (unit === 'week') return number * 7
+    return number * 30 // unit === 'month'
   }
 
   daysSinceCompletion(): number {
@@ -44,9 +49,15 @@ export class Task {
     emit('task-update', this)
   }
 
-  toggleComplete() {
-    if (this.isActive()) return this.complete()
+  unComplete() {
+    // to un-complete, need to put the last completed on just before the required number of days
+    this.completedOn = daysAgoIso10(this.daysRecurrence())
+    this.done = false
     this.activated = true
     emit('task-update', this)
+  }
+
+  toggleComplete() {
+    return this.isActive() ? this.complete() : this.unComplete()
   }
 }
