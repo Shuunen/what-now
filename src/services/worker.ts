@@ -1,6 +1,6 @@
 import { emit, on } from 'shuutils'
 
-class Worker {
+class WorkerService {
   notificationPerm = window.Notification.permission
 
   get currentProgress() {
@@ -61,4 +61,4 @@ class Worker {
   }
 }
 
-export const worker = new Worker()
+export const workerService = new WorkerService()

@@ -1,10 +1,9 @@
 import { emit, on, storage } from 'shuutils'
 import { progress } from '.'
 import { AirtableResponse, Task } from '../models'
-import { getTasks } from '../services'
 import { button, div, dom, p } from '../utils'
 
-export const tasks = div()
+export const tasks = div('tasks')
 
 const message = p('Fetching data from Airtable...', 'message font-light mb-3 text-2xl mb-2')
 tasks.append(message)
@@ -62,4 +61,4 @@ const addList = (list: Task[]) => {
   container.addEventListener('click', (event: Event) => onClick(event.target as HTMLElement, list))
 }
 
-getTasks().then(list => addList(list)).catch(error => console.error(error))
+on('tasks-loaded', list => addList(list))

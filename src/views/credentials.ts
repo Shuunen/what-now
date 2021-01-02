@@ -1,7 +1,7 @@
 import { storage } from 'shuutils'
 import { div, form, p } from '../utils'
 
-export const credentials = div()
+export const credentials = div('credentials')
 
 const message = p(`
   This webapp rely on <a class="border-b" href="https://airtable.com" target="_blank">Airtable</a> to store your tasks.<br>
