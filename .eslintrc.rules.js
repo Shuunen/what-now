@@ -7,5 +7,7 @@ module.exports = {
   'object-curly-spacing': ['error', 'always'],
   curly: ['error', 'multi'],
   'capitalized-comments': 'off',
-  '@typescript-eslint/consistent-type-assertions': 'off'
+  'max-statements-per-line': 'off',
+  '@typescript-eslint/consistent-type-assertions': 'off',
+  '@typescript-eslint/no-confusing-void-expression': 'off',
 }
