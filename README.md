@@ -13,25 +13,17 @@
 ## Todo
 
 - [ ] remove notification on click
-- [ ] remove arrows when only one task remain
 - [ ] show estimated time remaining
-- [ ] handle themes
-- [ ] drop cypress ?
-- [ ] drop parcel ?
-- [ ] drop eslint ?
+- [ ] drop eslint ? trying xo but not convinced yet
 
 ## Thanks
 
-- [Animate.css](https://daneden.github.io/animate.css) : nice collection of css animations
-- [Cypress.io](https://www.cypress.io) : cool E2E testing framework
-- [Eslint](https://eslint.org) : super tool to find & fix problems
 - [Favicon.io](https://favicon.io) : cool favicon generator
-- [Feather Icons](https://feathericons.com) : great open source svg icons
 - [Github](https://github.com) : for all their great work year after year, pushing OSS forward
-- [Loading.io](https://github.com/loadingio/css-spinner/) : lightweight & good looking css loading spinner
+- [Mocha](https://github.com/mochajs/mocha) : great test runner easy to setup & use
 - [Netlify](https://netlify.com) : awesome company that offers free CI & hosting for OSS projects
 - [Npm-run-all](https://github.com/mysticatea/npm-run-all) : to keep my npm scripts clean & readable
-- [Parcel](https://parceljs.org) : easy and fast web application bundler
+- [Nyc](https://github.com/istanbuljs/nyc) : an Istanbul cli easy to setup & use along Ava
 - [Repo-checker](https://github.com/Shuunen/repo-checker) : eslint cover /src code and this tool the rest ^^
 - [Shields.io](https://shields.io) : nice looking badges to be proud of
 - [Travis-ci.com](https://travis-ci.com) : for providing free continuous deployments
