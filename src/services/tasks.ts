@@ -7,7 +7,6 @@ class TasksService {
   apiKey = ''
 
   init() {
-    console.log('tasks service init')
     this.setupListeners()
     this.loadTasks()
     this.preventDeprecatedData()
@@ -49,11 +48,14 @@ class TasksService {
     }
 
     const today = dateIso10()
-    return response.records.map(record => new Task(String(record.id), record.fields.name, record.fields.once, record.fields['completed-on'])).filter(task => (task.completedOn === today || task.isActive()))
+    return response.records.map(record => {
+      const id = String(record.id)
+      const { name = '', once = 'day' } = record.fields
+      return new Task(id, name, once, record.fields['completed-on'], record.fields['average-time'])
+    }).filter(task => (task.completedOn === today || task.isActive()))
   }
 
   loadTasks() {
-    console.log('load task...')
     this.fetchList()
       .then(tasks => emit('tasks-loaded', tasks))
       .catch(error => console.error(error.message))

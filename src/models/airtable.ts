@@ -1,3 +1,4 @@
+type Second = number
 
 export interface AirtableTaskRecord {
   id: string;
@@ -5,8 +6,9 @@ export interface AirtableTaskRecord {
   fields: {
     name: string;
     once: string;
+    done: string;
     'completed-on': string;
-    'average-time': number;
+    'average-time': Second;
   };
 }
 

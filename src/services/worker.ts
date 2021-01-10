@@ -24,7 +24,7 @@ class WorkerService {
 
   setupWorker() {
     this.registerServiceWorker().then(() => {
-      console.log('service-worker has been registered')
+      // console.log('service-worker has been registered')
       this.checkNotificationPerm()
     }).catch(error => console.error(error))
   }

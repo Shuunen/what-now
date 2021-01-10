@@ -61,11 +61,6 @@ describe('task', () => {
     equal(task.isActive(), true)
   })
 
-  it('an already done task is inactive ^^', () => {
-    const task = new Task(id, name, 'month', yesterday, true)
-    equal(task.isActive(), false)
-  })
-
   it('a one time task is active by default', () => {
     const task = new Task(id, name, 'yes')
     equal(task.isActive(), true)

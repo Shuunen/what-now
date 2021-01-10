@@ -10,12 +10,6 @@
 
 > Minimalistic task coach
 
-## Todo
-
-- [ ] remove notification on click
-- [ ] show estimated time remaining
-- [ ] drop eslint ? trying xo but not convinced yet
-
 ## Thanks
 
 - [Favicon.io](https://favicon.io) : cool favicon generator

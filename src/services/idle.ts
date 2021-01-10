@@ -8,7 +8,6 @@ class IdleService {
   timer!: NodeJS.Timeout
 
   init() {
-    console.log('idle init')
     this.setupListeners()
     this.resetTimer('init')
   }
@@ -23,7 +22,7 @@ class IdleService {
   }
 
   resetTimer(from = 'unknown event') {
-    console.log('timer reset due to', from)
+    // console.log('timer reset due to', from)
     this.inactiveSince = Date.now()
     clearTimeout(this.timer)
     this.setupTimer()
@@ -32,7 +31,7 @@ class IdleService {
   dispatchInactivity() {
     const inactivePeriod = Date.now() - this.inactiveSince
     const minutes = Math.round(inactivePeriod / MINUTE)
-    console.log('user has been inactive for', minutes, 'minute(s)')
+    // console.log('user has been inactive for', minutes, 'minute(s)')
     if (minutes === 30) emit('send-reminder')
   }
 }

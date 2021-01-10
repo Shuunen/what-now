@@ -1,13 +1,16 @@
 import { dateIso10, daysAgoIso10, emit } from 'shuutils'
 
+type Second = number
+
 export class Task {
   activated = false
   isBonus = false
   isOneTime = false
+  done = false
 
   /* istanbul ignore next */
   /* eslint-disable-next-line max-params */
-  constructor(public id: string, public name: string, public once = 'day', public completedOn = '', public done = false) {
+  constructor(public id: string, public name: string, public once = 'day', public completedOn = '', public averageTime: Second = 0) {
     this.isBonus = this.once === 'bonus'
     this.isOneTime = this.once === 'yes'
   }
