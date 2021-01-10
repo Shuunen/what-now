@@ -9,5 +9,5 @@ module.exports = {
   'capitalized-comments': 'off',
   'max-statements-per-line': 'off',
   '@typescript-eslint/consistent-type-assertions': 'off',
-  '@typescript-eslint/no-confusing-void-expression': 'off',
+  '@typescript-eslint/no-confusing-void-expression': 'off'
 }

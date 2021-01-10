@@ -15,6 +15,11 @@ class TasksService {
 
   setupListeners() {
     on('task-update', async task => this.updateTask(task))
+    on('fetch-tasks', async () => this.fetchList().catch(error => console.error(error.message)))
+  }
+
+  airtableUrl(target = '') {
+    return `https://api.airtable.com/v0/${this.apiBase}/${target}?api_key=${this.apiKey}&view=todo`
   }
 
   async missingCredentials(): Promise<boolean> {
@@ -27,7 +32,7 @@ class TasksService {
 
   async updateTask(task: Task) {
     if (await this.missingCredentials()) return
-    const url = `https://api.airtable.com/v0/${this.apiBase}/tasks/${task.id}?api_key=${this.apiKey}&view=todo`
+    const url = this.airtableUrl(`tasks/${task.id}`)
     const data = { fields: { 'completed-on': task.completedOn, done: task.done } }
     const response = await patch(url, data).catch(error => console.error(error.message))
     if ((response as any).error) return emit('update-task-error', response)
@@ -35,7 +40,7 @@ class TasksService {
 
   async fetchList() {
     if (await this.missingCredentials()) return
-    const url = `https://api.airtable.com/v0/${this.apiBase}/tasks?api_key=${this.apiKey}&view=todo`
+    const url = this.airtableUrl('tasks')
     const response: AirtableResponse = await fetch(url).then(async response => response.json())
     if (response.error) return emit('get-tasks-error', response)
     const today = dateIso10()
@@ -44,9 +49,8 @@ class TasksService {
   }
 
   preventDeprecatedData() {
-    const oneHour = 60 * 60 * 1000
-    // reload in an hour no matter what :)
-    setTimeout(() => document.location.reload(), oneHour)
+    const every = 30 * 60 * 1000 // 30 minutes
+    setInterval(async () => this.fetchList(), every)
   }
 }
 

@@ -26,39 +26,57 @@ const handleError = (response: AirtableResponse) => {
 
 on('get-tasks-error', handleError)
 
-const taskLine = (task: Task) => {
-  const active = task.isActive()
+const createLine = (task: Task) => {
   const line = dom('button', '', 'task transition-transform duration-500 transform mr-auto px-2 py-1 -ml-2')
   line.dataset.taskId = task.id
-  line.innerHTML = `  &nbsp;${task.name}`
-  updateLine(line, active)
+  updateLine(line, task)
   return line
 }
 
-const updateLine = (line: HTMLElement, active = false) => {
+const updateLine = (line: HTMLElement, task: Task) => {
+  const active = task.isActive()
   line.dataset.active = String(active)
+  line.textContent = `${active ? '◦' : '✔️'} ${task.name}`
   line.classList.toggle('translate-x-6', !active)
   line.classList.toggle('opacity-60', !active)
-  line.textContent = `${active ? '◦' : '✔️'}  ${(line.textContent ?? '').slice(2)}`
 }
 
-const onClick = (button: HTMLElement, list: Task[]) => {
-  if (button === null || button.dataset.taskId === undefined) return
-  const target = list.find(t => t.id === button.dataset.taskId)
-  if (target === undefined) return console.error('failed to find this task in list')
-  target.toggleComplete()
-  updateLine(button, target.activated)
+const onClick = (line: HTMLElement, list: Task[]) => {
+  if (line === null || line.dataset.taskId === undefined) return
+  const task = list.find(t => t.id === line.dataset.taskId)
+  if (task === undefined) return console.error('failed to find this task in list')
+  task.toggleComplete()
+  updateLine(line, task)
   emit('update-counter')
 }
 
 const addList = (list: Task[]) => {
   if (list.length === 0) return
   message.textContent = `Found ${list.length} tasks for today !`
-  const container = div('grid gap-2')
-  list.forEach(task => container.append(taskLine(task)))
+  const container = div('task-list grid gap-2')
+  list.forEach(task => container.append(createLine(task)))
   tasks.append(container)
   emit('update-counter')
   container.addEventListener('click', (event: Event) => onClick(event.target as HTMLElement, list))
 }
 
-on('tasks-loaded', list => addList(list))
+const updateList = (container: Element, list: Task[]) => {
+  const lines = container.querySelectorAll<HTMLElement>('.task-list > .task')
+  const processed: string[] = []
+  lines.forEach(line => {
+    const task = list.find(t => (t.id === line.dataset.taskId))
+    if (task === undefined) return line.remove() // deleting a task in dom that does not exists on Airtable
+    processed.push(task.id)
+    updateLine(line, task)
+  })
+  const missing = list.filter(t => !processed.includes(t.id)) // exists on Airtable but not in dom
+  missing.forEach(task => container.append(createLine(task)))
+}
+
+const onTaskLoaded = (list: Task[]) => {
+  const container = document.querySelector('.task-list')
+  if (container === null) return addList(list)
+  updateList(container, list)
+}
+
+on('tasks-loaded', list => onTaskLoaded(list))
