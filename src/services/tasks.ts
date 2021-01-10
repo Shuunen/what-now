@@ -1,4 +1,4 @@
-import { dateIso10, emit, on, storage } from 'shuutils'
+import { dateIso10, daysAgoIso10, emit, on, storage } from 'shuutils'
 import { AirtableResponse, Task } from '../models'
 import { patch } from '../utils'
 
@@ -9,13 +9,14 @@ class TasksService {
   init() {
     console.log('tasks service init')
     this.setupListeners()
-    this.fetchList().catch(error => console.error(error.message))
+    this.loadTasks()
     this.preventDeprecatedData()
   }
 
   setupListeners() {
     on('task-update', async task => this.updateTask(task))
-    on('fetch-tasks', async () => this.fetchList().catch(error => console.error(error.message)))
+    on('fetch-tasks', async () => this.loadTasks())
+    on('dispatch-tasks', async () => this.dispatch())
   }
 
   airtableUrl(target = '') {
@@ -38,19 +39,45 @@ class TasksService {
     if ((response as any).error) return emit('update-task-error', response)
   }
 
-  async fetchList() {
-    if (await this.missingCredentials()) return
+  async fetchList(): Promise<Task[]> {
+    if (await this.missingCredentials()) return []
     const url = this.airtableUrl('tasks')
     const response: AirtableResponse = await fetch(url).then(async response => response.json())
-    if (response.error) return emit('get-tasks-error', response)
+    if (response.error) {
+      emit('get-tasks-error', response)
+      return []
+    }
+
     const today = dateIso10()
-    const list = response.records.map(record => new Task(String(record.id), record.fields.name, record.fields.once, record.fields['completed-on'])).filter(task => (task.completedOn === today || task.isActive()))
-    emit('tasks-loaded', list)
+    return response.records.map(record => new Task(String(record.id), record.fields.name, record.fields.once, record.fields['completed-on'])).filter(task => (task.completedOn === today || task.isActive()))
+  }
+
+  loadTasks() {
+    console.log('load task...')
+    this.fetchList()
+      .then(tasks => emit('tasks-loaded', tasks))
+      .catch(error => console.error(error.message))
+  }
+
+  async dispatchTask(task: Task, index = 0): Promise<void> {
+    if (task.once === 'day') return
+    const delay = task.daysRecurrence()
+    const position = index % delay
+    const newCompletionDate = daysAgoIso10((-1 * position) + delay)
+    if (newCompletionDate === task.completedOn) return
+    task.completedOn = newCompletionDate
+    return this.updateTask(task).catch(error => console.error(error.message))
+  }
+
+  async dispatch() {
+    const tasks = await this.fetchList()
+    await Promise.all(tasks.map(async (task, index) => this.dispatchTask(task, index)))
+    this.loadTasks()
   }
 
   preventDeprecatedData() {
     const every = 30 * 60 * 1000 // 30 minutes
-    setInterval(async () => this.fetchList(), every)
+    setInterval(async () => this.loadTasks(), every)
   }
 }
 

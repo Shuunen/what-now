@@ -6,7 +6,6 @@ export interface AirtableTaskRecord {
     name: string;
     once: string;
     'completed-on': string;
-    order: number;
     'average-time': number;
   };
 }

@@ -7,7 +7,7 @@ export const dom = (type: string, content = '', classes = '') => {
   return element
 }
 
-export const div = (classes: string) => dom('div', '', classes)
+export const div = (classes: string, content = '') => dom('div', content, classes)
 
 export const img = (alt: string, src: string, classes = '') => {
   const element = dom('img', '', classes) as HTMLImageElement
