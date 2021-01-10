@@ -18,6 +18,10 @@
 0,9 seconds with tsup
 0,8 seconds with esbuild
 
+### Build Tailwind styles
+
+3,9 seconds with tailwindcss-cli build -o, default, no input
+
 ## Thanks
 
 - [Favicon.io](https://favicon.io) : cool favicon generator
