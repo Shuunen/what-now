@@ -10,6 +10,14 @@
 
 > Minimalistic task coach
 
+## Benchmarks
+
+### Build ts sources to js
+
+5,3 seconds with poi
+0,9 seconds with tsup
+0,8 seconds with esbuild
+
 ## Thanks
 
 - [Favicon.io](https://favicon.io) : cool favicon generator
