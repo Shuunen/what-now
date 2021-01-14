@@ -1,0 +1,60 @@
+import { emit, on, storage } from 'shuutils'
+
+interface Credentials {
+  base: string;
+  key: string;
+}
+
+class CredentialService {
+  base!: string
+  key!: string
+
+  init() {
+    this.checkHash().catch(error => console.error(error))
+    on('save-credentials', async credentials => this.save(credentials))
+  }
+
+  async checkStorage() {
+    const base = await storage.get('api-base')
+    const key = await storage.get('api-key')
+    const ok = this.validate(base, key)
+    if (!ok) return emit('need-credentials')
+    this.use({ base, key })
+  }
+
+  async checkHash() {
+    const { hash } = document.location
+    const matches = /#(app\w{14})&(key\w{14})/.exec(hash) ?? []
+    if (matches.length !== 3) return this.checkStorage()
+    document.location.hash = ''
+    return this.save({ base: matches[1], key: matches[2] })
+  }
+
+  async save(credentials: Credentials) {
+    const ok = this.validate(credentials.base, credentials.key)
+    if (!ok) return emit('need-credentials')
+    await storage.set('api-base', credentials.base)
+    await storage.set('api-key', credentials.key)
+    this.use(credentials)
+  }
+
+  validate(base: string, key: string) {
+    const baseOk = base !== undefined && typeof base === 'string' && base.length === 17
+    const keyOk = key !== undefined && typeof key === 'string' && key.length === 17
+    return baseOk && keyOk
+  }
+
+  use(credentials: Credentials) {
+    this.base = credentials.base
+    this.key = credentials.key
+    emit('use-credentials', credentials)
+  }
+
+  async airtableUrl(target = '') {
+    const ok = this.validate(this.base, this.key)
+    if (!ok) return emit('need-credentials')
+    return `https://api.airtable.com/v0/${this.base}/${target}?api_key=${this.key}&view=todo`
+  }
+}
+
+export const credentialService = new CredentialService()
