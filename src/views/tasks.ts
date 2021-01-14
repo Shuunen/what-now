@@ -5,7 +5,8 @@ import { progress } from './counter'
 
 export const tasks = div('tasks')
 
-const message = p('Fetching data from Airtable...', 'message font-light mb-3 text-2xl mb-2')
+const messageClass = 'message font-light mb-3 text-2xl mb-2' // trouver une meilleure solution
+const message = p('Fetching data from Airtable...', messageClass)
 tasks.append(message)
 tasks.append(progress)
 
@@ -15,7 +16,7 @@ retry.addEventListener('click', () => {
   storage.clear('api-key')
   emit('need-credentials')
   retry.classList.toggle('hidden')
-  message.className = 'message font-light mb-3 text-2xl mb-2' // trouver une meilleure solution
+  message.className = messageClass
 })
 tasks.append(retry)
 
