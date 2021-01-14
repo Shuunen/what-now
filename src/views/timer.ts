@@ -1,4 +1,4 @@
-import { on } from 'shuutils'
+import { emit, on } from 'shuutils'
 import { Task } from '../models'
 import { div } from '../utils'
 
@@ -25,6 +25,8 @@ const onTaskUpdate = (task: Task) => {
   minutes += Math.round(seconds / 60)
   updateTimer()
 }
+
+timer.addEventListener('dblclick', () => emit('dispatch-tasks'))
 
 on('tasks-loaded', onTaskLoaded)
 on('task-update', onTaskUpdate)
