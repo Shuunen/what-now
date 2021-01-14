@@ -1,4 +1,4 @@
-import { storage } from 'shuutils'
+import { emit } from 'shuutils'
 import { div, form, p } from '../utils'
 
 export const credentials = div('credentials')
@@ -19,7 +19,7 @@ credentials.append(formElement)
 
 formElement.addEventListener('submit', async (event: Event) => {
   event.preventDefault()
-  await storage.set('api-base', (formElement.elements[0] as HTMLInputElement).value)
-  await storage.set('api-key', (formElement.elements[1] as HTMLInputElement).value)
-  document.location.reload()
+  const base = (formElement.elements[0] as HTMLInputElement).value
+  const key = (formElement.elements[1] as HTMLInputElement).value
+  emit('save-credentials', { base, key })
 })

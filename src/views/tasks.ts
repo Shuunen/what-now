@@ -9,19 +9,22 @@ const message = p('Fetching data from Airtable...', 'message font-light mb-3 tex
 tasks.append(message)
 tasks.append(progress)
 
-const retry = button('Setup credentials', 'mt-4')
+const retry = button('Setup credentials', 'mt-4 hidden')
 retry.addEventListener('click', () => {
   storage.clear('api-base')
   storage.clear('api-key')
-  document.location.reload()
+  emit('need-credentials')
+  retry.classList.toggle('hidden')
+  message.className = 'message font-light mb-3 text-2xl mb-2' // trouver une meilleure solution
 })
+tasks.append(retry)
 
 const handleError = (response: AirtableResponse) => {
   if (response.error && response.error.type === 'UNAUTHORIZED') message.textContent = 'The credentials you provided does not work'
   else message.textContent = 'Failed to fetch data from Airtable'
   message.textContent += ', click the button below to try again.'
   message.className = 'text-red-200'
-  tasks.append(retry)
+  retry.classList.toggle('hidden')
 }
 
 on('get-tasks-error', handleError)
@@ -71,6 +74,7 @@ const updateList = (container: Element, list: Task[]) => {
   })
   const missing = list.filter(t => !processed.includes(t.id)) // exists on Airtable but not in dom
   missing.forEach(task => container.append(createLine(task)))
+  emit('update-counter')
 }
 
 const onTaskLoaded = (list: Task[]) => {

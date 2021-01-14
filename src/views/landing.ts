@@ -1,4 +1,4 @@
-import { storage } from 'shuutils'
+import { on } from 'shuutils'
 import { div, dom } from '../utils'
 import { credentials } from './credentials'
 import { notification } from './notifications'
@@ -12,8 +12,14 @@ landing.append(title)
 landing.append(notification)
 landing.append(timer)
 
-Promise.all([storage.has('api-base'), storage.has('api-key')]).then(exists => {
-  const credentialsExists = !exists.includes(false)
-  title.textContent += credentialsExists ? ' ?' : ''
-  landing.append(credentialsExists ? tasks : credentials)
-}).catch(error => console.error(error))
+credentials.classList.add('hidden')
+landing.append(credentials)
+landing.append(tasks)
+
+const showTasks = (sure = false) => {
+  credentials.classList.toggle('hidden', sure)
+  tasks.classList.toggle('hidden', !sure)
+}
+
+on('need-credentials', () => showTasks(false))
+on('tasks-loaded', () => showTasks(true))
