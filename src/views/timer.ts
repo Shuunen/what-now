@@ -2,12 +2,12 @@ import { emit, on } from 'shuutils'
 import { Task } from '../models'
 import { div } from '../utils'
 
-export const timer = div('timer font-thin bottom-4 fixed right-4 text-6xl text-gray-700')
+export const timer = div('timer font-thin bottom-4 fixed text-right right-4 text-5xl leading-10 text-gray-700')
 
 let minutes = 0
 
 const updateTimer = () => {
-  timer.textContent = minutes > 0 ? `${minutes}min` : ''
+  timer.innerHTML = minutes > 0 ? `${minutes}<br>min` : ''
 }
 
 const onTaskLoaded = (tasks: Task[]) => {
