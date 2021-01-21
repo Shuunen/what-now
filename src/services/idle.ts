@@ -1,4 +1,4 @@
-import { emit } from 'shuutils'
+import { debounce, emit } from 'shuutils'
 
 const MINUTE = 60 * 1000
 const CHECK_EVERY = 10 * MINUTE
@@ -14,7 +14,8 @@ class IdleService {
 
   setupListeners() {
     const events = ['mousedown', 'touchstart', 'visibilitychange']
-    events.forEach(name => document.addEventListener(name, event => this.resetTimer(event.type), true))
+    const resetTimer = debounce(this.resetTimer.bind(this), 200)
+    events.forEach(name => document.addEventListener(name, async event => resetTimer(event.type), true))
   }
 
   setupTimer() {
