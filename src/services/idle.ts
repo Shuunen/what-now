@@ -26,6 +26,7 @@ class IdleService {
     this.inactiveSince = Date.now()
     clearTimeout(this.timer)
     this.setupTimer()
+    emit('user-activity', from)
   }
 
   dispatchInactivity() {

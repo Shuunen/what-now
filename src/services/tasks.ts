@@ -3,10 +3,13 @@ import { AirtableResponse, Task } from '../models'
 import { patch } from '../utils'
 import { credentialService } from './credentials'
 
+const MINUTE = 60 * 1000
+
 class TasksService {
+  updatedOn = Date.now()
+
   init() {
     this.setupListeners()
-    this.preventDeprecatedData()
   }
 
   setupListeners() {
@@ -14,6 +17,7 @@ class TasksService {
     on('fetch-tasks', async () => this.loadTasks())
     on('use-credentials', async () => this.loadTasks())
     on('dispatch-tasks', async () => this.dispatch())
+    on('user-activity', async () => this.checkDeprecated())
   }
 
   async updateTask(task: Task) {
@@ -33,6 +37,7 @@ class TasksService {
       return []
     }
 
+    this.updatedOn = Date.now()
     const today = dateIso10()
     return response.records.map(record => {
       const id = String(record.id)
@@ -63,9 +68,11 @@ class TasksService {
     this.loadTasks()
   }
 
-  preventDeprecatedData() {
-    const every = 30 * 60 * 1000 // 30 minutes
-    setInterval(async () => this.loadTasks(), every)
+  checkDeprecated() {
+    const age = Date.now() - this.updatedOn
+    const minutes = Math.round(age / MINUTE)
+    console.log('tasks fetched', minutes, 'ago')
+    if (minutes >= 10) this.loadTasks()
   }
 }
 
