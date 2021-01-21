@@ -71,7 +71,7 @@ class TasksService {
   checkDeprecated() {
     const age = Date.now() - this.updatedOn
     const minutes = Math.round(age / MINUTE)
-    console.log('tasks fetched', minutes, 'ago')
+    console.log('tasks fetched', minutes, 'minute(s) ago')
     if (minutes >= 10) this.loadTasks()
   }
 }
