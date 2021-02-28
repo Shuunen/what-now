@@ -48,47 +48,47 @@ self.addEventListener('sync', event => {
 const motivators = [
   {
     icon: 'https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/emojione/211/rocket_1f680.png',
-    text: 'Move away from your desktop !'
+    text: 'Move away from your desktop !',
   },
   {
     icon: 'https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/emojione/211/money-bag_1f4b0.png',
-    text: 'Wants to win 10.000 ?'
+    text: 'Wants to win 10.000 ?',
   },
   {
     icon: 'https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/emojione/211/aubergine_1f346.png',
-    text: 'ENLARGE YOUR PRODUCTIVITY'
+    text: 'ENLARGE YOUR PRODUCTIVITY',
   },
   {
     icon: 'https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/emojione/211/peach_1f351.png',
-    text: 'Time has come, move your ass'
+    text: 'Time has come, move your ass',
   },
   {
     icon: 'https://vignette.wikia.nocookie.net/theoffice/images/9/9b/Michael_scott.jpg/revision/latest?cb=20120814001200',
-    text: 'I need you, just one minute...'
+    text: 'I need you, just one minute...',
   },
   {
     icon: 'https://i.pinimg.com/originals/f2/1a/ab/f21aabc97d54ab971507d14345ef8007.png',
-    text: 'Never give up your dreams'
+    text: 'Never give up your dreams',
   },
   {
     icon: 'https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/160/emojione/211/chair_1fa91.png',
-    text: 'Still on your chair ?'
+    text: 'Still on your chair ?',
   },
   {
     icon: 'https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/160/emojione/211/mouth_1f444.png',
-    text: 'ONE TASK DONE = ONE BLOWJOB, LIMITED OFFER !'
+    text: 'ONE TASK DONE = ONE BLOWJOB, LIMITED OFFER !',
   },
   {
     icon: 'https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/160/emojione/211/eyes_1f440.png',
-    text: 'Are you even blinking ?'
+    text: 'Are you even blinking ?',
   },
   {
     icon: 'https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/facebook/200/hot-beverage_2615.png',
-    text: 'Hmm coffee'
+    text: 'Hmm coffee',
   },
   {
     icon: 'https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/emojione/211/sleeping-symbol_1f4a4.png',
-    text: 'Time to wake up !'
-  }
+    text: 'Time to wake up !',
+  },
 ]
 const getMotivator = () => pickOne(motivators)

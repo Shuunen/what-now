@@ -12,7 +12,7 @@ credentials.append(message)
 
 const fields = [
   { name: 'airtable-api-base', label: 'Airtable api base', pattern: '^app\\w{14}$', link: 'find my api base', href: 'https://airtable.com/api' },
-  { name: 'airtable-api-key', label: 'Airtable api key', pattern: '^key\\w{14}$', link: 'find my api key', href: 'https://airtable.com/account' }
+  { name: 'airtable-api-key', label: 'Airtable api key', pattern: '^key\\w{14}$', link: 'find my api key', href: 'https://airtable.com/account' },
 ]
 const formElement = form(fields, 'Use these')
 credentials.append(formElement)
