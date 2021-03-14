@@ -11,8 +11,7 @@
     "twind": "0.15.10"
   },
   "files": [
-    "src",
-    "static"
+    "src"
   ],
   "homepage": "https://github.com/Shuunen/what-now",
   "keywords": [
