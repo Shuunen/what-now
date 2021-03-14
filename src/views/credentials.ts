@@ -4,9 +4,8 @@ import { div, form, p } from '../utils'
 export const credentials = div('credentials')
 
 const message = p(`
-  This webapp rely on <a class="border-b" href="https://airtable.com" target="_blank">Airtable</a> to store your tasks.<br>
-  You can create a Airtable free account and type your credentials below. <br>
-  Your data will stay between you and Airtable, check this open-source code <a class="border-b" href="https://github.com/Shuunen/what-now" target="_blank">on Github</a>.
+  This webapp has been deployed from the open-source code <a class="border-b" href="https://github.com/Shuunen/what-now" target="_blank">on Github</a>. <br>
+  Please check the above link to be introduced to this app : what is it and how to use it.
 `, 'leading-6 py-2')
 credentials.append(message)
 

@@ -5,6 +5,8 @@ interface Credentials {
   key: string;
 }
 
+const DEMO_BASE = 'appQaesCng5o5xqE2'
+
 class CredentialService {
   base!: string
   key!: string
@@ -33,8 +35,10 @@ class CredentialService {
   async save(credentials: Credentials) {
     const ok = this.validate(credentials.base, credentials.key)
     if (!ok) return emit('need-credentials')
-    await storage.set('api-base', credentials.base)
-    await storage.set('api-key', credentials.key)
+    if (credentials.base !== DEMO_BASE) {
+      await storage.set('api-base', credentials.base)
+      await storage.set('api-key', credentials.key)
+    }
     this.use(credentials)
   }
 
