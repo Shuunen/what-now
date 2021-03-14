@@ -8,7 +8,7 @@
     "assert": "2.0.0",
     "shuunen-stack": "0.2.0",
     "shuutils": "4.3.0",
-    "twind": "0.15.10"
+    "twind": "0.16.0"
   },
   "files": [
     "src"
@@ -35,7 +35,7 @@
     "start": "npm run dev",
     "test": "stack test",
     "test:watch": "stack test -- --watch",
-    "update": "stack update"
+    "update": "npx npm-check-updates -u"
   },
   "version": "1.0.0"
 }
