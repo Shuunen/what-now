@@ -26,11 +26,7 @@ export class Task {
 
   daysRecurrence(): number {
     const matches = /(\d)?-?(day|week|month)/.exec(this.once) ?? []
-    if (matches.length === 0) {
-      console.error('unhandled "once" format')
-      return 0
-    }
-
+    if (matches.length === 0) return 0
     const [, numberString = '1', unit] = matches
     const number = Number.parseInt(numberString, 10)
     if (unit === 'day') return number
