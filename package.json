@@ -4,11 +4,11 @@
   "description": "Minimalistic task coach",
   "devDependencies": {
     "@types/assert": "1.5.4",
-    "@types/mocha": "8.2.1",
+    "@types/mocha": "8.2.2",
     "assert": "2.0.0",
-    "shuunen-stack": "0.3.0",
+    "shuunen-stack": "0.4.0",
     "shuutils": "4.3.0",
-    "twind": "0.16.0"
+    "twind": "0.16.9"
   },
   "files": [
     "src"
