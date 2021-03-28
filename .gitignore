@@ -9,4 +9,3 @@ dist
 node_modules
 package-lock.json
 sample.*
-index.global.*
