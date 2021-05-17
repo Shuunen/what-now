@@ -21,8 +21,7 @@ retry.addEventListener('click', () => {
 tasks.append(retry)
 
 const handleError = (response: AirtableResponse) => {
-  if (response.error && response.error.type === 'UNAUTHORIZED') message.textContent = 'The credentials you provided does not work'
-  else message.textContent = 'Failed to fetch data from Airtable'
+  message.textContent = response.error && response.error.type === 'UNAUTHORIZED' ? 'The credentials you provided does not work' : 'Failed to fetch data from Airtable'
   message.textContent += ', click the button below to try again.'
   message.className = 'text-red-200'
   retry.classList.toggle('hidden')
@@ -84,4 +83,4 @@ const onTaskLoaded = (list: Task[]) => {
   updateList(container, list)
 }
 
-on('tasks-loaded', list => onTaskLoaded(list))
+on('tasks-loaded', (list: Task[]) => onTaskLoaded(list))

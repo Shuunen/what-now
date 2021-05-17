@@ -2,9 +2,7 @@
 
 [![Website Up](https://img.shields.io/website/https/what-now.netlify.app.svg)](https://what-now.netlify.app)
 [![GitHub license](https://img.shields.io/github/license/shuunen/what-now.svg?color=informational)](https://github.com/Shuunen/what-now/blob/master/LICENSE)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FShuunen%2Fwhat-now.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FShuunen%2Fwhat-now?ref=badge_shield)
 
-[![Build Status](https://travis-ci.com/Shuunen/what-now.svg?branch=master)](https://travis-ci.com/Shuunen/what-now)
 [![David](https://img.shields.io/david/shuunen/what-now.svg)](https://david-dm.org/shuunen/what-now)
 [![LGTM Grade](https://img.shields.io/lgtm/grade/javascript/github/Shuunen/what-now.svg)](https://lgtm.com/projects/g/Shuunen/what-now)
 
@@ -82,8 +80,4 @@ You can have a look at the sources to see that this app is not sharing your data
 - [Mocha](https://github.com/mochajs/mocha) : great test runner easy to setup & use
 - [Netlify](https://netlify.com) : awesome company that offers free CI & hosting for OSS projects
 - [Shields.io](https://shields.io) : nice looking badges to be proud of
-- [Travis-ci.com](https://travis-ci.com) : for providing free continuous deployments
-
-## License
-
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FShuunen%2Fwhat-now.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FShuunen%2Fwhat-now?ref=badge_large)
+- [Xo](https://github.com/xojs/xo) : super tool to find & fix problems
