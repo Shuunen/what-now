@@ -13,7 +13,7 @@ class TasksService {
   }
 
   setupListeners() {
-    on('task-update', async task => this.updateTask(task))
+    on('task-update', async (task: Task) => this.updateTask(task))
     on('fetch-tasks', async () => this.loadTasks())
     on('use-credentials', async () => this.loadTasks())
     on('dispatch-tasks', async () => this.dispatch())

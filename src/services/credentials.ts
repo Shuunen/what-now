@@ -13,12 +13,12 @@ class CredentialService {
 
   init() {
     this.checkHash().catch(error => console.error(error))
-    on('save-credentials', async credentials => this.save(credentials))
+    on('save-credentials', async (credentials: Credentials) => this.save(credentials))
   }
 
   async checkStorage() {
-    const base = await storage.get('api-base')
-    const key = await storage.get('api-key')
+    const base: string = (await storage.get('api-base')) ?? ''
+    const key: string = (await storage.get('api-key')) ?? ''
     const ok = this.validate(base, key)
     if (!ok) return emit('need-credentials')
     this.use({ base, key })

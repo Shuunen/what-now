@@ -4,11 +4,12 @@
   "description": "Minimalistic task coach",
   "devDependencies": {
     "@types/assert": "1.5.4",
-    "@types/mocha": "8.2.2",
+    "@types/mocha": "*",
     "assert": "2.0.0",
-    "shuunen-stack": "0.5.3",
-    "shuutils": "4.5.1",
-    "twind": "0.16.15"
+    "shuunen-stack": "0.6.2",
+    "shuutils": "*",
+    "twind": "0.16.15",
+    "xo": "*"
   },
   "files": [
     "src"
@@ -27,15 +28,15 @@
     "url": "https://github.com/Shuunen/what-now.git"
   },
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --outfile=public/dist/main.js --minify",
-    "dev": "echo stack does not use esbuild yet",
+    "build": "stack build src/index.ts --out-dir public --format iife --minify",
+    "dev": "npm run build -- --dev",
     "lint": "stack lint",
     "postversion": "git push && git push --tags",
     "preversion": "npm run ci",
     "start": "npm run dev",
     "test": "stack test",
     "test:watch": "stack test -- --watch",
-    "update": "npx npm-check-updates -u"
+    "update": "stack update"
   },
   "version": "1.0.0"
 }
