@@ -8,7 +8,7 @@
     "assert": "2.0.0",
     "shuunen-stack": "0.6.2",
     "shuutils": "*",
-    "twind": "0.16.15",
+    "twind": "0.16.16",
     "xo": "*"
   },
   "files": [
