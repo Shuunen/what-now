@@ -20,12 +20,11 @@ export class Task {
     if (this.completedOn === '' || this.isOneTime || this.activated) return true
     const recurrence = this.daysRecurrence()
     const days = this.daysSinceCompletion()
-    // console.log(`active if days since completion (${days}) superior or equal to ${number} ${unit}(s)`)
     return days >= recurrence
   }
 
   daysRecurrence(): number {
-    const matches = /(\d)?-?(day|week|month)/.exec(this.once) ?? []
+    const matches = /(\d+)?-?(day|week|month)/.exec(this.once) ?? []
     if (matches.length === 0) return 0
     const [, numberString = '1', unit] = matches
     const number = Number.parseInt(numberString, 10)
