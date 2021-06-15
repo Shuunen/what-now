@@ -13,7 +13,7 @@ export interface AirtableTaskRecord {
 }
 
 export interface AirtableResponse {
-  records: AirtableTaskRecord[];
+  records?: AirtableTaskRecord[];
   error?: {
     type: string;
     message: string;

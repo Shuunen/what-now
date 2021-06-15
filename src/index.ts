@@ -1,8 +1,8 @@
-import { setup } from 'twind/shim'
+import { setup as twind } from 'twind/shim'
 import { credentialService, idleService, tasksService, workerService } from './services'
 import { landing } from './views/landing'
 
-setup({ mode: 'silent' })
+twind({ mode: 'silent' })
 document.body.append(landing)
 
 credentialService.init()

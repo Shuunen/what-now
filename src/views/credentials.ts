@@ -1,12 +1,12 @@
-import { emit } from 'shuutils'
-import { div, form, p } from '../utils'
+import { div, emit, p } from 'shuutils'
+import { form } from '../utils'
 
 export const credentials = div('credentials')
 
-const message = p(`
+const message = p('leading-6 py-2', `
   This webapp has been deployed from the open-source code <a class="border-b" href="https://github.com/Shuunen/what-now" target="_blank">on Github</a>. <br>
   Please check the above link to be introduced to this app : what is it and how to use it.
-`, 'leading-6 py-2')
+`)
 credentials.append(message)
 
 const fields = [

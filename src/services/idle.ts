@@ -7,22 +7,23 @@ class IdleService {
   inactiveSince = 0
   timer!: NodeJS.Timeout
 
-  init() {
+  init () {
     this.setupListeners()
     this.resetTimer('init')
   }
 
-  setupListeners() {
+  setupListeners () {
     const events = ['mousedown', 'touchstart', 'visibilitychange']
+    // eslint-disable-next-line unicorn/prefer-prototype-methods
     const resetTimer = debounce(this.resetTimer.bind(this), 200)
     events.forEach(name => document.addEventListener(name, async event => resetTimer(event.type), true))
   }
 
-  setupTimer() {
+  setupTimer () {
     this.timer = setInterval(() => this.dispatchInactivity(), CHECK_EVERY)
   }
 
-  resetTimer(from = 'unknown event') {
+  resetTimer (from = 'unknown event') {
     // console.log('timer reset due to', from)
     this.inactiveSince = Date.now()
     clearTimeout(this.timer)
@@ -30,7 +31,7 @@ class IdleService {
     emit('user-activity', from)
   }
 
-  dispatchInactivity() {
+  dispatchInactivity () {
     const inactivePeriod = Date.now() - this.inactiveSince
     const minutes = Math.round(inactivePeriod / MINUTE)
     // console.log('user has been inactive for', minutes, 'minute(s)')

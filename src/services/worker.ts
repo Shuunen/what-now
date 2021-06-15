@@ -3,33 +3,33 @@ import { emit, on } from 'shuutils'
 class WorkerService {
   notificationPerm = window.Notification.permission
 
-  get currentProgress() {
+  get currentProgress () {
     const { progress = '0' } = document.body.dataset
     return Number.parseInt(progress, 10)
   }
 
-  get canNotify() {
+  get canNotify () {
     return this.notificationPerm === 'granted'
   }
 
-  init() {
+  init () {
     this.setupListeners()
     this.setupWorker()
   }
 
-  setupListeners() {
+  setupListeners () {
     on('ask-notification-perm', async () => this.askNotificationPerm())
     on('send-reminder', async () => this.sendReminder())
   }
 
-  setupWorker() {
+  setupWorker () {
     this.registerServiceWorker().then(() => {
       // console.log('service-worker has been registered')
-      this.checkNotificationPerm()
+      return this.checkNotificationPerm()
     }).catch(error => console.error(error))
   }
 
-  async sendReminder() {
+  async sendReminder () {
     if (!this.canNotify) return
     const registration = await navigator.serviceWorker.ready
     if (this.currentProgress === 100) return console.log('no reminders in heaven')
@@ -37,14 +37,14 @@ class WorkerService {
     return registration.sync.register('reminder')
   }
 
-  checkNotificationPerm() {
+  checkNotificationPerm () {
     this.notificationPerm = window.Notification.permission
     // default: user has never been asked
     // denied: user has refused
     if (this.notificationPerm === 'default') emit('suggest-notification')
   }
 
-  async askNotificationPerm() {
+  async askNotificationPerm () {
     if (!('permission' in Notification)) return console.error('Notifications cannot be enabled on this device.')
     this.notificationPerm = await window.Notification.requestPermission()
     // granted: user has accepted the request
@@ -54,7 +54,7 @@ class WorkerService {
     // console.log('Notification are now enabled')
   }
 
-  async registerServiceWorker() {
+  async registerServiceWorker () {
     if (!('serviceWorker' in navigator)) throw new Error('No Service Worker support!')
     const file = 'service-worker.js'
     return navigator.serviceWorker.register(file)

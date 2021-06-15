@@ -1,7 +1,6 @@
-import { emit, on, sleep } from 'shuutils'
-import { dom } from '../utils'
+import { dom, emit, on, sleep } from 'shuutils'
 
-export const notification = dom('button', '🔔', 'fixed text-4xl right-6 top-6 opacity-0 transition duration-300 ease-in-out cursor-pointer')
+export const notification = dom('button', 'fixed text-4xl right-6 top-6 opacity-0 transition duration-300 ease-in-out cursor-pointer', '🔔')
 
 notification.addEventListener('click', () => {
   emit('ask-notification-perm')

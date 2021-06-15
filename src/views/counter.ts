@@ -1,7 +1,6 @@
-import { on } from 'shuutils'
-import { dom } from '../utils'
+import { dom, on } from 'shuutils'
 
-export const progress = dom('hr', '', 'mb-2')
+export const progress = dom('hr', 'mb-2')
 
 const setProgress = (percent = 0) => {
   progress.style.width = `${percent}%`

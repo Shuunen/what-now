@@ -8,11 +8,11 @@ const MINUTE = 60 * 1000
 class TasksService {
   updatedOn = Date.now()
 
-  init() {
+  init () {
     this.setupListeners()
   }
 
-  setupListeners() {
+  setupListeners () {
     on('task-update', async (task: Task) => this.updateTask(task))
     on('fetch-tasks', async () => this.loadTasks())
     on('use-credentials', async () => this.loadTasks())
@@ -20,15 +20,15 @@ class TasksService {
     on('user-activity', async () => this.checkDeprecated())
   }
 
-  async updateTask(task: Task) {
+  async updateTask (task: Task) {
     const url = await credentialService.airtableUrl(`tasks/${task.id}`)
     if (typeof url !== 'string') return
-    const data = { fields: { 'completed-on': task.completedOn, done: task.done } }
+    const data = { fields: { 'completed-on': task.completedOn, 'done': task.done } }
     const response = await patch(url, data).catch(error => console.error(error.message))
-    if ((response as any).error) return emit('update-task-error', response)
+    if ((response as AirtableResponse).error) return emit('update-task-error', response)
   }
 
-  async fetchList(): Promise<Task[]> {
+  async fetchList (): Promise<Task[]> {
     const url = await credentialService.airtableUrl('tasks')
     if (typeof url !== 'string') return []
     const response: AirtableResponse = await fetch(url).then(async response => response.json())
@@ -36,23 +36,22 @@ class TasksService {
       emit('get-tasks-error', response)
       return []
     }
-
     this.updatedOn = Date.now()
     const today = dateIso10()
-    return response.records.map(record => {
+    return (response.records ?? []).map(record => {
       const id = String(record.id)
       const { name = '', once = 'day' } = record.fields
       return new Task(id, name, once, record.fields['completed-on'], record.fields['average-time'])
     }).filter(task => (task.completedOn === today || task.isActive()))
   }
 
-  loadTasks() {
+  loadTasks () {
     this.fetchList()
       .then(tasks => emit('tasks-loaded', tasks))
       .catch(error => console.error(error.message))
   }
 
-  async dispatchTask(task: Task, index = 0): Promise<void> {
+  async dispatchTask (task: Task, index = 0): Promise<void> {
     if (task.once === 'day') return
     const delay = task.daysRecurrence()
     const position = index % delay
@@ -62,13 +61,13 @@ class TasksService {
     return this.updateTask(task).catch(error => console.error(error.message))
   }
 
-  async dispatch() {
+  async dispatch () {
     const tasks = await this.fetchList()
     await Promise.all(tasks.map(async (task, index) => this.dispatchTask(task, index)))
     this.loadTasks()
   }
 
-  checkDeprecated() {
+  checkDeprecated () {
     const age = Date.now() - this.updatedOn
     const minutes = Math.round(age / MINUTE)
     console.log('tasks fetched', minutes, 'minute(s) ago')

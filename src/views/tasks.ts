@@ -1,12 +1,12 @@
-import { emit, on, storage } from 'shuutils'
+import { div, dom, emit, on, p, storage } from 'shuutils'
 import { AirtableResponse, Task } from '../models'
-import { button, div, dom, p } from '../utils'
+import { button } from '../utils'
 import { progress } from './counter'
 
 export const tasks = div('tasks')
 
 const messageClass = 'message font-light mb-3 text-2xl mb-2' // trouver une meilleure solution
-const message = p('Fetching data from Airtable...', messageClass)
+const message = p(messageClass, 'Fetching data from Airtable...')
 tasks.append(message)
 tasks.append(progress)
 
@@ -30,7 +30,7 @@ const handleError = (response: AirtableResponse) => {
 on('get-tasks-error', handleError)
 
 const createLine = (task: Task) => {
-  const line = dom('button', '', 'task transition-transform duration-500 transform mr-auto px-2 py-1 -ml-2')
+  const line = dom('button', 'task transition-transform duration-500 transform mr-auto px-2 py-1 -ml-2')
   line.dataset.taskId = task.id
   updateLine(line, task)
   return line
