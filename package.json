@@ -3,13 +3,13 @@
   "bugs": "https://github.com/Shuunen/what-now/issues",
   "description": "Minimalistic task coach",
   "devDependencies": {
-    "@types/assert": "1.5.4",
+    "@types/assert": "*",
     "@types/mocha": "*",
-    "assert": "2.0.0",
-    "shuunen-stack": "0.6.2",
+    "assert": "*",
+    "npm-run-all": "*",
+    "shuunen-stack": "0.9.5",
     "shuutils": "*",
-    "twind": "0.16.16",
-    "xo": "*"
+    "twind": "0.16.16"
   },
   "files": [
     "src"
@@ -29,6 +29,7 @@
   },
   "scripts": {
     "build": "stack build src/index.ts --out-dir public --format iife --minify",
+    "ci": "run-s build lint test",
     "dev": "npm run build -- --dev",
     "lint": "stack lint",
     "postversion": "git push && git push --tags",

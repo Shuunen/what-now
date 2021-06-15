@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "richie5um2.vscode-sort-json",
+    "eg2.vscode-npm-script",
+    "christian-kohler.npm-intellisense",
+    "davidanson.vscode-markdownlint",
+    "yzhang.markdown-all-in-one",
+    "michelemelluso.gitignore",
+    "editorconfig.editorconfig",
+    "ryanluker.vscode-coverage-gutters"
+  ]
+}
