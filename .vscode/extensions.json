@@ -8,6 +8,7 @@
     "yzhang.markdown-all-in-one",
     "michelemelluso.gitignore",
     "editorconfig.editorconfig",
-    "ryanluker.vscode-coverage-gutters"
+    "ryanluker.vscode-coverage-gutters",
+    "bradlc.vscode-tailwindcss"
   ]
 }

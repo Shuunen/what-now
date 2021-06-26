@@ -8,6 +8,7 @@ coverage
 dist
 node_modules
 package-lock.json
-sample.*
+public/*.css
 public/*.js
 public/*.map
+sample.*
