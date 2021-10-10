@@ -7,7 +7,7 @@
     "@types/mocha": "*",
     "assert": "*",
     "npm-run-all": "*",
-    "shuunen-stack": "0.11.1",
+    "shuunen-stack": "0.13.0",
     "shuutils": "4.8.1",
     "tailwindcss": "*"
   },
