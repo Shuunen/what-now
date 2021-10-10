@@ -8,7 +8,7 @@
     "assert": "*",
     "npm-run-all": "*",
     "shuunen-stack": "0.13.0",
-    "shuutils": "4.8.1",
+    "shuutils": "4.9.0",
     "tailwindcss": "*"
   },
   "files": [
