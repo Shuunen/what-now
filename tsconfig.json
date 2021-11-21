@@ -4,6 +4,7 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "Node",
     "outDir": "./dist",
+    "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
     "target": "ES2020"
