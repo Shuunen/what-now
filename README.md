@@ -70,8 +70,8 @@ You can have a look at the sources to see that this app is not sharing your data
 
 ### Build Tailwind styles
 
-- 3,9 seconds with tailwindcss-cli build -o, default, no input
-- instant with twind :tada:
+- 1,9 seconds with tailwindcss & jit
+- instant with twind
 
 ## Thanks
 
@@ -85,6 +85,7 @@ You can have a look at the sources to see that this app is not sharing your data
 - [Repo-checker](https://github.com/Shuunen/repo-checker) : eslint cover /src code and this tool the rest ^^
 - [Servor](https://github.com/lukejacksonn/servor) : dependency free dev server for single page app development
 - [Shields.io](https://shields.io) : nice looking badges to be proud of
+- [Shuutils](https://github.com/Shuunen/shuutils) : collection of pure JS utils
 - [TailwindCss](https://tailwindcss.com) : awesome lib to produce maintainable style
 - [UvU](https://github.com/lukeed/uvu) : extremely fast and lightweight test runner for Node.js and the browser
 - [Watchlist](https://github.com/lukeed/watchlist) : recursively watch a list of directories & run a command on any file system
