@@ -55,5 +55,5 @@
     "test": "c8 uvu -r tsm tests",
     "test:watch": "watchlist src tests -- npm test"
   },
-  "version": "1.0.0"
+  "version": "1.1.0"
 }
