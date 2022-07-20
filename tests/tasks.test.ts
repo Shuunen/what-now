@@ -1,7 +1,7 @@
 
-import { strictEqual as equal } from 'assert'
 import { daysAgoIso10 } from 'shuutils'
 import { test } from 'uvu'
+import { equal } from 'uvu/assert'
 import { Task } from '../src/models'
 
 const name = 'a super task'
