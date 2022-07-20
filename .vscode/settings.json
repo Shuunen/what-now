@@ -1,5 +1,10 @@
 {
   "cSpell.words": [
     "twind"
-  ]
+  ],
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#530E49",
+    "titleBar.activeBackground": "#751466",
+    "titleBar.activeForeground": "#FEFCFE"
+  }
 }
