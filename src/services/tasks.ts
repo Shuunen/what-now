@@ -8,11 +8,11 @@ const MINUTE = 60 * 1000
 class TasksService {
   updatedOn = Date.now()
 
-  init () {
+  init (): void {
     this.setupListeners()
   }
 
-  setupListeners () {
+  setupListeners (): void {
     on('task-update', async (task: Task) => this.updateTask(task))
     on('fetch-tasks', async () => this.loadTasks())
     on('use-credentials', async () => this.loadTasks())
@@ -20,7 +20,7 @@ class TasksService {
     on('user-activity', async () => this.checkDeprecated())
   }
 
-  async updateTask (task: Task) {
+  async updateTask (task: Task): Promise<boolean | undefined> {
     const url = await credentialService.airtableUrl(`tasks/${task.id}`)
     if (typeof url !== 'string') return
     const data = { fields: { 'completed-on': task.completedOn, 'done': task.done } }
@@ -45,13 +45,13 @@ class TasksService {
     }).filter(task => (task.completedOn === today || task.isActive()))
   }
 
-  loadTasks () {
+  loadTasks (): void {
     this.fetchList()
       .then(tasks => emit('tasks-loaded', tasks))
       .catch(error => console.error(error.message))
   }
 
-  async dispatchTask (task: Task, index = 0): Promise<void> {
+  async dispatchTask (task: Task, index = 0): Promise<boolean | void | undefined> {
     if (task.once === 'day') return
     const delay = task.daysRecurrence()
     const position = index % delay
@@ -61,13 +61,13 @@ class TasksService {
     return this.updateTask(task).catch(error => console.error(error.message))
   }
 
-  async dispatch () {
+  async dispatch (): Promise<void> {
     const tasks = await this.fetchList()
     await Promise.all(tasks.map(async (task, index) => this.dispatchTask(task, index)))
     this.loadTasks()
   }
 
-  checkDeprecated () {
+  checkDeprecated (): void {
     const age = Date.now() - this.updatedOn
     const minutes = Math.round(age / MINUTE)
     if (minutes > 0) console.log('last activity', minutes, 'minute(s) ago')

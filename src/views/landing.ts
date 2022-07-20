@@ -17,7 +17,7 @@ credentials.classList.add('hidden')
 landing.append(credentials)
 landing.append(tasks)
 
-const showTasks = (sure = false) => {
+const showTasks = (sure = false): void => {
   credentials.classList.toggle('hidden', sure)
   tasks.classList.toggle('hidden', !sure)
 }

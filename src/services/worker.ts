@@ -3,48 +3,49 @@ import { emit, on } from 'shuutils'
 class WorkerService {
   notificationPerm = window.Notification.permission
 
-  get currentProgress () {
+  get currentProgress (): number {
     const { progress = '0' } = document.body.dataset
     return Number.parseInt(progress, 10)
   }
 
-  get canNotify () {
+  get canNotify (): boolean {
     return this.notificationPerm === 'granted'
   }
 
-  init () {
+  init (): void {
     this.setupListeners()
     this.setupWorker()
   }
 
-  setupListeners () {
+  setupListeners (): void {
     on('ask-notification-perm', async () => this.askNotificationPerm())
     on('send-reminder', async () => this.sendReminder())
   }
 
-  setupWorker () {
+  setupWorker (): void {
     this.registerServiceWorker().then(() => {
       // console.log('service-worker has been registered')
       return this.checkNotificationPerm()
     }).catch(error => console.error(error))
   }
 
-  async sendReminder () {
+  async sendReminder (): Promise<unknown> {
     if (!this.canNotify) return
     const registration = await navigator.serviceWorker.ready
     if (this.currentProgress === 100) return console.log('no reminders in heaven')
     console.log('trigger reminder')
-    return registration.sync.register('reminder')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (registration as any).sync.register('reminder')
   }
 
-  checkNotificationPerm () {
+  checkNotificationPerm (): void {
     this.notificationPerm = window.Notification.permission
     // default: user has never been asked
     // denied: user has refused
     if (this.notificationPerm === 'default') emit('suggest-notification')
   }
 
-  async askNotificationPerm () {
+  async askNotificationPerm (): Promise<void> {
     if (!('permission' in Notification)) return console.error('Notifications cannot be enabled on this device.')
     this.notificationPerm = await window.Notification.requestPermission()
     // granted: user has accepted the request
@@ -54,7 +55,7 @@ class WorkerService {
     // console.log('Notification are now enabled')
   }
 
-  async registerServiceWorker () {
+  async registerServiceWorker (): Promise<ServiceWorkerRegistration> {
     if (!('serviceWorker' in navigator)) throw new Error('No Service Worker support!')
     const file = 'service-worker.js'
     return navigator.serviceWorker.register(file)

@@ -20,7 +20,7 @@ retry.addEventListener('click', () => {
 })
 tasks.append(retry)
 
-const handleError = (response: AirtableResponse) => {
+const handleError = (response: AirtableResponse): void => {
   message.textContent = response.error && response.error.type === 'UNAUTHORIZED' ? 'The credentials you provided does not work' : 'Failed to fetch data from Airtable'
   message.textContent += ', click the button below to try again.'
   message.className = 'text-red-200'
@@ -29,14 +29,14 @@ const handleError = (response: AirtableResponse) => {
 
 on('get-tasks-error', handleError)
 
-const createLine = (task: Task) => {
+const createLine = (task: Task): HTMLButtonElement => {
   const line = dom('button', 'task transition-transform duration-500 transform mr-auto px-2 py-1 -ml-2')
   line.dataset.taskId = task.id
   updateLine(line, task)
   return line
 }
 
-const updateLine = (line: HTMLElement, task: Task) => {
+const updateLine = (line: HTMLElement, task: Task): void => {
   const active = task.isActive()
   line.dataset.active = String(active)
   line.textContent = `${active ? '◦' : '✔️'} ${task.name}`
@@ -44,7 +44,7 @@ const updateLine = (line: HTMLElement, task: Task) => {
   line.classList.toggle('opacity-60', !active)
 }
 
-const onClick = (line: HTMLElement, list: Task[]) => {
+const onClick = (line: HTMLElement, list: Task[]): void => {
   if (line === null || line.dataset.taskId === undefined) return
   const task = list.find(t => t.id === line.dataset.taskId)
   if (task === undefined) return console.error('failed to find this task in list')
@@ -53,7 +53,7 @@ const onClick = (line: HTMLElement, list: Task[]) => {
   emit('update-counter')
 }
 
-const addList = (list: Task[]) => {
+const addList = (list: Task[]): void => {
   if (list.length === 0) return
   message.textContent = `Found ${list.length} tasks for today !`
   const container = div('task-list grid gap-2')
@@ -63,7 +63,7 @@ const addList = (list: Task[]) => {
   container.addEventListener('click', (event: Event) => onClick(event.target as HTMLElement, list))
 }
 
-const updateList = (container: Element, list: Task[]) => {
+const updateList = (container: Element, list: Task[]): void => {
   const lines = container.querySelectorAll<HTMLElement>('.task-list > .task')
   const processed: string[] = []
   lines.forEach(line => {
@@ -77,7 +77,7 @@ const updateList = (container: Element, list: Task[]) => {
   emit('update-counter')
 }
 
-const onTaskLoaded = (list: Task[]) => {
+const onTaskLoaded = (list: Task[]): void => {
   const container = document.querySelector('.task-list')
   if (container === null) return addList(list)
   updateList(container, list)

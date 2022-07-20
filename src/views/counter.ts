@@ -2,12 +2,12 @@ import { dom, on } from 'shuutils'
 
 export const progress = dom('hr', 'mb-2')
 
-const setProgress = (percent = 0) => {
+const setProgress = (percent = 0): void => {
   progress.style.width = `${percent}%`
   document.body.dataset.progress = `${percent}`
 }
 
-const counterText = (total = 0, remaining = 0, percent = 0) => {
+const counterText = (total = 0, remaining = 0, percent = 0): string => {
   const done = total - remaining
   if (done === 0) return 'Nothing done... yet'
   if (percent <= 25) return 'Amuse-bouche : check'
@@ -19,7 +19,7 @@ const counterText = (total = 0, remaining = 0, percent = 0) => {
   return 'You made it, well done dude :)'
 }
 
-const updateCounter = () => {
+const updateCounter = (): void => {
   const message = document.querySelector('.message')
   if (message === null) return console.error('cannot update counter, failed to find the message element')
   const total = document.querySelectorAll('[data-task-id]').length

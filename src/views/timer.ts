@@ -5,11 +5,11 @@ export const timer = div('timer font-thin bottom-4 fixed text-right right-4 text
 
 let minutes = 0
 
-const updateTimer = () => {
+const updateTimer = (): void => {
   timer.innerHTML = minutes > 0 ? `${minutes}<br>min` : ''
 }
 
-const onTaskLoaded = (tasks: Task[]) => {
+const onTaskLoaded = (tasks: Task[]): void => {
   let seconds = 0
   tasks.forEach(task => {
     if (!task.isActive()) return
@@ -19,7 +19,7 @@ const onTaskLoaded = (tasks: Task[]) => {
   updateTimer()
 }
 
-const onTaskUpdate = (task: Task) => {
+const onTaskUpdate = (task: Task): void => {
   const seconds = (task.isActive() ? 1 : -1) * task.averageTime
   minutes += Math.round(seconds / 60)
   updateTimer()
