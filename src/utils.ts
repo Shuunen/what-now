@@ -1,5 +1,5 @@
 import { dom } from 'shuutils'
-import { FormField } from './models'
+import type { FormField } from './models'
 
 export const button = (content: string, classes = ''): HTMLElement => {
   return dom('button', `bg-blue-800 m-auto sm:ml-0 px-4 py-1 ${classes}`, content)

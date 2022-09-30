@@ -4,7 +4,7 @@ export const progress = dom('hr', 'mb-2')
 
 const setProgress = (percent = 0): void => {
   progress.style.width = `${percent}%`
-  document.body.dataset.progress = `${percent}`
+  document.body.dataset['progress'] = `${percent}`
 }
 
 const counterText = (total = 0, remaining = 0, percent = 0): string => {

@@ -20,12 +20,13 @@ class TasksService {
     on('user-activity', async () => this.checkDeprecated())
   }
 
-  async updateTask (task: Task): Promise<boolean | undefined> {
+  async updateTask (task: Task): Promise<boolean> {
     const url = await credentialService.airtableUrl(`tasks/${task.id}`)
-    if (typeof url !== 'string') return
+    if (typeof url !== 'string') return false
     const data = { fields: { 'completed-on': task.completedOn, 'done': task.done } }
     const response = await patch(url, data).catch(error => console.error(error.message))
     if ((response as AirtableResponse).error) return emit('update-task-error', response)
+    return true
   }
 
   async fetchList (): Promise<Task[]> {

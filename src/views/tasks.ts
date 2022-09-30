@@ -1,5 +1,5 @@
 import { div, dom, emit, on, p, storage } from 'shuutils'
-import { AirtableResponse, Task } from '../models'
+import type { AirtableResponse, Task } from '../models'
 import { button } from '../utils'
 import { progress } from './counter'
 
@@ -31,22 +31,22 @@ on('get-tasks-error', handleError)
 
 const createLine = (task: Task): HTMLButtonElement => {
   const line = dom('button', 'task transition-transform duration-500 transform mr-auto px-2 py-1 -ml-2')
-  line.dataset.taskId = task.id
+  line.dataset['taskId'] = task.id
   updateLine(line, task)
   return line
 }
 
 const updateLine = (line: HTMLElement, task: Task): void => {
   const active = task.isActive()
-  line.dataset.active = String(active)
+  line.dataset['active'] = String(active)
   line.textContent = `${active ? '◦' : '✔️'} ${task.name}`
   line.classList.toggle('translate-x-6', !active)
   line.classList.toggle('opacity-60', !active)
 }
 
 const onClick = (line: HTMLElement, list: Task[]): void => {
-  if (line === null || line.dataset.taskId === undefined) return
-  const task = list.find(t => t.id === line.dataset.taskId)
+  if (line === null || line.dataset['taskId'] === undefined) return
+  const task = list.find(t => t.id === line.dataset['taskId'])
   if (task === undefined) return console.error('failed to find this task in list')
   task.toggleComplete()
   updateLine(line, task)
@@ -67,7 +67,7 @@ const updateList = (container: Element, list: Task[]): void => {
   const lines = container.querySelectorAll<HTMLElement>('.task-list > .task')
   const processed: string[] = []
   lines.forEach(line => {
-    const task = list.find(t => (t.id === line.dataset.taskId))
+    const task = list.find(t => (t.id === line.dataset['taskId']))
     if (task === undefined) return line.remove() // deleting a task in dom that does not exists on Airtable
     processed.push(task.id)
     updateLine(line, task)
