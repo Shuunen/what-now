@@ -12,7 +12,7 @@
 
 ## What is it ?
 
-This app is a minimalistic todo list based on recurring tasks.
+This app is a minimalist todo list based on recurring tasks.
 
 ![demo](docs/demo.gif)
 
