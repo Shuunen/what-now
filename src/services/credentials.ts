@@ -17,6 +17,7 @@ class CredentialService {
   }
 
   async checkStorage (): Promise<boolean> {
+    console.log('check storage')
     const base = storage.get('api-base', '')
     const key = storage.get('api-key', '')
     const ok = this.validate(base, key)
@@ -35,11 +36,12 @@ class CredentialService {
   }
 
   async save (credentials: Credentials): Promise<boolean> {
+    console.log('save credentials', credentials)
     const ok = this.validate(credentials.base, credentials.key)
     if (!ok) return emit('need-credentials')
     if (credentials.base !== DEMO_BASE) {
-      await storage.set('api-base', credentials.base)
-      await storage.set('api-key', credentials.key)
+      storage.set('api-base', credentials.base)
+      storage.set('api-key', credentials.key)
     }
     this.use(credentials)
     return true
@@ -48,7 +50,9 @@ class CredentialService {
   validate (base: string, key: string): boolean {
     const baseOk = base !== undefined && typeof base === 'string' && base.length === 17
     const keyOk = key !== undefined && typeof key === 'string' && key.length === 17
-    return baseOk && keyOk
+    const valid = baseOk && keyOk
+    console.log('credentials valid ?', valid)
+    return valid
   }
 
   use (credentials: Credentials): void {

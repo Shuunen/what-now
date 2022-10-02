@@ -21,6 +21,7 @@ class TasksService {
   }
 
   async updateTask (task: Task): Promise<boolean> {
+    console.log('update task', task)
     const url = await credentialService.airtableUrl(`tasks/${task.id}`)
     if (typeof url !== 'string') return false
     const data = { fields: { 'completed-on': task.completedOn, 'done': task.done } }
@@ -30,6 +31,7 @@ class TasksService {
   }
 
   async fetchList (): Promise<Task[]> {
+    console.log('fetch list')
     const url = await credentialService.airtableUrl('tasks')
     if (typeof url !== 'string') return []
     const response: AirtableResponse = await fetch(url).then(async response => response.json())
@@ -47,6 +49,7 @@ class TasksService {
   }
 
   loadTasks (): void {
+    console.log('load tasks')
     this.fetchList()
       .then(tasks => emit('tasks-loaded', tasks))
       .catch(error => console.error(error.message))
@@ -63,6 +66,7 @@ class TasksService {
   }
 
   async dispatch (): Promise<void> {
+    console.log('dispatch tasks')
     const tasks = await this.fetchList()
     await Promise.all(tasks.map(async (task, index) => this.dispatchTask(task, index)))
     this.loadTasks()

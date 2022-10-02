@@ -10,6 +10,7 @@ const updateTimer = (): void => {
 }
 
 const onTaskLoaded = (tasks: Task[]): void => {
+  console.log('timer, on tasks loaded')
   let seconds = 0
   tasks.forEach(task => {
     if (!task.isActive()) return
@@ -20,6 +21,7 @@ const onTaskLoaded = (tasks: Task[]): void => {
 }
 
 const onTaskUpdate = (task: Task): void => {
+  console.log('timer, on task update')
   const seconds = (task.isActive() ? 1 : -1) * task.averageTime
   minutes += Math.round(seconds / 60)
   updateTimer()

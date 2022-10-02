@@ -18,6 +18,7 @@ landing.append(credentials)
 landing.append(tasks)
 
 const showTasks = (sure = false): void => {
+  console.log('show tasks', sure)
   credentials.classList.toggle('hidden', sure)
   tasks.classList.toggle('hidden', !sure)
 }
