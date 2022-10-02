@@ -1,4 +1,4 @@
-import { emit, on, storage } from 'shuutils'
+import { emit, on, sleep, storage } from 'shuutils'
 
 interface Credentials {
   base: string
@@ -22,8 +22,7 @@ class CredentialService {
     const key = storage.get('api-key', '')
     const ok = this.validate(base, key)
     if (!ok) return emit('need-credentials')
-    this.use({ base, key })
-    return true
+    return this.use({ base, key })
   }
 
   async checkHash (): Promise<boolean> {
@@ -43,8 +42,7 @@ class CredentialService {
       storage.set('api-base', credentials.base)
       storage.set('api-key', credentials.key)
     }
-    this.use(credentials)
-    return true
+    return this.use(credentials)
   }
 
   validate (base: string, key: string): boolean {
@@ -55,10 +53,11 @@ class CredentialService {
     return valid
   }
 
-  use (credentials: Credentials): void {
+  async use (credentials: Credentials): Promise<boolean> {
     this.base = credentials.base
     this.key = credentials.key
-    emit('use-credentials', credentials)
+    await sleep(10) // let the on('use-credentials') listeners be ready
+    return emit('use-credentials', credentials)
   }
 
   async airtableUrl (target = ''): Promise<string | boolean> {
