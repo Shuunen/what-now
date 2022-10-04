@@ -1,4 +1,5 @@
-import { div, dom, emit, on, p, pickOne, storage } from 'shuutils'
+import confetti from 'canvas-confetti'
+import { div, dom, emit, on, p, pickOne, sleep, storage } from 'shuutils'
 import type { AirtableResponse, Task } from '../models'
 import { button, emojis } from '../utils'
 import { progress } from './counter'
@@ -31,7 +32,7 @@ const handleError = (response: AirtableResponse): void => {
 on('get-tasks-error', handleError)
 
 const createLine = (task: Task): HTMLButtonElement => {
-  const line = dom('button', 'task transition-transform w-full text-start duration-500 transform mr-auto px-2 py-1 -ml-2 whitespace-nowrap overflow-ellipsis overflow-hidden', task.name)
+  const line = dom('button', 'task transition-transform max-w-full text-start duration-500 transform mr-auto px-2 py-1 -ml-2 whitespace-nowrap overflow-ellipsis overflow-hidden', task.name)
   line.dataset['taskId'] = task.id
   updateLine(line, task)
   return line
@@ -49,6 +50,7 @@ const onClick = (line: HTMLElement, list: Task[]): void => {
   const task = list.find(t => t.id === line.dataset['taskId'])
   if (task === undefined) return console.error('failed to find this task in list')
   task.toggleComplete()
+  if (!task.isActive()) throwConfettiAround(line)
   updateLine(line, task)
   emit('update-counter')
 }
@@ -83,6 +85,18 @@ const onTaskLoaded = (list: Task[]): void => {
   const container = document.querySelector('.task-list')
   if (container === null) return addList(list)
   updateList(container, list)
+}
+
+const throwConfettiAround = async (element: HTMLElement): Promise<void> => {
+  const { bottom, left, right } = element.getBoundingClientRect()
+  const y = Math.round(bottom / window.innerHeight * 100) / 100
+  let x = Math.round(left / window.innerWidth * 100) / 100
+  console.log({ bottom, left, right, y, x })
+  const angle = 20
+  confetti({ angle: (90 + angle), origin: { x, y } })
+  x = Math.round(right / window.innerWidth * 100) / 100
+  await sleep(200)
+  confetti({ angle: (90 - angle), origin: { x, y } })
 }
 
 on('tasks-loaded', (list: Task[]) => onTaskLoaded(list))
