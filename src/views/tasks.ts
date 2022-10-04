@@ -58,7 +58,6 @@ const addList = (list: Task[]): void => {
   message.textContent = `Found ${list.length} tasks for today !`
   const container = div('task-list grid gap-2')
   list.forEach(task => container.append(createLine(task)))
-  emojis.forEach(emoji => container.append(div('text-2xl', emoji)))
   tasks.append(container)
   emit('update-counter')
   container.addEventListener('click', (event: Event) => onClick(event.target as HTMLElement, list))
