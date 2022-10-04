@@ -1,7 +1,7 @@
 import { div, emit, on } from 'shuutils'
 import type { Task } from '../models'
 
-export const timer = div('timer font-thin bottom-4 fixed text-right right-4 text-5xl leading-10 text-gray-700')
+export const timer = div('timer font-thin bottom-8 fixed text-right right-5 text-5xl leading-10 text-gray-700')
 
 let minutes = 0
 
