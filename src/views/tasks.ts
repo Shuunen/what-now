@@ -6,6 +6,8 @@ import { progress } from './counter'
 
 export const tasks = div('tasks')
 
+const fireworksLeft = new Audio('/fireworks.mp3')
+const fireworksRight = new Audio('/fireworks.mp3')
 const messageClass = 'message font-light mb-3 text-2xl mb-2' // trouver une meilleure solution
 const message = p(messageClass, 'Fetching data from Airtable...')
 tasks.append(message)
@@ -91,11 +93,12 @@ const throwConfettiAround = async (element: HTMLElement): Promise<void> => {
   const { bottom, left, right } = element.getBoundingClientRect()
   const y = Math.round(bottom / window.innerHeight * 100) / 100
   let x = Math.round(left / window.innerWidth * 100) / 100
-  console.log({ bottom, left, right, y, x })
   const angle = 20
+  fireworksLeft.play()
   confetti({ angle: (90 + angle), origin: { x, y } })
   x = Math.round(right / window.innerWidth * 100) / 100
   await sleep(200)
+  fireworksRight.play()
   confetti({ angle: (90 - angle), origin: { x, y } })
 }
 
