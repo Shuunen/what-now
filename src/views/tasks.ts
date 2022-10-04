@@ -91,12 +91,13 @@ const onTaskLoaded = (list: Task[]): void => {
 
 const throwConfettiAround = async (element: HTMLElement): Promise<void> => {
   const { bottom, left, right } = element.getBoundingClientRect()
+  const delta = window.innerWidth < 450 ? 90 : 30
   const y = Math.round(bottom / window.innerHeight * 100) / 100
-  let x = Math.round(left / window.innerWidth * 100) / 100
+  let x = Math.round((left + delta) / window.innerWidth * 100) / 100
   const angle = 20
   fireworksLeft.play()
   confetti({ angle: (90 + angle), origin: { x, y } })
-  x = Math.round(right / window.innerWidth * 100) / 100
+  x = Math.round((right - delta) / window.innerWidth * 100) / 100
   await sleep(200)
   fireworksRight.play()
   confetti({ angle: (90 - angle), origin: { x, y } })
