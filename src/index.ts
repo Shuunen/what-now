@@ -4,7 +4,7 @@ import { landing } from './views/landing'
 
 storage.prefix = 'what-now_'
 
-document.body.append(landing)
+document.body.prepend(landing)
 
 credentialService.init()
 idleService.init()
