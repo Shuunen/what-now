@@ -1,6 +1,6 @@
-import { div, dom, emit, on, p, storage } from 'shuutils'
+import { div, dom, emit, on, p, pickOne, storage } from 'shuutils'
 import type { AirtableResponse, Task } from '../models'
-import { button } from '../utils'
+import { button, emojis } from '../utils'
 import { progress } from './counter'
 
 export const tasks = div('tasks')
@@ -31,7 +31,7 @@ const handleError = (response: AirtableResponse): void => {
 on('get-tasks-error', handleError)
 
 const createLine = (task: Task): HTMLButtonElement => {
-  const line = dom('button', 'task transition-transform duration-500 transform mr-auto px-2 py-1 -ml-2')
+  const line = dom('button', 'task transition-transform w-full text-start duration-500 transform mr-auto px-2 py-1 -ml-2 whitespace-nowrap overflow-ellipsis overflow-hidden', task.name)
   line.dataset['taskId'] = task.id
   updateLine(line, task)
   return line
@@ -40,8 +40,7 @@ const createLine = (task: Task): HTMLButtonElement => {
 const updateLine = (line: HTMLElement, task: Task): void => {
   const active = task.isActive()
   line.dataset['active'] = String(active)
-  line.textContent = `${active ? '◦' : '✔️'} ${task.name}`
-  line.classList.toggle('translate-x-6', !active)
+  line.innerHTML = `${active ? pickOne(emojis) : '✔️'}&nbsp; ${task.name}`
   line.classList.toggle('opacity-60', !active)
 }
 
@@ -59,6 +58,7 @@ const addList = (list: Task[]): void => {
   message.textContent = `Found ${list.length} tasks for today !`
   const container = div('task-list grid gap-2')
   list.forEach(task => container.append(createLine(task)))
+  emojis.forEach(emoji => container.append(div('text-2xl', emoji)))
   tasks.append(container)
   emit('update-counter')
   container.addEventListener('click', (event: Event) => onClick(event.target as HTMLElement, list))
