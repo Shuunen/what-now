@@ -8,7 +8,7 @@
 
 ![demo](docs/logo.svg)
 
-> Minimalistic task coach
+> Minimalist task coach
 
 ## What is it ?
 
@@ -83,7 +83,7 @@ You can have a look at the sources to see that this app is not sharing your data
 - [Florian Reichelt](https://freesound.org/people/florianreichelt/sounds/459973/) : fireworks sound effect hosted on FreeSound
 - [Github](https://github.com) : for all their great work year after year, pushing OSS forward
 - [Netlify](https://netlify.com) : awesome company that offers free CI & hosting for OSS projects
-- [Npm-run-all](https://github.com/mysticatea/npm-run-all) : to keep my npm scripts clean & readable
+- [Npm-parallel](https://github.com/spion/npm-parallel) : to keep my npm scripts clean & readable
 - [Repo-checker](https://github.com/Shuunen/repo-checker) : eslint cover /src code and this tool the rest ^^
 - [Servor](https://github.com/lukejacksonn/servor) : dependency free dev server for single page app development
 - [Shields.io](https://shields.io) : nice looking badges to be proud of
