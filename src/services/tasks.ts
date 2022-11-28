@@ -1,40 +1,54 @@
 import { dateIso10, daysAgoIso10, emit, on } from 'shuutils'
-import { AirtableResponse, Task } from '../models'
-import { patch } from '../utils'
+import { Task } from '../models'
+import { get, numbers, patch } from '../utils'
 import { credentialService } from './credentials'
 
-const MINUTE = 60 * 1000
+const reloadTasksAfterMinutes = 10
 
 class TasksService {
-  updatedOn = Date.now()
+  private updatedOn = Date.now()
 
-  init (): void {
+  public init (): void {
     this.setupListeners()
   }
 
-  setupListeners (): void {
-    on('task-update', async (task: Task) => this.updateTask(task))
-    on('fetch-tasks', async () => this.loadTasks())
-    on('use-credentials', async () => this.loadTasks())
-    on('dispatch-tasks', async () => this.dispatch())
-    on('user-activity', async () => this.checkDeprecated())
+  private setupListeners (): void {
+    on('task-update', this.updateTask.bind(this))
+    on('fetch-tasks', this.loadTasks.bind(this))
+    on('use-credentials', this.loadTasks.bind(this))
+    on('dispatch-tasks', this.dispatch.bind(this))
+    on('user-activity', this.checkDeprecated.bind(this))
   }
 
-  async updateTask (task: Task): Promise<boolean> {
+  private checkDeprecated (): void {
+    const age = Date.now() - this.updatedOn
+    const minutes = Math.round(age / numbers.minuteInMs)
+    if (minutes > 0) console.log('last activity', minutes, 'minute(s) ago')
+    if (minutes >= reloadTasksAfterMinutes) void this.loadTasks()
+  }
+
+  private async loadTasks (): Promise<void> {
+    console.log('load tasks')
+    const tasks = await this.fetchList()
+    emit('tasks-loaded', tasks)
+  }
+
+  private async updateTask (task: Task): Promise<boolean> {
     console.log('update task', task)
-    const url = await credentialService.airtableUrl(`tasks/${task.id}`)
+    const url = credentialService.airtableUrl(`tasks/${task.id}`)
     if (typeof url !== 'string') return false
-    const data = { fields: { 'completed-on': task.completedOn, 'done': task.done } }
-    const response = await patch(url, data).catch(error => console.error(error.message))
-    if ((response as AirtableResponse).error) return emit('update-task-error', response)
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const data = { fields: { 'completed-on': task.completedOn, 'done': task.isDone } }
+    const response = await patch(url, data)
+    if (response.error) return emit('update-task-error', response)
     return true
   }
 
-  async fetchList (): Promise<Task[]> {
+  private async fetchList (): Promise<Task[]> {
     console.log('fetch list')
-    const url = await credentialService.airtableUrl('tasks')
+    const url = credentialService.airtableUrl('tasks')
     if (typeof url !== 'string') return []
-    const response: AirtableResponse = await fetch(url).then(async response => response.json())
+    const response = await get(url)
     if (response.error) {
       emit('get-tasks-error', response)
       return []
@@ -48,35 +62,22 @@ class TasksService {
     }).filter(task => (task.completedOn === today || task.isActive()))
   }
 
-  loadTasks (): void {
-    console.log('load tasks')
-    this.fetchList()
-      .then(tasks => emit('tasks-loaded', tasks))
-      .catch(error => console.error(error.message))
-  }
-
-  async dispatchTask (task: Task, index = 0): Promise<boolean | void | undefined> {
-    if (task.once === 'day') return
+  private async dispatchTask (task: Task, index = 0): Promise<boolean> {
+    if (task.once === 'day') return false
     const delay = task.daysRecurrence()
     const position = index % delay
-    const newCompletionDate = daysAgoIso10((-1 * position) + delay)
-    if (newCompletionDate === task.completedOn) return
-    task.completedOn = newCompletionDate
-    return this.updateTask(task).catch(error => console.error(error.message))
+    const completionDate = daysAgoIso10((numbers.negative * position) + delay)
+    if (completionDate === task.completedOn) return false
+    task.completedOn = completionDate
+    await this.updateTask(task)
+    return true
   }
 
-  async dispatch (): Promise<void> {
+  private async dispatch (): Promise<void> {
     console.log('dispatch tasks')
     const tasks = await this.fetchList()
-    await Promise.all(tasks.map(async (task, index) => this.dispatchTask(task, index)))
-    this.loadTasks()
-  }
-
-  checkDeprecated (): void {
-    const age = Date.now() - this.updatedOn
-    const minutes = Math.round(age / MINUTE)
-    if (minutes > 0) console.log('last activity', minutes, 'minute(s) ago')
-    if (minutes >= 10) this.loadTasks()
+    await Promise.all(tasks.map(async (task, index) => await this.dispatchTask(task, index)))
+    await this.loadTasks()
   }
 }
 

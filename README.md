@@ -60,6 +60,17 @@ Your data will stay between you and Airtable, your credentials will be stored in
 
 You can have a look at the sources to see that this app is not sharing your data with anyone, no analytics, trackers or other annoying things.
 
+## TODO
+
+- [ ] reactivate theses rules :
+  - regexp/no-super-linear-move
+  - security/detect-unsafe-regex
+  - unicorn/no-unsafe-regex
+  - regexp/prefer-named-capture-group
+  - prefer-named-capture-group
+  - no-param-reassign
+  - max-statements
+
 ## Benchmarks
 
 ### Build ts sources to js

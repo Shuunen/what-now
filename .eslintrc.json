@@ -1,13 +1,15 @@
 {
+  "$schema": "https://json.schemastore.org/eslintrc",
   "env": {
     "browser": true,
     "es6": true,
     "node": true
   },
   "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:unicorn/recommended"
+    "plugin:tailwindcss/recommended",
+    "plugin:unicorn/all",
+    "hardcore",
+    "hardcore/ts"
   ],
   "overrides": [
     {
@@ -17,26 +19,11 @@
       "rules": {
         "func-names": "off"
       }
-    },
-    {
-      "files": [
-        "repo-checker.config.js"
-      ],
-      "rules": {
-        "@typescript-eslint/explicit-module-boundary-types": "off"
-      }
     }
   ],
-  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": 2021,
-    "sourceType": "module"
+    "project": "tsconfig.json"
   },
-  "plugins": [
-    "@typescript-eslint",
-    "html",
-    "unicorn"
-  ],
   "rules": {
     "@typescript-eslint/brace-style": [
       "error",
@@ -45,13 +32,44 @@
         "allowSingleLine": true
       }
     ],
+    "@typescript-eslint/comma-dangle": [
+      "error",
+      "always-multiline"
+    ],
+    "@typescript-eslint/consistent-type-definitions": "off",
     "@typescript-eslint/explicit-function-return-type": "error",
+    "@typescript-eslint/indent": [
+      "error",
+      2
+    ],
+    "@typescript-eslint/member-delimiter-style": [
+      "error",
+      {
+        "multiline": {
+          "delimiter": "none"
+        }
+      }
+    ],
+    "@typescript-eslint/no-type-alias": "off",
     "@typescript-eslint/no-unused-vars": [
       "error",
       {
         "argsIgnorePattern": "^_",
         "varsIgnorePattern": "^(_|global)"
       }
+    ],
+    "@typescript-eslint/object-curly-spacing": [
+      "error",
+      "always"
+    ],
+    "@typescript-eslint/prefer-readonly-parameter-types": "off",
+    "@typescript-eslint/quotes": [
+      "error",
+      "single"
+    ],
+    "@typescript-eslint/semi": [
+      "error",
+      "never"
     ],
     "capitalized-comments": "off",
     "comma-dangle": [
@@ -62,31 +80,55 @@
       "error",
       "multi"
     ],
+    "eslint-comments/no-use": "off",
+    "etc/no-const-enum": "off",
+    "etc/no-enum": "off",
+    "ext/lines-between-object-properties": "off",
     "func-names": [
       "error",
       "always"
     ],
-    "import/no-unassigned-import": "off",
-    "indent": [
+    "id-length": [
       "error",
-      2
+      {
+        "exceptions": [
+          "t"
+        ],
+        "min": 2
+      }
     ],
+    "import/order": "off",
+    "import/prefer-default-export": "off",
+    "indent": "off",
+    "line-comment-position": "off",
     "lines-between-class-members": "off",
+    "max-len": "off",
+    "max-statements": "off",
     "max-statements-per-line": "off",
     "no-console": "off",
+    "no-inline-comments": "off",
+    "no-param-reassign": "off",
     "object-curly-spacing": [
       "error",
       "always"
     ],
     "padding-line-between-statements": "off",
+    "prefer-named-capture-group": "off",
+    "prettier/prettier": "off",
     "quote-props": [
       "error",
       "consistent-as-needed"
     ],
-    "quotes": [
+    "quotes": "off",
+    "regexp/no-super-linear-move": "off",
+    "regexp/prefer-named-capture-group": "off",
+    "require-atomic-updates": [
       "error",
-      "single"
+      {
+        "allowProperties": true
+      }
     ],
+    "security/detect-unsafe-regex": "off",
     "semi": [
       "error",
       "never"
@@ -97,6 +139,7 @@
     ],
     "unicorn/no-array-for-each": "off",
     "unicorn/no-process-exit": "off",
+    "unicorn/no-unsafe-regex": "off",
     "unicorn/prefer-module": "off",
     "unicorn/prefer-node-protocol": "off",
     "unicorn/prefer-switch": "off",
@@ -110,5 +153,23 @@
         }
       }
     ]
+  },
+  "settings": {
+    "repo-check": {
+      "remove-me": "plugin:@typescript-eslint/all"
+    },
+    "tailwindcss": {
+      "callees": [
+        "tw"
+      ],
+      "cssFiles": [
+        "src/*.css"
+      ],
+      "whitelist": [
+        "sl-[a-z-]+",
+        "[a-z-]+-(accent|primary)",
+        "app-[a-z-]+"
+      ]
+    }
   }
 }

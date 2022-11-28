@@ -1,13 +1,15 @@
 import { dom, on } from 'shuutils'
+import { numbers } from '../utils'
 
-export const progress = dom('hr', 'mb-4')
+const progress = dom('hr', 'mb-4')
 
-const setProgress = (percent = 0): void => {
+function setProgress (percent = 0): void {
   progress.style.width = `${percent}%`
-  document.body.dataset['progress'] = `${percent}`
+  document.body.dataset.progress = String(percent)
 }
 
-const counterText = (total = 0, remaining = 0, percent = 0): string => {
+function counterText (total = 0, remaining = 0, percent = 0): string {
+  /* eslint-disable @typescript-eslint/no-magic-numbers */
   const done = total - remaining
   if (done === 0) return 'Nothing done... yet'
   if (percent <= 25) return 'Amuse-bouche : check'
@@ -17,14 +19,15 @@ const counterText = (total = 0, remaining = 0, percent = 0): string => {
   if (percent < 100 && remaining > 1) return `Only ${remaining} tasks remaining`
   if (remaining === 1) return 'Last task ^^'
   return 'You made it, well done dude :)'
+  /* eslint-enable @typescript-eslint/no-magic-numbers */
 }
 
-const updateCounter = (): void => {
+function updateCounter (): void {
   const message = document.querySelector('.message')
-  if (message === null) return console.error('cannot update counter, failed to find the message element')
+  if (message === null) throw new Error('cannot update counter, failed to find the message element')
   const total = document.querySelectorAll('[data-task-id]').length
   const remaining = document.querySelectorAll('[data-active="true"]').length
-  const percent = 100 - Math.round(remaining / total * 100)
+  const percent = numbers.hundredPercent - Math.round(remaining / total * numbers.hundredPercent)
   message.classList.add('opacity-80', 'italic')
   message.textContent = counterText(total, remaining, percent)
   setProgress(percent)
@@ -32,3 +35,5 @@ const updateCounter = (): void => {
 
 on('update-counter', updateCounter)
 setProgress(0)
+
+export { progress }

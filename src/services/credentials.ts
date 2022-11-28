@@ -1,69 +1,75 @@
 import { emit, on, sleep, storage } from 'shuutils'
+import { numbers } from '../utils'
 
 interface Credentials {
   base: string
   key: string
 }
 
-const DEMO_BASE = 'appQaesCng5o5xqE2'
+const demoBase = 'appQaesCng5o5xqE2'
+const baseKeyLength = 17
 
 class CredentialService {
-  base!: string
-  key!: string
 
-  init (): void {
-    this.checkHash().catch(error => console.error(error))
-    on('save-credentials', async (credentials: Credentials) => this.save(credentials))
+  private base = ''
+
+  private key = ''
+
+  public init (): void {
+    void this.checkHash()
+    on('save-credentials', this.save.bind(this))
   }
 
-  async checkStorage (): Promise<boolean> {
+  private validate (base?: string, key?: string): boolean {
+    const isBaseOk = base !== undefined && typeof base === 'string' && base.length === baseKeyLength
+    const isKeyOk = key !== undefined && typeof key === 'string' && key.length === baseKeyLength
+    const isValid = isBaseOk && isKeyOk
+    console.log('credentials valid ?', isValid)
+    return isValid
+  }
+
+  public airtableUrl (target = ''): string {
+    const isOk = this.validate(this.base, this.key)
+    if (!isOk) return ''
+    return `https://api.airtable.com/v0/${this.base}/${target}?api_key=${this.key}&view=todo`
+  }
+
+  private async checkStorage (): Promise<boolean> {
     console.log('check storage')
     const base = storage.get('api-base', '')
     const key = storage.get('api-key', '')
-    const ok = this.validate(base, key)
-    if (!ok) return emit('need-credentials')
-    return this.use({ base, key })
-  }
-
-  async checkHash (): Promise<boolean> {
-    const { hash } = document.location
-    const matches = /#(app\w{14})&(key\w{14})/.exec(hash)
-    if (!matches || matches.length !== 3 || !matches[1] || !matches[2]) return this.checkStorage()
-    document.location.hash = ''
-    await this.save({ base: matches[1], key: matches[2] })
+    const isOk = this.validate(base, key)
+    if (!isOk) return emit('need-credentials')
+    await this.use({ base, key })
     return true
   }
 
-  async save (credentials: Credentials): Promise<boolean> {
+  private async checkHash (): Promise<boolean> {
+    const { hash } = document.location
+    const [, base, key] = /#(app\w{14})&(key\w{14})/u.exec(hash) ?? []
+    if (base === undefined || key === undefined) return await this.checkStorage()
+    document.location.hash = ''
+    await this.save({ base, key })
+    return true
+  }
+
+  private async save (credentials: Credentials): Promise<boolean> {
     console.log('save credentials', credentials)
-    const ok = this.validate(credentials.base, credentials.key)
-    if (!ok) return emit('need-credentials')
-    if (credentials.base !== DEMO_BASE) {
+    const isOk = this.validate(credentials.base, credentials.key)
+    if (!isOk) return emit('need-credentials')
+    if (credentials.base !== demoBase) {
       storage.set('api-base', credentials.base)
       storage.set('api-key', credentials.key)
     }
-    return this.use(credentials)
+    await this.use(credentials)
+    return true
   }
 
-  validate (base: string, key: string): boolean {
-    const baseOk = base !== undefined && typeof base === 'string' && base.length === 17
-    const keyOk = key !== undefined && typeof key === 'string' && key.length === 17
-    const valid = baseOk && keyOk
-    console.log('credentials valid ?', valid)
-    return valid
-  }
-
-  async use (credentials: Credentials): Promise<boolean> {
+  private async use (credentials: Credentials): Promise<void> {
     this.base = credentials.base
     this.key = credentials.key
-    await sleep(10) // let the on('use-credentials') listeners be ready
-    return emit('use-credentials', credentials)
-  }
-
-  async airtableUrl (target = ''): Promise<string | boolean> {
-    const ok = this.validate(this.base, this.key)
-    if (!ok) return emit('need-credentials')
-    return `https://api.airtable.com/v0/${this.base}/${target}?api_key=${this.key}&view=todo`
+    await sleep(numbers.smallSleep) // let the on('use-credentials') listeners be ready
+    emit('use-credentials', credentials)
   }
 }
 
