@@ -1,41 +1,43 @@
 import { debounce, emit } from 'shuutils'
+import { numbers } from '../utils'
 
-const MINUTE = 60 * 1000
-const CHECK_EVERY = 10 * MINUTE
+const checkInactivityEveryMinutes = 10
+const sendReminderAfterMinutes = 30
+const resetTimerDelay = 200
 
 class IdleService {
-  inactiveSince = 0
-  timer!: NodeJS.Timeout
+  private inactiveSince = 0
 
-  init (): void {
+  private timer!: NodeJS.Timeout
+
+  public init (): void {
     this.setupListeners()
     this.resetTimer('init')
   }
 
-  setupListeners (): void {
+  private setupListeners (): void {
     const events = ['mousedown', 'touchstart', 'visibilitychange']
-    // eslint-disable-next-line unicorn/prefer-prototype-methods
-    const resetTimer = debounce(this.resetTimer.bind(this), 200)
-    events.forEach(name => document.addEventListener(name, async event => resetTimer(event.type), true))
+    const resetTimer = debounce(this.resetTimer.bind(this), resetTimerDelay)
+    events.forEach(name => { document.addEventListener(name, event => { void resetTimer(event.type) }, true) })
   }
 
-  setupTimer (): void {
-    this.timer = setInterval(() => this.dispatchInactivity(), CHECK_EVERY)
+  private setupTimer (): void {
+    this.timer = setInterval(() => { this.checkInactivity() }, checkInactivityEveryMinutes * numbers.minuteInMs)
   }
 
-  resetTimer (from = 'unknown event'): void {
-    // console.log('timer reset due to', from)
+  private resetTimer (from = 'unknown event'): void {
+    console.log('timer reset due to', from)
     this.inactiveSince = Date.now()
     clearTimeout(this.timer)
     this.setupTimer()
     emit('user-activity', from)
   }
 
-  dispatchInactivity (): void {
+  private checkInactivity (): void {
     const inactivePeriod = Date.now() - this.inactiveSince
-    const minutes = Math.round(inactivePeriod / MINUTE)
-    // console.log('user has been inactive for', minutes, 'minute(s)')
-    if (minutes === 30) emit('send-reminder')
+    const minutes = Math.round(inactivePeriod / numbers.minuteInMs)
+    console.log('user has been inactive for', minutes, 'minute(s)')
+    if (minutes === sendReminderAfterMinutes) emit('send-reminder')
   }
 }
 

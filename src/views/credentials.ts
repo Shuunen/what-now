@@ -1,7 +1,7 @@
 import { div, emit, p } from 'shuutils'
 import { form } from '../utils'
 
-export const credentials = div('credentials')
+const credentials = div('credentials')
 
 const message = p('leading-6 py-2', `
   This webapp has been deployed from the open-source code <a class="border-b" href="https://github.com/Shuunen/what-now" target="_blank">on Github</a>. <br>
@@ -16,9 +16,11 @@ const fields = [
 const formElement = form(fields, 'Use these')
 credentials.append(formElement)
 
-formElement.addEventListener('submit', async (event: Event) => {
+formElement.addEventListener('submit', (event: Event) => {
   event.preventDefault()
-  const base = (formElement.elements[0] as HTMLInputElement).value
-  const key = (formElement.elements[1] as HTMLInputElement).value
+  const base = (formElement.elements[0] as HTMLInputElement).value // eslint-disable-line @typescript-eslint/consistent-type-assertions
+  const key = (formElement.elements[1] as HTMLInputElement).value // eslint-disable-line @typescript-eslint/consistent-type-assertions
   emit('save-credentials', { base, key })
 })
+
+export { credentials }

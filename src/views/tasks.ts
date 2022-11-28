@@ -1,10 +1,10 @@
 import confetti from 'canvas-confetti'
 import { div, dom, emit, on, p, pickOne, sleep, storage } from 'shuutils'
 import type { AirtableResponse, Task } from '../models'
-import { button, emojis } from '../utils'
+import { button, emojis, numbers } from '../utils'
 import { progress } from './counter'
 
-export const tasks = div('tasks')
+const tasks = div('tasks')
 
 const fireworksLeft = new Audio('/fireworks.mp3')
 const fireworksRight = new Audio('/fireworks.mp3')
@@ -19,88 +19,102 @@ retry.addEventListener('click', () => {
   storage.clear('api-key')
   emit('need-credentials')
   retry.classList.toggle('hidden')
+  // eslint-disable-next-line unicorn/no-keyword-prefix
   message.className = messageClass
 })
 tasks.append(retry)
 
-const handleError = (response: AirtableResponse): void => {
+function handleError (response: AirtableResponse): void {
   console.error('handle error response', response)
-  message.textContent = response.error && response.error.type === 'UNAUTHORIZED' ? 'The credentials you provided does not work' : 'Failed to fetch data from Airtable'
-  message.textContent += ', click the button below to try again.'
+  let content = response.error && response.error.type === 'UNAUTHORIZED' ? 'The credentials you provided does not work' : 'Failed to fetch data from Airtable'
+  content += ', click the button below to try again.'
+  message.textContent = content
+  // eslint-disable-next-line unicorn/no-keyword-prefix
   message.className = 'text-red-200'
   retry.classList.toggle('hidden')
 }
 
 on('get-tasks-error', handleError)
 
-const createLine = (task: Task): HTMLButtonElement => {
+function updateLine (line: HTMLElement, task: Task): void {
+  const isActive = task.isActive()
+  line.dataset.active = String(isActive)
+  line.innerHTML = `${isActive ? pickOne(emojis) : '✔️'}&nbsp; ${task.name}`
+  line.classList.toggle('opacity-60', !isActive)
+}
+
+function createLine (task: Task): HTMLButtonElement {
   const line = dom('button', 'task transition-transform max-w-full text-start duration-500 transform mr-auto px-2 py-1 -ml-2 whitespace-nowrap overflow-ellipsis overflow-hidden', task.name)
-  line.dataset['taskId'] = task.id
+  line.dataset.taskId = task.id
   updateLine(line, task)
   return line
 }
 
-const updateLine = (line: HTMLElement, task: Task): void => {
-  const active = task.isActive()
-  line.dataset['active'] = String(active)
-  line.innerHTML = `${active ? pickOne(emojis) : '✔️'}&nbsp; ${task.name}`
-  line.classList.toggle('opacity-60', !active)
+async function throwConfettiAround (element: HTMLElement): Promise<void> {
+  /* eslint-disable @typescript-eslint/no-magic-numbers */
+  const { bottom, left, right } = element.getBoundingClientRect()
+  const delta = window.innerWidth < numbers.mobileBreakpoint ? 90 : 30
+  const positionY = Math.round(bottom / window.innerHeight * 100) / 100
+  let positionX = Math.round((left + delta) / window.innerWidth * 100) / 100
+  const angle = 20
+  void fireworksLeft.play()
+  // eslint-disable-next-line id-length
+  void confetti({ angle: (90 + angle), origin: { x: positionX, y: positionY } })
+  positionX = Math.round((right - delta) / window.innerWidth * 100) / 100
+  await sleep(200)
+  void fireworksRight.play()
+  // eslint-disable-next-line id-length
+  void confetti({ angle: (90 - angle), origin: { x: positionX, y: positionY } })
+  /* eslint-enable @typescript-eslint/no-magic-numbers */
 }
 
-const onClick = (line: HTMLElement, list: Task[]): void => {
-  if (line === null || line.dataset['taskId'] === undefined) return
-  const task = list.find(t => t.id === line.dataset['taskId'])
-  if (task === undefined) return console.error('failed to find this task in list')
+function onClick (line: HTMLElement | null, list: Task[]): void {
+  if (line === null || line.dataset.taskId === undefined) return
+  const task = list.find(t => t.id === line.dataset.taskId)
+  if (task === undefined) { console.error('failed to find this task in list'); return }
   task.toggleComplete()
-  if (!task.isActive()) throwConfettiAround(line)
+  if (!task.isActive()) void throwConfettiAround(line)
   updateLine(line, task)
   emit('update-counter')
 }
 
-const addList = (list: Task[]): void => {
-  if (list.length === 0) return
+function addList (list: Task[]): void {
+  if (list.length === 0)
+    return
   message.textContent = `Found ${list.length} tasks for today !`
   const container = div('task-list grid gap-2')
-  list.forEach(task => container.append(createLine(task)))
+  list.forEach(task => { container.append(createLine(task)) })
   tasks.append(container)
   emit('update-counter')
-  container.addEventListener('click', (event: Event) => onClick(event.target as HTMLElement, list))
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  container.addEventListener('click', (event: Event) => { onClick(event.target as HTMLElement, list) })
 }
 
-const updateList = (container: Element, list: Task[]): void => {
+function updateList (container: Element, list: Task[]): void {
   console.log('update list', { container, list })
   const lines = container.querySelectorAll<HTMLElement>('.task-list > .task')
   const processed: string[] = []
   lines.forEach(line => {
-    const task = list.find(t => (t.id === line.dataset['taskId']))
-    if (task === undefined) return line.remove() // deleting a task in dom that does not exists on Airtable
-    processed.push(task.id)
-    updateLine(line, task)
+    const task = list.find(t => (t.id === line.dataset.taskId))
+    if (task === undefined) line.remove() // deleting a task in dom that does not exists on Airtable
+    else {
+      processed.push(task.id)
+      updateLine(line, task)
+    }
   })
   const missing = list.filter(t => !processed.includes(t.id)) // exists on Airtable but not in dom
-  missing.forEach(task => container.append(createLine(task)))
+  missing.forEach(task => { container.append(createLine(task)) })
   emit('update-counter')
 }
 
-const onTaskLoaded = (list: Task[]): void => {
+function onTaskLoaded (list: Task[]): void {
   console.log('on task loaded', list)
   const container = document.querySelector('.task-list')
-  if (container === null) return addList(list)
+  if (container === null) { addList(list); return }
   updateList(container, list)
 }
 
-const throwConfettiAround = async (element: HTMLElement): Promise<void> => {
-  const { bottom, left, right } = element.getBoundingClientRect()
-  const delta = window.innerWidth < 450 ? 90 : 30
-  const y = Math.round(bottom / window.innerHeight * 100) / 100
-  let x = Math.round((left + delta) / window.innerWidth * 100) / 100
-  const angle = 20
-  fireworksLeft.play()
-  confetti({ angle: (90 + angle), origin: { x, y } })
-  x = Math.round((right - delta) / window.innerWidth * 100) / 100
-  await sleep(200)
-  fireworksRight.play()
-  confetti({ angle: (90 - angle), origin: { x, y } })
-}
 
-on('tasks-loaded', (list: Task[]) => onTaskLoaded(list))
+on('tasks-loaded', (list: Task[]) => { onTaskLoaded(list) })
+
+export { tasks }

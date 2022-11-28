@@ -57,7 +57,7 @@ test('a bonus task is inactive by default', function () {
 
 test('a bonus task can be activated on demand & became active', function () {
   const task = new Task(id, name, 'bonus')
-  task.activated = true
+  task.isActivated = true
   equal(task.isActive(), true)
 })
 
@@ -69,23 +69,23 @@ test('a one time task is active by default', function () {
 test('complete a task update completed on date', function () {
   const task = new Task(id, name, 'week', yesterday)
   task.complete()
-  equal(task.done, false) // no a one time task, so we will have to do it again
+  equal(task.isDone, false) // no a one time task, so we will have to do it again
   equal(task.completedOn, today)
 })
 
 test('complete a one-time task mark it as done', function () {
   const task = new Task(id, name, 'yes')
   task.complete()
-  equal(task.done, true)
+  equal(task.isDone, true)
 })
 
 test('toggle complete switches task active state', function () {
   const task = new Task(id, name, 'day', yesterday)
   equal(task.isActive(), true)
   task.toggleComplete()
-  equal(task.activated, false)
+  equal(task.isActivated, false)
   task.toggleComplete()
-  equal(task.activated, true)
+  equal(task.isActivated, true)
 })
 
 test.run()
