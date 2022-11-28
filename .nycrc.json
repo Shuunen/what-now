@@ -7,8 +7,9 @@
   "functions": 90,
   "lines": 90,
   "reporter": [
-    "text",
-    "lcovonly"
+    "html",
+    "lcovonly",
+    "text"
   ],
   "statements": 90
 }
