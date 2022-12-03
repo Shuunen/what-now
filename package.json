@@ -12,7 +12,7 @@
     "@types/node": "18",
     "c8": "7",
     "esbuild": "0.15",
-    "eslint": "8.28",
+    "eslint": "8.29",
     "eslint-config-hardcore": "25",
     "eslint-plugin-tailwindcss": "3",
     "npm-parallel": "2",
