@@ -31,6 +31,19 @@ class WorkerService {
     if (this.notificationPerm === 'default') emit('suggest-notification')
   }
 
+  private sendReminder (): void {
+    if (!this.canNotify) return
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const registration: any = navigator.serviceWorker.ready
+    if (this.currentProgress === numbers.hundredPercent) {
+      console.log('no reminders in heaven')
+      return
+    }
+    console.log('trigger reminder')
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    registration.sync.register('reminder')
+  }
+
   private async setupWorker (): Promise<void> {
     await this.registerServiceWorker()
     this.checkNotificationPerm()
@@ -40,21 +53,6 @@ class WorkerService {
     if (!('serviceWorker' in navigator)) throw new Error('No Service Worker support!')
     const file = 'service-worker.js'
     await navigator.serviceWorker.register(file)
-  }
-
-
-
-  private async sendReminder (): Promise<void> {
-    if (!this.canNotify) return
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const registration: any = await navigator.serviceWorker.ready
-    if (this.currentProgress === numbers.hundredPercent) {
-      console.log('no reminders in heaven')
-      return
-    }
-    console.log('trigger reminder')
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    registration.sync.register('reminder')
   }
 
   private async askNotificationPerm (): Promise<void> {

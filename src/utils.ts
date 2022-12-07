@@ -10,7 +10,7 @@ export const numbers = {
   even: 2,
   secondInMs: 1000,
   minuteInMs: 60 * 1000,
-  hourInMs: 60 * 60 * 1000,
+  hourInMs: 3600 * 1000,
   dayInMs: 24 * 60 * 60 * 1000,
   secondsInMinute: 60,
   daysInWeek: 7,

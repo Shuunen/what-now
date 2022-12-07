@@ -60,8 +60,7 @@ export class Task {
   }
 
   public complete (): void {
-    const today = dateIso10(new Date())
-    this.completedOn = today // task is complete for today
+    this.completedOn = dateIso10(new Date()) // task is complete for today
     this.isDone = this.isOneTime // but it also can be done totally if it was a one time job
     this.isActivated = false
     emit('task-update', this)

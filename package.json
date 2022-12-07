@@ -13,7 +13,7 @@
     "c8": "7",
     "esbuild": "0.16",
     "eslint": "8.29",
-    "eslint-config-hardcore": "25",
+    "eslint-config-hardcore": "26",
     "eslint-plugin-tailwindcss": "3",
     "npm-parallel": "2",
     "repo-check": "1.29",
