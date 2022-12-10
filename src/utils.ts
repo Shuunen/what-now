@@ -40,7 +40,7 @@ export async function patch (url: string, data: { [key: string]: unknown }): Pro
   const response = await fetch(url, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-    method: 'patch',
+    method: 'PATCH',
     body: JSON.stringify(data),
   })
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
