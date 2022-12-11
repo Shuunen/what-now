@@ -1,5 +1,4 @@
-import { emit, on } from 'shuutils'
-import { numbers } from '../utils'
+import { emit, on, Nb } from 'shuutils'
 
 class WorkerService {
   private notificationPerm = window.Notification.permission
@@ -35,7 +34,7 @@ class WorkerService {
     if (!this.canNotify) return
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const registration: any = navigator.serviceWorker.ready
-    if (this.currentProgress === numbers.hundredPercent) {
+    if (this.currentProgress === Nb.Hundred) {
       console.log('no reminders in heaven')
       return
     }

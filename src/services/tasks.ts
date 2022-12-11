@@ -1,6 +1,6 @@
-import { dateIso10, daysAgoIso10, emit, on } from 'shuutils'
+import { dateIso10, Nb, daysAgoIso10, emit, on } from 'shuutils'
 import { Task } from '../models'
-import { get, numbers, patch } from '../utils'
+import { get, patch } from '../utils'
 import { credentialService } from './credentials'
 
 const reloadTasksAfterMinutes = 10
@@ -22,7 +22,7 @@ class TasksService {
 
   private checkDeprecated (): void {
     const age = Date.now() - this.updatedOn
-    const minutes = Math.round(age / numbers.minuteInMs)
+    const minutes = Math.round(age / Nb.MsInMinute)
     if (minutes > 0) console.log('last activity', minutes, 'minute(s) ago')
     if (minutes >= reloadTasksAfterMinutes) void this.loadTasks()
   }
@@ -66,7 +66,7 @@ class TasksService {
     if (task.once === 'day') return false
     const delay = task.daysRecurrence()
     const position = index % delay
-    const completionDate = daysAgoIso10((numbers.negative * position) + delay)
+    const completionDate = daysAgoIso10((Nb.Before * position) + delay)
     if (completionDate === task.completedOn) return false
     task.completedOn = completionDate
     await this.updateTask(task)

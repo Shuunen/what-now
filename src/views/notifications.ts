@@ -1,5 +1,4 @@
-import { dom, emit, on, sleep } from 'shuutils'
-import { numbers } from '../utils'
+import { dom, emit, Nb, on, sleep } from 'shuutils'
 
 const notification = dom('button', 'fixed text-4xl right-6 top-6 opacity-0 transition duration-300 ease-in-out cursor-pointer', '🔔')
 
@@ -9,7 +8,7 @@ notification.addEventListener('click', () => {
 })
 
 on('suggest-notification', async () => {
-  await sleep(numbers.secondInMs)
+  await sleep(Nb.One * Nb.MsInSecond)
   notification.classList.add('opacity-80', 'animate-pulse')
 })
 

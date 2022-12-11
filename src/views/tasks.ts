@@ -1,7 +1,7 @@
 import confetti from 'canvas-confetti'
-import { div, dom, emit, on, p, pickOne, sleep, storage } from 'shuutils'
+import { div, dom, emit, on, pickOne, sleep, storage, text } from 'shuutils'
 import type { AirtableResponse, Task } from '../models'
-import { button, emojis, numbers } from '../utils'
+import { button, emojis } from '../utils'
 import { progress } from './counter'
 
 const tasks = div('tasks')
@@ -9,7 +9,7 @@ const tasks = div('tasks')
 const fireworksLeft = new Audio('/fireworks.mp3')
 const fireworksRight = new Audio('/fireworks.mp3')
 const messageClass = 'message font-light mb-3 text-2xl mb-2' // trouver une meilleure solution
-const message = p(messageClass, 'Fetching data from Airtable...')
+const message = text(messageClass, 'Fetching data from Airtable...')
 tasks.append(message)
 tasks.append(progress)
 
@@ -53,7 +53,7 @@ function createLine (task: Task): HTMLButtonElement {
 async function throwConfettiAround (element: HTMLElement): Promise<void> {
   /* eslint-disable @typescript-eslint/no-magic-numbers */
   const { bottom, left, right } = element.getBoundingClientRect()
-  const delta = window.innerWidth < numbers.mobileBreakpoint ? 90 : 30
+  const delta = window.innerWidth < 450 ? 90 : 30
   const positionY = Math.round(bottom / window.innerHeight * 100) / 100
   let positionX = Math.round((left + delta) / window.innerWidth * 100) / 100
   const angle = 20

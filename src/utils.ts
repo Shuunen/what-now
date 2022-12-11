@@ -1,27 +1,9 @@
-import { dom } from 'shuutils'
+import { Nb, dom } from 'shuutils'
 import type { AirtableResponse, FormField } from './models'
 
 export function button (content: string, classes = ''): HTMLElement {
   return dom('button', `bg-blue-800 m-auto sm:ml-0 px-4 py-2 rounded ${classes}`, content)
 }
-
-/* eslint-disable @typescript-eslint/no-magic-numbers */
-export const numbers = {
-  even: 2,
-  secondInMs: 1000,
-  minuteInMs: 60 * 1000,
-  hourInMs: 3600 * 1000,
-  dayInMs: 24 * 60 * 60 * 1000,
-  secondsInMinute: 60,
-  daysInWeek: 7,
-  daysInMonth: 30,
-  smallSleep: 10,
-  mediumSleep: 100,
-  mobileBreakpoint: 450,
-  negative: -1,
-  hundredPercent: 100,
-}
-/* eslint-enable @typescript-eslint/no-magic-numbers */
 
 export function form (fields: FormField[], validate = 'Send form'): HTMLFormElement {
   const element = dom('form', 'gap-6 grid mt-4')
@@ -30,7 +12,7 @@ export function form (fields: FormField[], validate = 'Send form'): HTMLFormElem
       <span class="border-b">${field.label}</span>
       <svg class="h-4 inline ml-2 w-4"><use xlink:href="icons.svg#external"></use></svg>
     </a>
-    <input class="${index % numbers.even ? 'bg-gradient-to-r' : 'bg-gradient-to-l'} from-blue-900 to-blue-700 py-1 px-2 rounded" name="${field.name}" pattern="${field.pattern}" maxlength="17" required>
+    <input class="${index % Nb.Even ? 'bg-gradient-to-r' : 'bg-gradient-to-l'} from-blue-900 to-blue-700 py-1 px-2 rounded" name="${field.name}" pattern="${field.pattern}" maxlength="17" required>
   </label>`).join('')
   element.append(button(validate, 'mt-2'))
   return element

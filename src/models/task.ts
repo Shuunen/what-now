@@ -1,5 +1,4 @@
-import { dateIso10, daysAgoIso10, emit } from 'shuutils'
-import { numbers } from '../utils'
+import { dateIso10, daysAgoIso10, emit, Nb } from 'shuutils'
 
 type Second = number
 
@@ -49,14 +48,14 @@ export class Task {
     const [, numberString = '1', unit] = matches
     const number = Number.parseInt(numberString, 10)
     if (unit === 'day') return number
-    if (unit === 'week') return number * numbers.daysInWeek
-    return number * numbers.daysInMonth // unit === 'month'
+    if (unit === 'week') return number * Nb.DaysInWeek
+    return number * Nb.DaysInMonth // unit === 'month'
   }
 
   public daysSinceCompletion (): number {
     if (this.completedOn === '') return 0
     const today = dateIso10(new Date())
-    return ((new Date(today).getTime() - new Date(this.completedOn).getTime()) / numbers.dayInMs)
+    return ((new Date(today).getTime() - new Date(this.completedOn).getTime()) / Nb.MsInDay)
   }
 
   public complete (): void {
