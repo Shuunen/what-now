@@ -70,6 +70,7 @@ You can have a look at the sources to see that this app is not sharing your data
   - prefer-named-capture-group
   - no-param-reassign
   - max-statements
+- [ ] try to use reefjs.com on this project
 
 ## Benchmarks
 
