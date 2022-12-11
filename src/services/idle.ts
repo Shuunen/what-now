@@ -1,5 +1,4 @@
-import { debounce, emit } from 'shuutils'
-import { numbers } from '../utils'
+import { debounce, emit, Nb } from 'shuutils'
 
 const checkInactivityEveryMinutes = 10
 const sendReminderAfterMinutes = 30
@@ -22,7 +21,7 @@ class IdleService {
   }
 
   private setupTimer (): void {
-    this.timer = setInterval(() => { this.checkInactivity() }, checkInactivityEveryMinutes * numbers.minuteInMs)
+    this.timer = setInterval(() => { this.checkInactivity() }, checkInactivityEveryMinutes * Nb.MsInMinute)
   }
 
   private resetTimer (from = 'unknown event'): void {
@@ -35,7 +34,7 @@ class IdleService {
 
   private checkInactivity (): void {
     const inactivePeriod = Date.now() - this.inactiveSince
-    const minutes = Math.round(inactivePeriod / numbers.minuteInMs)
+    const minutes = Math.round(inactivePeriod / Nb.MsInMinute)
     console.log('user has been inactive for', minutes, 'minute(s)')
     if (minutes === sendReminderAfterMinutes) emit('send-reminder')
   }

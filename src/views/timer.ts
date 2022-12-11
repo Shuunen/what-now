@@ -1,6 +1,5 @@
-import { div, emit, on } from 'shuutils'
+import { div, emit, on, Nb } from 'shuutils'
 import type { Task } from '../models'
-import { numbers } from '../utils'
 
 const timer = div('timer font-thin bottom-8 fixed text-right right-5 text-5xl leading-10 text-gray-700')
 
@@ -17,14 +16,14 @@ function onTaskLoaded (tasks: Task[]): void {
     if (!task.isActive()) return
     seconds += task.averageTime
   })
-  minutes = Math.round(seconds / numbers.secondsInMinute)
+  minutes = Math.round(seconds / Nb.SecondsInMinute)
   updateTimer()
 }
 
 function onTaskUpdate (task: Task): void {
   console.log('timer, on task update')
-  const seconds = (task.isActive() ? 1 : numbers.negative) * task.averageTime
-  minutes += Math.round(seconds / numbers.secondsInMinute)
+  const seconds = (task.isActive() ? Nb.Forward : Nb.Backward) * task.averageTime
+  minutes += Math.round(seconds / Nb.SecondsInMinute)
   updateTimer()
 }
 

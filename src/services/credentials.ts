@@ -1,5 +1,4 @@
-import { emit, on, sleep, storage } from 'shuutils'
-import { numbers } from '../utils'
+import { emit, on, sleep, storage, Nb } from 'shuutils'
 
 interface Credentials {
   base: string
@@ -68,7 +67,7 @@ class CredentialService {
   private async use (credentials: Credentials): Promise<void> {
     this.base = credentials.base
     this.key = credentials.key
-    await sleep(numbers.smallSleep) // let the on('use-credentials') listeners be ready
+    await sleep(Nb.Ten) // let the on('use-credentials') listeners be ready
     emit('use-credentials', credentials)
   }
 }
