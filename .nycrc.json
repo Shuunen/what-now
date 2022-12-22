@@ -3,7 +3,8 @@
   "branches": 90,
   "check-coverage": true,
   "exclude": [
-    "src/utils.ts"
+    "src/utils.ts",
+    "tests/**/*"
   ],
   "functions": 90,
   "lines": 90,

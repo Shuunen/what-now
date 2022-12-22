@@ -1,7 +1,13 @@
 import { emit, on, Nb } from 'shuutils'
 
-class WorkerService {
+// eslint-disable-next-line no-new
+new class WorkerService {
   private notificationPerm = window.Notification.permission
+
+  public constructor () {
+    this.setupListeners()
+    void this.setupWorker()
+  }
 
   private get currentProgress (): number {
     const { progress = '0' } = document.body.dataset
@@ -10,11 +16,6 @@ class WorkerService {
 
   private get canNotify (): boolean {
     return this.notificationPerm === 'granted'
-  }
-
-  public init (): void {
-    this.setupListeners()
-    void this.setupWorker()
   }
 
   private setupListeners (): void {
@@ -64,5 +65,3 @@ class WorkerService {
     if (!this.canNotify) console.log('Notification permission not granted')
   }
 }
-
-export const workerService = new WorkerService()
