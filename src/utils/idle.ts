@@ -1,27 +1,24 @@
 import { debounce, emit, Nb } from 'shuutils'
 
-const checkInactivityEveryMinutes = 10
-const sendReminderAfterMinutes = 30
-const resetTimerDelay = 200
-
-class IdleService {
+// eslint-disable-next-line no-new
+new class IdleService {
   private inactiveSince = 0
 
   private timer!: NodeJS.Timeout
 
-  public init (): void {
+  public constructor () {
     this.setupListeners()
     this.resetTimer('init')
   }
 
   private setupListeners (): void {
     const events = ['mousedown', 'touchstart', 'visibilitychange']
-    const resetTimer = debounce(this.resetTimer.bind(this), resetTimerDelay)
+    const resetTimer = debounce(this.resetTimer.bind(this), Nb.Two * Nb.Hundred)
     events.forEach(name => { document.addEventListener(name, event => { void resetTimer(event.type) }, true) })
   }
 
   private setupTimer (): void {
-    this.timer = setInterval(() => { this.checkInactivity() }, checkInactivityEveryMinutes * Nb.MsInMinute)
+    this.timer = setInterval(() => { this.checkInactivity() }, Nb.Ten * Nb.MsInMinute)
   }
 
   private resetTimer (from = 'unknown event'): void {
@@ -36,8 +33,6 @@ class IdleService {
     const inactivePeriod = Date.now() - this.inactiveSince
     const minutes = Math.round(inactivePeriod / Nb.MsInMinute)
     console.log('user has been inactive for', minutes, 'minute(s)')
-    if (minutes === sendReminderAfterMinutes) emit('send-reminder')
+    if (minutes === Nb.OneThird * Nb.Hundred) emit('send-reminder')
   }
 }
-
-export const idleService = new IdleService()

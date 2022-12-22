@@ -101,9 +101,14 @@
     "import/prefer-default-export": "off",
     "indent": "off",
     "line-comment-position": "off",
+    "lines-around-comment": [
+      "error",
+      {
+        "ignorePattern": "^ c8"
+      }
+    ],
     "lines-between-class-members": "off",
     "max-len": "off",
-    "max-statements": "off",
     "max-statements-per-line": "off",
     "no-console": "off",
     "no-inline-comments": "off",
@@ -113,22 +118,18 @@
       "always"
     ],
     "padding-line-between-statements": "off",
-    "prefer-named-capture-group": "off",
     "prettier/prettier": "off",
     "quote-props": [
       "error",
       "consistent-as-needed"
     ],
     "quotes": "off",
-    "regexp/no-super-linear-move": "off",
-    "regexp/prefer-named-capture-group": "off",
     "require-atomic-updates": [
       "error",
       {
         "allowProperties": true
       }
     ],
-    "security/detect-unsafe-regex": "off",
     "semi": [
       "error",
       "never"
@@ -139,7 +140,6 @@
     ],
     "unicorn/no-array-for-each": "off",
     "unicorn/no-process-exit": "off",
-    "unicorn/no-unsafe-regex": "off",
     "unicorn/prefer-module": "off",
     "unicorn/prefer-node-protocol": "off",
     "unicorn/prefer-switch": "off",

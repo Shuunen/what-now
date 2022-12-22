@@ -62,14 +62,7 @@ You can have a look at the sources to see that this app is not sharing your data
 
 ## TODO
 
-- [ ] reactivate theses rules :
-  - regexp/no-super-linear-move
-  - security/detect-unsafe-regex
-  - unicorn/no-unsafe-regex
-  - regexp/prefer-named-capture-group
-  - prefer-named-capture-group
-  - no-param-reassign
-  - max-statements
+- [ ] reactivate this lint rule : no-param-reassign
 - [ ] try to use reefjs.com on this project
 
 ## Benchmarks
