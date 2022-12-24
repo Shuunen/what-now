@@ -1,6 +1,7 @@
 import { dateIso10, daysAgoIso10, Nb } from 'shuutils'
 import { state } from '../state'
 import { airtableGet, airtablePatch, airtableUrl, type AirtableTask } from './airtable'
+import { logger } from './logger'
 
 const enum Unit {
   Day = 'day',
@@ -30,7 +31,7 @@ export function daysSinceCompletion (task: AirtableTask): number {
 }
 
 export async function pushToAirtable (task: AirtableTask): Promise<boolean> {
-  console.log('update task')
+  logger.info('update task')
   const url = airtableUrl(state.apiBase, state.apiKey, `tasks/${task.id}`)
   if (url === '') return false
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -60,7 +61,7 @@ export function isTaskActive (task: AirtableTask): boolean {
 }
 
 export async function fetchList (): Promise<AirtableTask[]> {
-  console.log('fetch list')
+  logger.info('fetch list')
   const url = airtableUrl(state.apiBase, state.apiKey, 'tasks')
   state.statusInfo = 'Loading tasks, please wait...'
   const { records } = await airtableGet(url)
@@ -75,18 +76,18 @@ export function isDataOlderThan (milliseconds: number): boolean {
   const age = Date.now() - state.tasksTimestamp
   const minutes = Math.round(age / Nb.MsInMinute)
   /* c8 ignore next */
-  if (minutes > 0) console.log('last activity', minutes, 'minute(s) ago')
+  if (minutes > 0) logger.info('last activity', minutes, 'minute(s) ago')
   return age >= milliseconds
 }
 
 export async function loadTasks (): Promise<boolean> {
   if (!state.isSetup) return false
   if (state.tasks.length > 0 && !isDataOlderThan(Nb.Ten * Nb.MsInMinute)) {
-    console.log('tasks are fresh')
+    logger.info('tasks are fresh')
     return false
   }
   const tasks = await fetchList()
-  console.log('found', tasks.length, 'task(s)')
+  logger.info('found', tasks.length, 'task(s)')
   state.isLoading = false
   state.tasks = tasks
   return true
@@ -103,8 +104,9 @@ export async function dispatchTask (task: AirtableTask, index = 0): Promise<bool
 }
 
 export async function dispatchTasks (tasks: AirtableTask[]): Promise<void> {
-  console.log('dispatch tasks')
+  logger.info('dispatch tasks')
   await Promise.all(tasks.map(async (task, index) => await dispatchTask(task, index)))
+  state.tasksTimestamp = 0 // invalidate cache
   await loadTasks()
 }
 

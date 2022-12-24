@@ -1,5 +1,6 @@
 import { dom, Nb, tw } from 'shuutils'
-import { state, watch } from '../state'
+import { state, watchState } from '../state'
+import { logger } from '../utils/logger'
 import { isTaskActive } from '../utils/tasks'
 
 const progress = dom('hr', tw('app-progress mb-4 mt-1'))
@@ -19,14 +20,14 @@ function showProgress (): void {
   const total = state.tasks.length
   const remaining = state.tasks.filter(task => isTaskActive(task)).length
   const percent = Nb.Hundred - Math.round(remaining / total * Nb.Hundred)
-  console.log('show progress', { total, remaining, percent })
+  logger.info('show progress', { total, remaining, percent })
   progress.style.width = `${percent}%`
   document.body.dataset.progress = String(percent)
   state.statusProgress = counterText(percent)
 }
 
-watch('tasks', () => { showProgress() })
+watchState('tasks', () => { showProgress() })
 
-watch('isSetup', () => { if (state.isSetup) showProgress() })
+watchState('isSetup', () => { if (state.isSetup) showProgress() })
 
 export { progress }

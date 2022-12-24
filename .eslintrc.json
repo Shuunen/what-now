@@ -110,7 +110,7 @@
     "lines-between-class-members": "off",
     "max-len": "off",
     "max-statements-per-line": "off",
-    "no-console": "off",
+    "no-console": "error",
     "no-inline-comments": "off",
     "no-param-reassign": "off",
     "object-curly-spacing": [
@@ -160,7 +160,10 @@
     },
     "tailwindcss": {
       "callees": [
-        "tw"
+        "tw",
+        "classnames",
+        "clsx",
+        "ctl"
       ],
       "cssFiles": [
         "src/*.css"

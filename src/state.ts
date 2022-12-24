@@ -4,7 +4,7 @@ import type { AirtableTask } from './utils/airtable'
 
 const tasks: AirtableTask[] = []
 
-export const { state, watch } = createState({
+export const { state, watchState } = createState({
   apiBase: '',
   apiKey: '',
   isLoading: false,

@@ -1,4 +1,5 @@
-import { emit, on, Nb } from 'shuutils'
+import { emit, Nb, on } from 'shuutils'
+import { logger } from './logger'
 
 // eslint-disable-next-line no-new
 new class WorkerService {
@@ -36,10 +37,10 @@ new class WorkerService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const registration: any = navigator.serviceWorker.ready
     if (this.currentProgress === Nb.Hundred) {
-      console.log('no reminders in heaven')
+      logger.info('no reminders in heaven')
       return
     }
-    console.log('trigger reminder')
+    logger.info('trigger reminder')
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     registration.sync.register('reminder')
   }
@@ -56,12 +57,12 @@ new class WorkerService {
   }
 
   private async askNotificationPerm (): Promise<void> {
-    if (!('permission' in Notification)) { console.error('Notifications cannot be enabled on this device.'); return }
+    if (!('permission' in Notification)) { logger.error('Notifications cannot be enabled on this device.'); return }
     this.notificationPerm = await window.Notification.requestPermission()
 
     // granted: user has accepted the request
     // default: user has dismissed the notification permission popup by clicking on x
     // denied: user has denied the request.
-    if (!this.canNotify) console.log('Notification permission not granted')
+    if (!this.canNotify) logger.info('Notification permission not granted')
   }
 }

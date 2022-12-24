@@ -1,4 +1,5 @@
 import { debounce, emit, Nb } from 'shuutils'
+import { logger } from './logger'
 
 // eslint-disable-next-line no-new
 new class IdleService {
@@ -22,7 +23,7 @@ new class IdleService {
   }
 
   private resetTimer (from = 'unknown event'): void {
-    console.log('timer reset due to', from)
+    logger.info('timer reset due to', from)
     this.inactiveSince = Date.now()
     clearTimeout(this.timer)
     this.setupTimer()
@@ -32,7 +33,7 @@ new class IdleService {
   private checkInactivity (): void {
     const inactivePeriod = Date.now() - this.inactiveSince
     const minutes = Math.round(inactivePeriod / Nb.MsInMinute)
-    console.log('user has been inactive for', minutes, 'minute(s)')
+    logger.info('user has been inactive for', minutes, 'minute(s)')
     if (minutes === Nb.OneThird * Nb.Hundred) emit('send-reminder')
   }
 }

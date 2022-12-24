@@ -1,5 +1,5 @@
 import { div, text, tw } from 'shuutils'
-import { state, watch } from '../state'
+import { state, watchState } from '../state'
 import { airtableValidate } from '../utils/airtable'
 import { form } from '../utils/dom'
 
@@ -35,6 +35,6 @@ formElement.addEventListener('submit', (event: Event) => {
   state.isSetup = true
 })
 
-watch('isSetup', () => { credentials.classList.toggle('hidden', state.isSetup) })
+watchState('isSetup', () => { credentials.classList.toggle('hidden', state.isSetup) })
 
 export { credentials }

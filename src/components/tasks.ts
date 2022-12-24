@@ -1,8 +1,9 @@
 import confetti from 'canvas-confetti'
 import { div, dom, emit, Nb, on, pickOne, sleep, storage, tw } from 'shuutils'
-import { state, watch } from '../state'
+import { state, watchState } from '../state'
 import type { AirtableResponse, AirtableTask } from '../utils/airtable'
 import { button } from '../utils/dom'
+import { logger } from '../utils/logger'
 import { isTaskActive, toggleComplete } from '../utils/tasks'
 import { progress } from './progress'
 
@@ -25,7 +26,7 @@ retry.addEventListener('click', () => {
 tasks.append(retry)
 
 function handleError (response: AirtableResponse): void {
-  console.error('handle error response', response)
+  logger.error('handle error response', response)
   let message = response.error && response.error.type === 'UNAUTHORIZED' ? 'The credentials you provided does not work' : 'Failed to fetch data from Airtable'
   message += ', click the button below to try again.'
   state.statusError = message
@@ -80,7 +81,7 @@ async function visuallyToggleComplete (line: HTMLElement, task: AirtableTask): P
 function getTaskFromElement (element: HTMLElement | null, list: AirtableTask[]): AirtableTask | undefined {
   if (element === null || element.dataset.taskId === undefined) return
   const task = list.find(t => t.id === element.dataset.taskId)
-  if (task === undefined) console.error('failed to find this task in list')
+  if (task === undefined) logger.error('failed to find this task in list')
   // eslint-disable-next-line consistent-return
   return task
 }
@@ -89,15 +90,15 @@ async function onClick (line: HTMLElement | null, list: AirtableTask[]): Promise
   const task = getTaskFromElement(line, list)
   if (task === undefined || line === null) return
   const hasBeenUpdated = await visuallyToggleComplete(line, task)
-  if (!hasBeenUpdated) { console.error('failed to update this task'); return }
+  if (!hasBeenUpdated) { logger.error('failed to update this task'); return }
   if (!isTaskActive(task)) void throwConfettiAround(line)
   state.tasks = state.tasks.map(t => (t.id === task.id ? task : t))
   updateLine(line, task)
 }
 
 function updateList (list: AirtableTask[]): void {
-  if (list.length === 0) { console.log('no task list to display'); return }
-  console.log('update list...')
+  if (list.length === 0) { logger.info('no task list to display'); return }
+  logger.info('update list...')
   const processed: string[] = []
   lines.forEach(line => {
     const task = list.find(t => (t.id === line.dataset.taskId))
@@ -108,13 +109,13 @@ function updateList (list: AirtableTask[]): void {
     }
   })
   const missing = list.filter(t => !processed.includes(t.id)) // exists on Airtable but not in dom
-  if (missing.length > 0) console.log('missing tasks', missing)
+  if (missing.length > 0) logger.info('missing tasks', missing)
   missing.forEach(task => { tasks.append(createLine(task)) })
 }
 
-watch('tasks', () => { updateList(state.tasks) })
+watchState('tasks', () => { updateList(state.tasks) })
 
-watch('isSetup', () => { if (state.isSetup && state.tasks.length > 0) updateList(state.tasks) })
+watchState('isSetup', () => { if (state.isSetup && state.tasks.length > 0) updateList(state.tasks) })
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 tasks.addEventListener('click', (event: Event) => { void onClick(event.target as HTMLElement, state.tasks) })

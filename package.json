@@ -4,7 +4,7 @@
   "bugs": "https://github.com/Shuunen/what-now/issues",
   "dependencies": {
     "canvas-confetti": "1",
-    "shuutils": "7.0"
+    "shuutils": "7.1"
   },
   "description": "Minimalist task coach",
   "devDependencies": {

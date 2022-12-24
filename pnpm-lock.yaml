@@ -12,7 +12,7 @@ specifiers:
   npm-parallel: '2'
   repo-check: '1.29'
   servor: '4'
-  shuutils: '7.0'
+  shuutils: '7.1'
   tailwindcss: '3'
   tsm: '2'
   typescript: '4'
@@ -21,7 +21,7 @@ specifiers:
 
 dependencies:
   canvas-confetti: 1.6.0
-  shuutils: 7.0.0
+  shuutils: 7.1.0
 
 devDependencies:
   '@types/canvas-confetti': 1.6.0
@@ -6893,8 +6893,8 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /shuutils/7.0.0:
-    resolution: {integrity: sha512-9D9NmlO5cASNSPP0CLeFd7BNW9pV4q9qN50xgp0PLmTfDZEQI22zpIunLT3KFJ8K+2C4zlPJn7FWG3Xtg6RtwA==}
+  /shuutils/7.1.0:
+    resolution: {integrity: sha512-CYsVwn8EggWsF+oYIbB480zahvowxR8rTHHpKPogMKa/VyJ4Hjj7+Wbw1HsCHvLtY3yGKLuINwOSbbTNdPOLMg==}
     hasBin: true
     dependencies:
       tiny-glob: 0.2.9

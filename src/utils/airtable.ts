@@ -1,4 +1,5 @@
 import { state } from '../state'
+import { logger } from './logger'
 
 const baseKeyLength = 17
 
@@ -58,15 +59,15 @@ export function airtableUrl (base: string, key: string, target = ''): string {
 }
 
 export function checkCredentials (hash = ''): boolean {
-  console.log('check credentials', hash.length > 0 ? `and detected hash "${hash}"` : '')
+  logger.info('check credentials', hash.length > 0 ? `and detected hash "${hash}"` : '')
   const matches = /#(?<app>app\w{14})&(?<key>key\w{14})/u.exec(hash)
   if (matches?.groups?.app !== undefined && matches.groups.key !== undefined && airtableValidate(matches.groups.app, matches.groups.key)) {
     state.apiBase = matches.groups.app
     state.apiKey = matches.groups.key
-    console.log('credentials found in hash')
+    logger.info('credentials found in hash')
   }
   state.isSetup = airtableValidate(state.apiBase, state.apiKey)
-  console.log('credentials are', state.isSetup ? 'valid' : 'invalid')
+  logger.info('credentials are', state.isSetup ? 'valid' : 'invalid')
   state.statusInfo = state.isSetup ? '' : 'Welcome dear user !'
   return state.isSetup
 }
