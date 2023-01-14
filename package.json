@@ -11,7 +11,7 @@
     "@types/canvas-confetti": "1",
     "@types/node": "18",
     "c8": "7",
-    "esbuild": "0.16",
+    "esbuild": "0.17",
     "eslint": "8.31",
     "eslint-config-hardcore": "26",
     "eslint-plugin-tailwindcss": "3",
