@@ -6,7 +6,7 @@
 [![David](https://img.shields.io/david/shuunen/what-now.svg)](https://david-dm.org/shuunen/what-now)
 [![LGTM Grade](https://img.shields.io/lgtm/grade/javascript/github/Shuunen/what-now.svg)](https://lgtm.com/projects/g/Shuunen/what-now)
 
-![demo](docs/logo.svg)
+![demo](docs/logo-double.svg)
 
 > Minimalist task coach
 
