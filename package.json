@@ -10,6 +10,7 @@
   "devDependencies": {
     "@types/canvas-confetti": "1",
     "@types/node": "18",
+    "@types/serviceworker": "0",
     "c8": "7",
     "esbuild": "0.17",
     "eslint": "8.32",
@@ -44,7 +45,7 @@
   "scripts": {
     "build": "parallel build:css build:js",
     "build:css": "tailwindcss -o ./public/index.css",
-    "build:js": "esbuild src/index.ts --outdir=public --bundle",
+    "build:js": "esbuild src/index.ts src/service-worker.ts --outdir=public --bundle",
     "check": "repo-check",
     "ci": "npm run build && npm run lint && npm run check && npm run test",
     "dev": "parallel dev:css dev:js serve",
