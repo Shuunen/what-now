@@ -46,6 +46,7 @@
     "build": "parallel build:css build:js",
     "build:css": "tailwindcss -o ./public/index.css",
     "build:js": "esbuild src/index.ts src/service-worker.ts --outdir=public --bundle",
+    "build:icons": "npx generate-icons --manifest public/app.webmanifest public/logo.svg",
     "check": "repo-check",
     "ci": "npm run build && npm run lint && npm run check && npm run test",
     "dev": "parallel dev:css dev:js serve",
