@@ -1,9 +1,9 @@
 import confetti from 'canvas-confetti'
 import { div, dom, emit, Nb, on, pickOne, sleep, storage, tw } from 'shuutils'
-import { state, watchState } from '../state'
 import type { AirtableResponse, AirtableTask } from '../utils/airtable'
 import { button } from '../utils/dom'
 import { logger } from '../utils/logger'
+import { state, watchState } from '../utils/state'
 import { isTaskActive, toggleComplete } from '../utils/tasks'
 import { progress } from './progress'
 

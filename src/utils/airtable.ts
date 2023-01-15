@@ -1,5 +1,5 @@
-import { state } from '../state'
 import { logger } from './logger'
+import { state } from './state'
 
 const baseKeyLength = 17
 

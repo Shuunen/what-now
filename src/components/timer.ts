@@ -1,7 +1,7 @@
 import { div, Nb, tw } from 'shuutils'
-import { state, watchState } from '../state'
 import type { AirtableTask } from '../utils/airtable'
 import { logger } from '../utils/logger'
+import { state, watchState } from '../utils/state'
 import { dispatchTasks, isTaskActive } from '../utils/tasks'
 
 const timer = div(tw('app-timer fixed bottom-8 right-5 text-right text-5xl font-thin leading-10 text-gray-700'))

@@ -1,8 +1,8 @@
 import { check, checksRun } from 'shuutils'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
-import { state } from '../src/state'
 import { airtableValidate, checkCredentials } from '../src/utils/airtable'
+import { state } from '../src/utils/state'
 
 check('airtableValidate A', airtableValidate('A'), false)
 

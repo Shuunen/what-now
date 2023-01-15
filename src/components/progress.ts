@@ -1,6 +1,6 @@
 import { dom, Nb, tw } from 'shuutils'
-import { state, watchState } from '../state'
 import { logger } from '../utils/logger'
+import { state, watchState } from '../utils/state'
 import { isTaskActive } from '../utils/tasks'
 
 const progress = dom('hr', tw('app-progress mb-4 mt-1'))
