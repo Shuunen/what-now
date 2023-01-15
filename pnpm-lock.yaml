@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@types/canvas-confetti': '1'
   '@types/node': '18'
+  '@types/serviceworker': ^0.0.59
   c8: '7'
   canvas-confetti: '1'
   esbuild: '0.17'
@@ -26,6 +27,7 @@ dependencies:
 devDependencies:
   '@types/canvas-confetti': 1.6.0
   '@types/node': 18.11.9
+  '@types/serviceworker': 0.0.59
   c8: 7.12.0
   esbuild: 0.17.0
   eslint: 8.32.0
@@ -2202,6 +2204,10 @@ packages:
 
   /@types/semver/7.3.13:
     resolution: {integrity: sha512-21cFJr9z3g5dW8B0CVI9g2O9beqaThGQ6ZFBqHfwhzLDKUxaqTIy3vnfah/UPkfOiF2pLq+tGz+W8RyCskuslw==}
+    dev: true
+
+  /@types/serviceworker/0.0.59:
+    resolution: {integrity: sha512-ArRmQ98Ln2MCC5AaYMTWimU8Ilg4OGM7H0th2b0o7GH+Lc/+B/Nm1Z0/ruIAT5hOX67/lR/iKJ+VGlI8U3o1eA==}
     dev: true
 
   /@types/unist/2.0.6:
