@@ -3,7 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@types/canvas-confetti': '1'
   '@types/node': '18'
-  '@types/serviceworker': ^0.0.59
+  '@types/serviceworker': '0'
   c8: '7'
   canvas-confetti: '1'
   esbuild: '0.17'
