@@ -1,6 +1,6 @@
 /* c8 ignore next */
 import { createState, storage } from 'shuutils'
-import type { AirtableTask } from './utils/airtable'
+import type { AirtableTask } from './airtable'
 
 const tasks: AirtableTask[] = []
 

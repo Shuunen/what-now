@@ -4,8 +4,8 @@
 import { check, daysAgoIso10, sleep } from 'shuutils'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
-import { state } from '../src/state'
 import type { AirtableTask } from '../src/utils/airtable'
+import { state } from '../src/utils/state'
 import { completeTask, daysRecurrence, daysSinceCompletion, dispatchTask, dispatchTasks, fetchList, isDataOlderThan, isTaskActive, loadTasks, pushToAirtable, toggleComplete, unCompleteTask } from '../src/utils/tasks'
 
 const id = '42'

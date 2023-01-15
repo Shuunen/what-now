@@ -1,7 +1,7 @@
 import { dateIso10, daysAgoIso10, Nb } from 'shuutils'
-import { state } from '../state'
 import { airtableGet, airtablePatch, airtableUrl, type AirtableTask } from './airtable'
 import { logger } from './logger'
+import { state } from './state'
 
 const enum Unit {
   Day = 'day',

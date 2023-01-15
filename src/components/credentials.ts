@@ -1,7 +1,7 @@
 import { div, text, tw } from 'shuutils'
-import { state, watchState } from '../state'
 import { airtableValidate } from '../utils/airtable'
 import { form } from '../utils/dom'
+import { state, watchState } from '../utils/state'
 
 const credentials = div('credentials hidden')
 
