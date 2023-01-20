@@ -13,9 +13,9 @@ new class IdleService {
   }
 
   private setupListeners (): void {
-    const events = ['mousedown', 'touchstart', 'visibilitychange']
+    const events = ['mousedown', 'touchstart', 'visibilitychange', 'focus', 'blur']
     const resetTimer = debounce(this.resetTimer.bind(this), Nb.Two * Nb.Hundred)
-    events.forEach(name => { document.addEventListener(name, event => { void resetTimer(event.type) }, true) })
+    events.forEach(name => { window.addEventListener(name, event => { void resetTimer(event.type) }, true) })
   }
 
   private setupTimer (): void {
