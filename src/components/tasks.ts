@@ -96,6 +96,18 @@ async function onClick (line: HTMLElement | null, list: AirtableTask[]): Promise
   updateLine(line, task)
 }
 
+function sortLines (): void {
+  if (lines.length === 0 || state.tasks.length === 0) { logger.info('no tasks to sort'); return }
+  logger.info('sort lines...')
+  lines.sort((lineA, lineB) => {
+    const taskA = getTaskFromElement(lineA, state.tasks)
+    const taskB = getTaskFromElement(lineB, state.tasks)
+    if (taskA === undefined || taskB === undefined) return 0
+    return taskA.fields.name.localeCompare(taskB.fields.name)
+  })
+  lines.forEach(line => { tasks.append(line) })
+}
+
 function updateList (list: AirtableTask[]): void {
   if (list.length === 0) { logger.info('no task list to display'); return }
   logger.info('update list...')
@@ -111,6 +123,7 @@ function updateList (list: AirtableTask[]): void {
   const missing = list.filter(t => !processed.includes(t.id)) // exists on Airtable but not in dom
   if (missing.length > 0) logger.info('missing tasks', missing)
   missing.forEach(task => { tasks.append(createLine(task)) })
+  sortLines()
 }
 
 watchState('tasks', () => { updateList(state.tasks) })
