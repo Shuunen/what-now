@@ -11,7 +11,7 @@ specifiers:
   eslint-config-hardcore: '26'
   eslint-plugin-tailwindcss: '3'
   npm-parallel: '2'
-  repo-check: '1.29'
+  repo-check: '1.30'
   servor: '4'
   shuutils: '7.1'
   tailwindcss: '3'
@@ -34,7 +34,7 @@ devDependencies:
   eslint-config-hardcore: 26.0.0_eslint@8.33.0
   eslint-plugin-tailwindcss: 3.7.0
   npm-parallel: 2.0.1
-  repo-check: 1.29.0
+  repo-check: 1.30.0
   servor: 4.0.2
   tailwindcss: 3.2.4
   tsm: 2.3.0
@@ -6735,9 +6735,12 @@ packages:
     resolution: {integrity: sha512-NEs3uvzpaZscL9qFGIHMO7iFy45/nRQC0bBeIMys8UDJT5CX/OcgDeRpcmwXGcr9Ez+IYZka7w0xhA9pEs7Cag==}
     dev: true
 
-  /repo-check/1.29.0:
-    resolution: {integrity: sha512-byp4NWqqR5R/0mLOSPxcHiXmj5kW+MVGasvLJNWEmqNT1yuV7t5AJ0jen+rQ4Ah5s+aglP3eupgY812rB9uVpA==}
+  /repo-check/1.30.0:
+    resolution: {integrity: sha512-L/V4iSVlxaeEABGTZ/3JS1SggAQWMycs4W0pu6LCGDnCborl6HurWy3Jh3Sh5kiZFeHclKHw9O98XCgR4h6ang==}
     hasBin: true
+    dependencies:
+      arg: 5.0.2
+      shuutils: 7.1.0
     dev: true
 
   /req-all/0.1.0:
@@ -6905,7 +6908,6 @@ packages:
     dependencies:
       tiny-glob: 0.2.9
       uvu: 0.5.6
-    dev: false
 
   /side-channel/1.0.4:
     resolution: {integrity: sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw==}
