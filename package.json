@@ -13,7 +13,7 @@
     "@types/serviceworker": "0",
     "c8": "7",
     "esbuild": "0.17",
-    "eslint": "8.34",
+    "eslint": "8.35",
     "eslint-config-hardcore": "31",
     "eslint-plugin-tailwindcss": "3",
     "npm-parallel": "2",
