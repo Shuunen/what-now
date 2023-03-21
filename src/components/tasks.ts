@@ -81,7 +81,7 @@ async function visuallyToggleComplete (line: HTMLElement, task: AirtableTask): P
 function getTaskFromElement (element: HTMLElement | null, list: AirtableTask[]): AirtableTask | undefined {
   if (element === null || element.dataset.taskId === undefined) return
   const task = list.find(t => t.id === element.dataset.taskId)
-  if (task === undefined) logger.error('failed to find this task in list')
+  if (task === undefined) logger.error('failed to task with id', element.dataset.taskId, 'in list', list)
   // eslint-disable-next-line consistent-return
   return task
 }
@@ -96,15 +96,15 @@ async function onClick (line: HTMLElement | null, list: AirtableTask[]): Promise
   updateLine(line, task)
 }
 
+function lineToText (line: HTMLElement): string {
+  const match = /\w+\s*/u.exec(line.textContent ?? '')
+  return match ? match[0] : ''
+}
+
 function sortLines (): void {
   if (lines.length === 0 || state.tasks.length === 0) { logger.info('no tasks to sort'); return }
   logger.info('sort lines...')
-  lines.sort((lineA, lineB) => {
-    const taskA = getTaskFromElement(lineA, state.tasks)
-    const taskB = getTaskFromElement(lineB, state.tasks)
-    if (taskA === undefined || taskB === undefined) return 0
-    return taskA.fields.name.localeCompare(taskB.fields.name)
-  })
+  lines.sort((lineA, lineB) => lineToText(lineA).localeCompare(lineToText(lineB)))
   lines.forEach(line => { tasks.append(line) })
 }
 
