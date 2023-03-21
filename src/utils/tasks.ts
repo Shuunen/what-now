@@ -67,6 +67,7 @@ export async function fetchList (): Promise<AirtableTask[]> {
   const { records } = await airtableGet(url)
   state.statusInfo = ''
   state.tasksTimestamp = Date.now()
+
   /* c8 ignore next */
   return (records ?? []).filter(task => isTaskActive(task))
 }
@@ -75,6 +76,7 @@ export function isDataOlderThan (milliseconds: number): boolean {
   if (state.tasksTimestamp === 0) return true
   const age = Date.now() - state.tasksTimestamp
   const minutes = Math.round(age / Nb.MsInMinute)
+
   /* c8 ignore next */
   if (minutes > 0) logger.info('last activity', minutes, 'minute(s) ago')
   return age >= milliseconds
