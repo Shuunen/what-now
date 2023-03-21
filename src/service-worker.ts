@@ -101,6 +101,3 @@ self.addEventListener('activate', () => {
 
 self.addEventListener('notificationclick', onNotificationClick as EventListenerOrEventListenerObject) // eslint-disable-line @typescript-eslint/consistent-type-assertions
 self.addEventListener('sync', onSync as EventListenerOrEventListenerObject) // eslint-disable-line @typescript-eslint/consistent-type-assertions
-
-
-
