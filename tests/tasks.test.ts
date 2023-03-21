@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { check, daysAgoIso10, sleep } from 'shuutils'
-import { test } from 'uvu'
-import { equal } from 'uvu/assert'
+import { daysAgoIso10, sleep } from 'shuutils'
+import { expect, it } from 'vitest'
 import type { AirtableTask } from '../src/types'
 import { state } from '../src/utils/state'
 import { completeTask, daysRecurrence, daysSinceCompletion, dispatchTask, dispatchTasks, fetchList, isDataOlderThan, isTaskActive, loadTasks, pushToAirtable, toggleComplete, unCompleteTask } from '../src/utils/tasks'
@@ -23,198 +22,201 @@ function createTask (fields: Partial<typeof defaults> = defaults): AirtableTask 
   return { id, createdTime: yesterday, fields: { name, once, done, 'completed-on': completedOn, 'average-time': averageTime } }
 }
 
-test('a task without completed on is active', function () {
+it('a task without completed on is active', function () {
   const task = createTask({ completedOn: '' })
-  equal(isTaskActive(task), true)
-  equal(task.fields.name, defaults.name)
+  expect(isTaskActive(task)).toBe(true)
+  expect(task.fields.name, defaults.name)
 })
 
-test('a daily task completed yesterday is active', function () {
+it('a daily task completed yesterday is active', function () {
   const task = createTask({ once: 'day', completedOn: yesterday })
-  equal(isTaskActive(task), true)
+  expect(isTaskActive(task)).toBe(true)
 })
 
-test('a weekly task completed yesterday is inactive', function () {
+it('a weekly task completed yesterday is inactive', function () {
   const task = createTask({ once: 'week', completedOn: yesterday })
-  equal(isTaskActive(task), false)
+  expect(isTaskActive(task)).toBe(false)
 })
 
-test('a monthly task completed 20 days ago is inactive', function () {
+it('a monthly task completed 20 days ago is inactive', function () {
   const task = createTask({ once: 'month', completedOn: daysAgoIso10(20) })
-  equal(isTaskActive(task), false)
+  expect(isTaskActive(task)).toBe(false)
 })
 
-test('a bi-monthly task completed 20 days ago is active', function () {
+it('a bi-monthly task completed 20 days ago is active', function () {
   const task = createTask({ once: '2-weeks', completedOn: daysAgoIso10(20) })
-  equal(isTaskActive(task), true)
+  expect(isTaskActive(task)).toBe(true)
 })
 
-test('a bi-annual task completed 20 days ago is inactive', function () {
+it('a bi-annual task completed 20 days ago is inactive', function () {
   const task = createTask({ once: '6-months', completedOn: daysAgoIso10(20) })
-  equal(isTaskActive(task), false)
+  expect(isTaskActive(task)).toBe(false)
 })
 
-test('a non-handled once format result in a active task', function () {
+it('a non-handled once format result in a active task', function () {
   const task = createTask({ once: '3-paper', completedOn: yesterday })
-  equal(isTaskActive(task), true)
+  expect(isTaskActive(task)).toBe(true)
 })
 
-test('days since completion is 0 is no date is provided', function () {
+it('days since completion is 0 is no date is provided', function () {
   const task = createTask({ once: 'day' })
-  equal(daysSinceCompletion(task), 0)
+  expect(daysSinceCompletion(task)).toBe(0)
 })
 
-test('a one time task is active by default', function () {
+it('a one time task is active by default', function () {
   const task = createTask({ once: 'yes' })
-  equal(isTaskActive(task), true)
+  expect(isTaskActive(task)).toBe(true)
 })
 
-test('toggle complete A task update completed on date', async function () {
+it('toggle complete A task update completed on date', async function () {
   const task = createTask({ once: 'day', completedOn: yesterday })
   await toggleComplete(task)
-  equal(task.fields.done, false) // no a one time task, so we will have to do it again
-  equal(task.fields['completed-on'], today)
+  expect(task.fields.done).toBe(false) // no a one time task, so we will have to do it again
+  expect(task.fields['completed-on'], today)
 })
 
-test('toggle complete B one-time task mark it as done', async function () {
+it('toggle complete B one-time task mark it as done', async function () {
   const task = createTask({ once: 'yes' })
   await toggleComplete(task)
-  equal(task.fields.done, true)
+  expect(task.fields.done).toBe(true)
 })
 
-test('toggle complete C switches task active state', async function () {
+it('toggle complete C switches task active state', async function () {
   const task = createTask({ once: 'day', completedOn: yesterday })
-  equal(isTaskActive(task), true, 'task is active')
+  expect(isTaskActive(task), 'task is active').toBe(true)
   await toggleComplete(task)
-  equal(task.fields.done, false, 'task is not done')
-  equal(isTaskActive(task), false, 'task is no more active')
+  expect(task.fields.done, 'task is not done').toBe(false)
+  expect(isTaskActive(task), 'task is no more active').toBe(false)
   await toggleComplete(task)
-  equal(task.fields.done, false, 'task still not done')
-  equal(isTaskActive(task), true, 'task is active again')
+  expect(task.fields.done, 'task still not done').toBe(false)
+  expect(isTaskActive(task), 'task is active again').toBe(true)
 })
 
-test('toggle complete D succeed with base & key in state', async function () {
+it('toggle complete D succeed with base & key in state', async function () {
   const task = createTask({ once: 'day', completedOn: yesterday })
   state.apiBase = 'app12345654987123'
   state.apiKey = 'key12345654987123'
   const hasSucceed = await toggleComplete(task)
-  equal(hasSucceed, true)
+  expect(hasSucceed).toBe(true)
 })
 
-test('toggle complete E fail without base & key in state', async function () {
+it('toggle complete E fail without base & key in state', async function () {
   const task = createTask({ once: 'day', completedOn: yesterday })
   state.apiBase = ''
   state.apiKey = ''
   const hasSucceed = await toggleComplete(task)
-  equal(hasSucceed, false)
+  expect(hasSucceed).toBe(false)
 })
 
-test('fetch list via triggering isSetup without base & key in state', function () {
+it('fetch list via triggering isSetup without base & key in state', function () {
   state.apiBase = ''
   state.apiKey = ''
   state.isSetup = true
-  equal(state.isSetup, true)
+  expect(state.isSetup).toBe(true)
 })
 
-test('fetch list via fetchList with base & key in state', async function () {
+it('fetch list via fetchList with base & key in state', async function () {
   state.apiBase = 'app12345654987123'
   state.apiKey = 'key12345654987123'
   await fetchList()
-  equal(state.isSetup, true)
+  expect(state.isSetup).toBe(true)
 })
 
-test('data old check', async function () {
+it('data old check', async function () {
   state.tasksTimestamp = 0
-  equal(isDataOlderThan(0), true, 'data is considered older if time 0')
+  expect(isDataOlderThan(0), 'data is considered older if time 0').toBe(true)
   state.tasksTimestamp = Date.now()
   await sleep(100)
-  equal(isDataOlderThan(50), true, 'data is older than 50ms after waiting 100ms')
+  expect(isDataOlderThan(50), 'data is older than 50ms after waiting 100ms').toBe(true)
 })
 
-test('update task with base & key in state', async function () {
+it('update task with base & key in state', async function () {
   state.apiBase = 'app12345654987123'
   state.apiKey = 'key12345654987123'
   const task = createTask({ once: 'day', completedOn: yesterday })
   const hasBeenUpdated = await toggleComplete(task)
-  equal(hasBeenUpdated, true)
+  expect(hasBeenUpdated).toBe(true)
 })
 
-test('update task without base & key in state', async function () {
+it('update task without base & key in state', async function () {
   state.apiBase = ''
   state.apiKey = ''
   const task = createTask({ once: 'day', completedOn: yesterday })
   const hasBeenUpdated = await toggleComplete(task)
-  equal(hasBeenUpdated, false)
+  expect(hasBeenUpdated).toBe(false)
 })
 
-test('dispatch tasks list', async function () {
+it('dispatch tasks list', async function () {
   const task = createTask({ once: 'day', completedOn: yesterday })
   await dispatchTasks([task])
 })
 
-test('dispatch task A : cannot dispatch a daily task', async function () {
+it('dispatch task A : cannot dispatch a daily task', async function () {
   const task = createTask({ once: 'day', completedOn: yesterday })
   const hasBeenUpdated = await dispatchTask(task)
-  equal(hasBeenUpdated, false)
+  expect(hasBeenUpdated).toBe(false)
 })
 
-test('dispatch task B : can dispatch a weekly task completed yesterday', async function () {
+it('dispatch task B : can dispatch a weekly task completed yesterday', async function () {
   state.apiBase = 'app12345654987123'
   state.apiKey = 'key12345654987123'
   const task = createTask({ once: 'week', completedOn: yesterday })
   const hasBeenUpdated = await dispatchTask(task)
-  equal(hasBeenUpdated, true)
+  expect(hasBeenUpdated).toBe(true)
 })
 
-test('dispatch task C : cannot dispatch a one time task', async function () {
+it('dispatch task C : cannot dispatch a one time task', async function () {
   const task = createTask({ once: 'yes', completedOn: yesterday })
   const hasBeenUpdated = await dispatchTask(task)
-  equal(hasBeenUpdated, false)
+  expect(hasBeenUpdated).toBe(false)
 })
 
-test('dispatch task D : cannot dispatch a weekly task completed 7 days ago', async function () {
+it('dispatch task D : cannot dispatch a weekly task completed 7 days ago', async function () {
   const task = createTask({ once: 'week', completedOn: daysAgoIso10(7) })
   const hasBeenUpdated = await dispatchTask(task)
-  equal(hasBeenUpdated, false)
+  expect(hasBeenUpdated).toBe(false)
 })
 
-test('load tasks but there is fresh tasks in a setup state', async function () {
+it('load tasks but there is fresh tasks in a setup state', async function () {
   state.isSetup = true
   state.tasksTimestamp = Date.now()
   state.tasks = [createTask({ once: 'day', completedOn: yesterday })]
   const hasLoadedTasks = await loadTasks()
-  equal(hasLoadedTasks, false)
+  expect(hasLoadedTasks).toBe(false)
 })
 
-test('load tasks but state is not setup', async function () {
+it('load tasks but state is not setup', async function () {
   state.isSetup = false
   const hasLoadedTasks = await loadTasks()
-  equal(hasLoadedTasks, false)
+  expect(hasLoadedTasks).toBe(false)
 })
 
-check('days recurrence A', daysRecurrence(createTask({ once: 'day' })), 1)
-check('days recurrence B', daysRecurrence(createTask({ once: 'week' })), 7)
-check('days recurrence C', daysRecurrence(createTask({ once: 'month' })), 30)
-check('days recurrence D', daysRecurrence(createTask({ once: 'year' })), 365)
-check('days recurrence E', daysRecurrence(createTask({ once: 'yes' })), 0)
-check('days recurrence F', daysRecurrence(createTask({ once: '3-days' })), 3)
-check('days recurrence G', daysRecurrence(createTask({ once: '2-weeks' })), 14)
-check('days recurrence H', daysRecurrence(createTask({ once: '2-months' })), 60)
-check('days recurrence I', daysRecurrence(createTask({ once: '2-years' })), 730)
+it('days recurrence A', () => { expect(daysRecurrence(createTask({ once: 'day' }))).toBe(1) })
+it('days recurrence B', () => { expect(daysRecurrence(createTask({ once: 'week' }))).toBe(7) })
+it('days recurrence C', () => { expect(daysRecurrence(createTask({ once: 'month' }))).toBe(30) })
+it('days recurrence D', () => { expect(daysRecurrence(createTask({ once: 'year' }))).toBe(365) })
+it('days recurrence E', () => { expect(daysRecurrence(createTask({ once: 'yes' }))).toBe(0) })
+it('days recurrence F', () => { expect(daysRecurrence(createTask({ once: '3-days' }))).toBe(3) })
+it('days recurrence G', () => { expect(daysRecurrence(createTask({ once: '2-weeks' }))).toBe(14) })
+it('days recurrence H', () => { expect(daysRecurrence(createTask({ once: '2-months' }))).toBe(60) })
+it('days recurrence I', () => { expect(daysRecurrence(createTask({ once: '2-years' }))).toBe(730) })
 
-check('days since completion A', daysSinceCompletion(createTask({ completedOn: today })), 0)
-check('days since completion B', daysSinceCompletion(createTask({ completedOn: yesterday })), 1)
-check('days since completion C', daysSinceCompletion(createTask({ completedOn: daysAgoIso10(2) })), 2)
+it('days since completion A', () => { expect(daysSinceCompletion(createTask({ completedOn: today }))).toBe(0) })
+it('days since completion B', () => { expect(daysSinceCompletion(createTask({ completedOn: yesterday }))).toBe(1) })
+it('days since completion C', () => { expect(daysSinceCompletion(createTask({ completedOn: daysAgoIso10(2) }))).toBe(2) })
 
-test('push to Airtable A', async function () {
+it('push to Airtable A', async function () {
   state.apiBase = 'app12345654987123'
   state.apiKey = 'key12345654987123'
   const hasPushed = await pushToAirtable(createTask({ once: 'day' }))
-  equal(hasPushed, true)
+  expect(hasPushed).toBe(true)
 })
 
-check('complete A', completeTask(createTask({ once: 'day' })), true)
+it('complete A', async () => {
+  expect(await completeTask(createTask({ once: 'day' }))).toBe(true)
+})
 
-check('unComplete A', unCompleteTask(createTask({ once: 'week' })), true)
+it('unComplete A', async () => {
+  expect(await unCompleteTask(createTask({ once: 'week' }))).toBe(true)
+})
 
-test.run()

@@ -11,8 +11,8 @@
     "@types/canvas-confetti": "1",
     "@types/node": "18",
     "@types/serviceworker": "0",
+    "@vitest/coverage-c8": "0.29",
     "dependency-cruiser": "latest",
-    "c8": "7",
     "esbuild": "0.17",
     "eslint": "8.36",
     "eslint-config-hardcore": "35",
@@ -21,9 +21,8 @@
     "repo-check": "1.30",
     "servor": "4",
     "tailwindcss": "3",
-    "tsm": "2",
     "typescript": "5",
-    "uvu": "0",
+    "vitest": "0.29",
     "watchlist": "0"
   },
   "files": [
@@ -46,8 +45,8 @@
   "scripts": {
     "build": "parallel build:css build:js && echo build success",
     "build:css": "tailwindcss -o ./public/index.css",
-    "build:js": "esbuild src/index.ts src/service-worker.ts --outdir=public --bundle",
     "build:icons": "npx generate-icons --manifest public/app.webmanifest public/logo.svg",
+    "build:js": "esbuild src/index.ts src/service-worker.ts --outdir=public --bundle",
     "check": "repo-check",
     "ci": "npm run build && npm run lint && npm run check && npm run test && echo ci success",
     "dev": "parallel dev:css dev:js serve",
@@ -60,8 +59,8 @@
     "preversion": "npm run ci",
     "serve": "servor public --reload",
     "start": "npm run dev",
-    "test": "c8 uvu -r tsm tests && echo test success",
-    "test:watch": "watchlist src tests -eager -- npm test"
+    "test": "npm run test:watch -- --run && echo test success",
+    "test:watch": "vitest --coverage"
   },
   "version": "1.2.0"
 }
