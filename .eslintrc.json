@@ -38,7 +38,7 @@
     ],
     "@typescript-eslint/consistent-indexed-object-style": "off",
     "@typescript-eslint/consistent-type-definitions": "off",
-    "@typescript-eslint/explicit-function-return-type": "error",
+    "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/indent": [
       "error",
       2
@@ -140,6 +140,7 @@
     "no-console": "error",
     "no-inline-comments": "off",
     "no-param-reassign": "off",
+    "no-unsanitized/property": "off",
     "object-curly-spacing": [
       "error",
       "always"
@@ -165,6 +166,7 @@
       "error",
       "always"
     ],
+    "total-functions/no-partial-division": "off",
     "unicorn/no-array-for-each": "off",
     "unicorn/no-process-exit": "off",
     "unicorn/prefer-module": "off",

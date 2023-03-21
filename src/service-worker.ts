@@ -3,7 +3,7 @@
 import { pickOne } from 'shuutils'
 
 const version = 9
-const url = new URL('', self.location.origin).href
+const url = new URL('', self.location.origin).href // eslint-disable-line total-functions/no-partial-url-constructor
 const motivators = [
   {
     icon: 'https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/emojione/211/rocket_1f680.png',
