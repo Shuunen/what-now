@@ -1,4 +1,3 @@
-/* c8 ignore next */
 import { createState, storage } from 'shuutils'
 import type { AirtableTask } from '../types'
 
@@ -14,4 +13,4 @@ export const { state, watchState } = createState({
   statusProgress: '',
   tasks,
   tasksTimestamp: 0,
-}, storage, ['apiBase', 'apiKey', 'tasks', 'tasksTimestamp'])
+}, storage, /* c8 ignore next */['apiBase', 'apiKey', 'tasks', 'tasksTimestamp'])
