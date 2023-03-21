@@ -1,5 +1,5 @@
 import { div, Nb, tw } from 'shuutils'
-import type { AirtableTask } from '../utils/airtable'
+import type { AirtableTask } from '../types'
 import { logger } from '../utils/logger'
 import { state, watchState } from '../utils/state'
 import { dispatchTasks, isTaskActive } from '../utils/tasks'

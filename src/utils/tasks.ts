@@ -1,5 +1,6 @@
 import { dateIso10, daysAgoIso10, Nb } from 'shuutils'
-import { airtableGet, airtablePatch, airtableUrl, type AirtableTask } from './airtable'
+import type { AirtableTask } from '../types'
+import { airtableGet, airtablePatch, airtableUrl } from './airtable'
 import { logger } from './logger'
 import { state } from './state'
 

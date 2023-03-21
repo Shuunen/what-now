@@ -1,27 +1,8 @@
+import type { AirtableResponse } from '../types'
 import { logger } from './logger'
 import { state } from './state'
 
 const baseKeyLength = 17
-
-export interface AirtableTask {
-  id: string
-  createdTime: string
-  fields: {
-    name: string
-    once: string
-    done: boolean // eslint-disable-line @typescript-eslint/naming-convention
-    'completed-on': string // eslint-disable-line @typescript-eslint/naming-convention
-    'average-time': number // eslint-disable-line @typescript-eslint/naming-convention
-  }
-}
-
-export interface AirtableResponse {
-  records?: AirtableTask[]
-  error?: {
-    type: string
-    message: string
-  }
-}
 
 /* c8 ignore next 11 */
 export async function airtablePatch (url: string, data: { [key: string]: unknown }): Promise<AirtableResponse> {

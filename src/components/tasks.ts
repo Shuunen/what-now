@@ -1,6 +1,6 @@
 import confetti from 'canvas-confetti'
 import { div, dom, emit, Nb, on, pickOne, sleep, storage, tw } from 'shuutils'
-import type { AirtableResponse, AirtableTask } from '../utils/airtable'
+import type { AirtableResponse, AirtableTask } from '../types'
 import { button } from '../utils/dom'
 import { logger } from '../utils/logger'
 import { state, watchState } from '../utils/state'
