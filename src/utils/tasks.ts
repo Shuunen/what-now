@@ -1,4 +1,4 @@
-import { dateIso10, daysAgoIso10, Nb } from 'shuutils'
+import { dateIso10, daysAgoIso10, Nb, readableTimeAgo } from 'shuutils'
 import type { AirtableTask } from '../types'
 import { airtableGet, airtablePatch, airtableUrl } from './airtable'
 import { logger } from './logger'
@@ -85,8 +85,8 @@ export function isDataOlderThan (milliseconds: number): boolean {
 
 export async function loadTasks (): Promise<boolean> {
   if (!state.isSetup) return false
-  if (state.tasks.length > 0 && !isDataOlderThan(Nb.Ten * Nb.MsInMinute)) {
-    logger.info('tasks are fresh')
+  if (state.tasks.length > 0 && !isDataOlderThan(Nb.MsInMinute)) {
+    logger.info(`tasks are fresh (${readableTimeAgo(Date.now() - state.tasksTimestamp)})`)
     return false
   }
   const tasks = await fetchList()
