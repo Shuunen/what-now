@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-
-
 import { check, daysAgoIso10, sleep } from 'shuutils'
 import { test } from 'uvu'
 import { equal } from 'uvu/assert'
