@@ -19,6 +19,17 @@
       "rules": {
         "func-names": "off"
       }
+    },
+    {
+      "files": [
+        "**/*.js",
+        "**/*.mjs"
+      ],
+      "rules": {
+        "import/no-commonjs": "off",
+        "import/unambiguous": "off",
+        "putout/putout": "off"
+      }
     }
   ],
   "parserOptions": {
