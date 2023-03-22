@@ -37,7 +37,12 @@ on('get-tasks-error', handleError)
 
 function updateLine (line: HTMLElement, task: AirtableTask): void {
   const isActive = isTaskActive(task)
-  if (line.dataset.active === String(isActive)) return
+  const isDatasetActive = line.dataset.active === 'true'
+  if (isDatasetActive === isActive) {
+    logger.info('line is already up to date, avoid changes', line)
+    return
+  }
+  logger.info('update line', line, 'was', isDatasetActive ? 'active' : 'inactive', 'now', isActive ? 'active' : 'inactive')
   line.dataset.active = String(isActive)
   line.innerHTML = `${isActive ? pickOne(emojis) : '✔️'}&nbsp; ${task.fields.name}`
   line.classList.toggle('opacity-60', !isActive)
@@ -79,10 +84,8 @@ async function visuallyToggleComplete (line: HTMLElement, task: AirtableTask): P
 }
 
 function getTaskFromElement (element: HTMLElement | null, list: AirtableTask[]): AirtableTask | undefined {
-  if (element === null || element.dataset.taskId === undefined) return
-  const task = list.find(t => t.id === element.dataset.taskId)
-  if (task === undefined) logger.error('failed to task with id', element.dataset.taskId, 'in list', list)
-  // eslint-disable-next-line consistent-return
+  const task = list.find(t => t.id === element?.dataset.taskId)
+  if (task === undefined) logger.error('failed to find task with id', element?.dataset.taskId, 'in list', list)
   return task
 }
 
@@ -114,7 +117,7 @@ function updateList (list: AirtableTask[]): void {
   const processed: string[] = []
   lines.forEach(line => {
     const task = list.find(t => (t.id === line.dataset.taskId))
-    if (task === undefined) line.remove() // deleting a task in dom that does not exists on Airtable
+    if (task === undefined) line.classList.add('hidden') // hide the task in dom that is not active anymore
     else {
       processed.push(task.id)
       updateLine(line, task)
