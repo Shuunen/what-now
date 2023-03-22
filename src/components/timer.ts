@@ -6,7 +6,7 @@ import { dispatchTasks, isTaskActive } from '../utils/tasks'
 
 const timer = div(tw('app-timer fixed bottom-8 right-5 text-right text-5xl font-thin leading-10 text-gray-700'))
 
-function onTaskLoaded (tasks: AirtableTask[]): void {
+function onTaskLoaded (tasks: AirtableTask[]) {
   logger.info('timer, on tasks loaded')
   // eslint-disable-next-line unicorn/no-array-reduce
   const seconds = tasks.reduce((total, task) => isTaskActive(task) ? total + task.fields['average-time'] : total, 0)

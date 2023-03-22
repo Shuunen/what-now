@@ -12,17 +12,17 @@ new class IdleService {
     this.resetTimer('init')
   }
 
-  private setupListeners (): void {
+  private setupListeners () {
     const events = ['mousedown', 'touchstart', 'visibilitychange', 'focus', 'blur']
     const resetTimer = debounce(this.resetTimer.bind(this), Nb.Two * Nb.Hundred)
     events.forEach(name => { window.addEventListener(name, event => { void resetTimer(event.type) }, true) })
   }
 
-  private setupTimer (): void {
+  private setupTimer () {
     this.timer = setInterval(() => { this.checkInactivity() }, Nb.Ten * Nb.MsInMinute)
   }
 
-  private resetTimer (from = 'unknown event'): void {
+  private resetTimer (from = 'unknown event') {
     logger.info('timer reset due to', from)
     this.inactiveSince = Date.now()
     clearTimeout(this.timer)
@@ -30,7 +30,7 @@ new class IdleService {
     emit('user-activity', from)
   }
 
-  private checkInactivity (): void {
+  private checkInactivity () {
     const inactivePeriod = Date.now() - this.inactiveSince
     const minutes = Math.round(inactivePeriod / Nb.MsInMinute)
     logger.info('user has been inactive for', minutes, 'minute(s)')

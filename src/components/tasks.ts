@@ -25,7 +25,7 @@ retry.addEventListener('click', () => {
 })
 tasks.append(retry)
 
-function handleError (response: AirtableResponse): void {
+function handleError (response: AirtableResponse) {
   logger.error('handle error response', response)
   let message = response.error && response.error.type === 'UNAUTHORIZED' ? 'The credentials you provided does not work' : 'Failed to fetch data from Airtable'
   message += ', click the button below to try again.'
@@ -35,7 +35,7 @@ function handleError (response: AirtableResponse): void {
 
 on('get-tasks-error', handleError)
 
-function updateLine (line: HTMLElement, task: AirtableTask): void {
+function updateLine (line: HTMLElement, task: AirtableTask) {
   const isActive = isTaskActive(task)
   const isDatasetActive = line.dataset.active === 'true'
   if (isDatasetActive === isActive) {
@@ -48,7 +48,7 @@ function updateLine (line: HTMLElement, task: AirtableTask): void {
   line.classList.toggle('opacity-60', !isActive)
 }
 
-function createLine (task: AirtableTask): HTMLButtonElement {
+function createLine (task: AirtableTask) {
   const line = dom('button', tw('app-task mr-auto -ml-2 max-w-full overflow-hidden text-ellipsis whitespace-nowrap px-2 py-1 text-start transition-transform duration-300 ease-out'), task.fields.name)
   line.dataset.taskId = task.id
   updateLine(line, task)
@@ -57,13 +57,13 @@ function createLine (task: AirtableTask): HTMLButtonElement {
 }
 
 // eslint-disable-next-line max-params
-async function throwConfetti (x: number, y: number, angle: number, sound: HTMLAudioElement): Promise<void> { // eslint-disable-line id-length
+async function throwConfetti (x: number, y: number, angle: number, sound: HTMLAudioElement) { // eslint-disable-line id-length
   void sound.play()
   void confetti({ angle, origin: { x, y } }) // eslint-disable-line id-length
   await sleep(Nb.Two * Nb.Hundred)
 }
 
-async function throwConfettiAround (element: HTMLElement): Promise<void> {
+async function throwConfettiAround (element: HTMLElement) {
   /* eslint-disable @typescript-eslint/no-magic-numbers */
   const { bottom, left, right } = element.getBoundingClientRect()
   const delta = window.innerWidth < 450 ? 90 : 30
@@ -76,20 +76,20 @@ async function throwConfettiAround (element: HTMLElement): Promise<void> {
   /* eslint-enable @typescript-eslint/no-magic-numbers */
 }
 
-async function visuallyToggleComplete (line: HTMLElement, task: AirtableTask): Promise<boolean> {
+async function visuallyToggleComplete (line: HTMLElement, task: AirtableTask) {
   line.classList.add('scale-125')
   const hasBeenUpdated = await toggleComplete(task)
   line.classList.remove('scale-125')
   return hasBeenUpdated
 }
 
-function getTaskFromElement (element: HTMLElement | null, list: AirtableTask[]): AirtableTask | undefined {
+function getTaskFromElement (element: HTMLElement | null, list: AirtableTask[]) {
   const task = list.find(t => t.id === element?.dataset.taskId)
   if (task === undefined) logger.error('failed to find task with id', element?.dataset.taskId, 'in list', list)
   return task
 }
 
-async function onClick (line: HTMLElement | null, list: AirtableTask[]): Promise<void> {
+async function onClick (line: HTMLElement | null, list: AirtableTask[]) {
   const task = getTaskFromElement(line, list)
   if (task === undefined || line === null) return
   const hasBeenUpdated = await visuallyToggleComplete(line, task)
@@ -99,19 +99,19 @@ async function onClick (line: HTMLElement | null, list: AirtableTask[]): Promise
   updateLine(line, task)
 }
 
-function lineToText (line: HTMLElement): string {
+function lineToText (line: HTMLElement) {
   const match = /\w+\s*/u.exec(line.textContent ?? '')
   return match ? match[0] : ''
 }
 
-function sortLines (): void {
+function sortLines () {
   if (lines.length === 0 || state.tasks.length === 0) { logger.info('no tasks to sort'); return }
   logger.info('sort lines...')
   lines.sort((lineA, lineB) => lineToText(lineA).localeCompare(lineToText(lineB)))
   lines.forEach(line => { tasks.append(line) })
 }
 
-function updateList (list: AirtableTask[]): void {
+function updateList (list: AirtableTask[]) {
   if (list.length === 0) { logger.info('no task list to display'); return }
   logger.info('update list...')
   const processed: string[] = []

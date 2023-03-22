@@ -11,7 +11,7 @@ const enum Unit {
   Year = 'year',
 }
 
-export function daysRecurrence (task: AirtableTask): number {
+export function daysRecurrence (task: AirtableTask) {
   // eslint-disable-next-line security/detect-unsafe-regex, unicorn/no-unsafe-regex
   const matches = /(?<quantity>\d{1,3})?-?(?<unit>day|month|week|year)/u.exec(task.fields.once)
   if (matches === null) return 0
@@ -24,14 +24,14 @@ export function daysRecurrence (task: AirtableTask): number {
   return number * Nb.DaysInYear // Unit.Year case
 }
 
-export function daysSinceCompletion (task: AirtableTask): number {
+export function daysSinceCompletion (task: AirtableTask) {
   const today = dateIso10(new Date())
   const todayTimestamp = new Date(today).getTime()
   const completedOnTimestamp = new Date(task.fields['completed-on']).getTime()
   return ((todayTimestamp - completedOnTimestamp) / Nb.MsInDay)
 }
 
-export async function pushToAirtable (task: AirtableTask): Promise<boolean> {
+export async function pushToAirtable (task: AirtableTask) {
   logger.info('update task')
   const url = airtableUrl(state.apiBase, state.apiKey, `tasks/${task.id}`)
   if (url === '') return false
@@ -41,27 +41,27 @@ export async function pushToAirtable (task: AirtableTask): Promise<boolean> {
   return response.error === undefined
 }
 
-export async function completeTask (task: AirtableTask): Promise<boolean> {
+export async function completeTask (task: AirtableTask) {
   task.fields['completed-on'] = dateIso10(new Date()) // task is complete for today
   task.fields.done = task.fields.once === 'yes' // but it also can be done totally if it was a one time job
   return await pushToAirtable(task)
 }
 
-export async function unCompleteTask (task: AirtableTask): Promise<boolean> {
+export async function unCompleteTask (task: AirtableTask) {
   // to un-complete, need to put the last completed on just before the required number of days
   task.fields['completed-on'] = daysAgoIso10(daysRecurrence(task))
   task.fields.done = false
   return await pushToAirtable(task)
 }
 
-export function isTaskActive (task: AirtableTask): boolean {
+export function isTaskActive (task: AirtableTask) {
   if (task.fields['completed-on'] === '' || task.fields.once === 'yes') return true
   const recurrence = daysRecurrence(task)
   const days = daysSinceCompletion(task)
   return days >= recurrence
 }
 
-export async function fetchList (): Promise<AirtableTask[]> {
+export async function fetchList () {
   logger.info('fetch list')
   const url = airtableUrl(state.apiBase, state.apiKey, 'tasks')
   state.statusInfo = 'Loading tasks, please wait...'
@@ -73,7 +73,7 @@ export async function fetchList (): Promise<AirtableTask[]> {
   return (records ?? []).filter(task => isTaskActive(task))
 }
 
-export function isDataOlderThan (milliseconds: number): boolean {
+export function isDataOlderThan (milliseconds: number) {
   if (state.tasksTimestamp === 0) return true
   const age = Date.now() - state.tasksTimestamp
   const minutes = Math.round(age / Nb.MsInMinute)
@@ -83,7 +83,7 @@ export function isDataOlderThan (milliseconds: number): boolean {
   return age >= milliseconds
 }
 
-export async function loadTasks (): Promise<boolean> {
+export async function loadTasks () {
   if (!state.isSetup) return false
   if (state.tasks.length > 0 && !isDataOlderThan(Nb.MsInMinute)) {
     logger.info(`tasks are fresh (${readableTimeAgo(Date.now() - state.tasksTimestamp)})`)
@@ -96,7 +96,7 @@ export async function loadTasks (): Promise<boolean> {
   return true
 }
 
-export async function dispatchTask (task: AirtableTask, index = 0): Promise<boolean> {
+export async function dispatchTask (task: AirtableTask, index = 0) {
   if (['day', 'yes'].includes(task.fields.once)) return false
   const delay = daysRecurrence(task)
   const position = index % delay
@@ -106,14 +106,14 @@ export async function dispatchTask (task: AirtableTask, index = 0): Promise<bool
   return await pushToAirtable(task)
 }
 
-export async function dispatchTasks (tasks: AirtableTask[]): Promise<void> {
+export async function dispatchTasks (tasks: AirtableTask[]) {
   logger.info('dispatch tasks')
   await Promise.all(tasks.map(async (task, index) => await dispatchTask(task, index)))
   state.tasksTimestamp = 0 // invalidate cache
   await loadTasks()
 }
 
-export async function toggleComplete (task: AirtableTask): Promise<boolean> {
+export async function toggleComplete (task: AirtableTask) {
   if (isTaskActive(task)) return await completeTask(task)
   return await unCompleteTask(task)
 }

@@ -6,7 +6,7 @@ import { isTaskActive } from '../utils/tasks'
 const progress = dom('hr', tw('app-progress mb-4 mt-1'))
 progress.style.width = '0'
 
-function counterText (percent = 0): string {
+function counterText (percent = 0) {
   if (percent === Nb.None) return 'Nothing done... yet'
   if (percent <= Nb.Hundred * Nb.OneQuarter) return 'Amuse-bouche : check'
   if (percent <= Nb.Hundred * Nb.OneThird) return 'Now we are talking'
@@ -16,7 +16,7 @@ function counterText (percent = 0): string {
   return 'You made it, well done dude :)'
 }
 
-function showProgress (): void {
+function showProgress () {
   const total = state.tasks.length
   const remaining = state.tasks.filter(task => isTaskActive(task)).length
   const percent = Nb.Hundred - Math.round(remaining / total * Nb.Hundred)

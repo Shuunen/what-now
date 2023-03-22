@@ -1,5 +1,4 @@
 /* eslint-disable no-console */ // console.log is needed here, cannot use logger
-/* eslint-disable func-style */
 import { pickOne } from 'shuutils'
 
 const version = 9
@@ -51,40 +50,62 @@ const motivators = [
   },
 ]
 
-type Motivator = typeof motivators[0]
 interface NotificationEvent extends ExtendableEvent { tag: string }
 interface ServiceWorkerEvent extends NotificationEvent { notification: NotificationEvent; tag: string }
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
-const getWindowClients = async (): Promise<readonly WindowClient[]> => await clients.matchAll({ type: 'window', includeUncontrolled: true })
-const getCurrentClient = async (): Promise<WindowClient | undefined> => await getWindowClients().then(clients => clients.find(client => client.url === url))
-const openMeInAnewTab = async (): Promise<WindowClient | null> => await clients.openWindow(url)
-const focusOrOpenMe = async (): Promise<WindowClient | null> => await getCurrentClient().then(async client => client ? await client.focus() : await openMeInAnewTab())
-const isCurrentClientFocused = async (): Promise<boolean> => await getCurrentClient().then(client => ((client?.focused ?? false) || client?.visibilityState === 'visible'))
-const getNotifications = async (): Promise<Notification[]> => await self.registration.getNotifications()
-const getDisplayedReminder = async (): Promise<Notification | undefined> => await getNotifications().then(notifications => notifications.find(notification => notification.tag === 'reminder'))
-const getMotivator = (): Motivator => pickOne(motivators)
+async function getWindowClients () {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  return await clients.matchAll({ type: 'window', includeUncontrolled: true })
+}
+
+async function getCurrentClient () {
+  return await getWindowClients().then(clients => clients.find(client => client.url === url))
+}
+
+async function openMeInAnewTab () {
+  return await clients.openWindow(url)
+}
+
+async function focusOrOpenMe () {
+  return await getCurrentClient().then(async (client) => client ? await client.focus() : await openMeInAnewTab())
+}
+
+async function isCurrentClientFocused () {
+  return await getCurrentClient().then(client => ((client?.focused ?? false) || client?.visibilityState === 'visible'))
+}
+
+async function getNotifications () {
+  return await self.registration.getNotifications()
+}
+
+async function getDisplayedReminder () {
+  return await getNotifications().then(notifications => notifications.find(notification => notification.tag === 'reminder'))
+}
+
+function getMotivator () {
+  return pickOne(motivators)
+}
 
 // eslint-disable-next-line max-params
-const showNotification = (title = '', icon = 'android-chrome-192x192.png', tag = '', isPermanent = false): void => {
+function showNotification (title = '', icon = 'android-chrome-192x192.png', tag = '', isPermanent = false) {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const options = { tag, icon, renotify: isPermanent, requireInteraction: isPermanent }
   void self.registration.showNotification(title, options)
 }
 
-async function showReminder (): Promise<void> {
+async function showReminder () {
   if (await isCurrentClientFocused()) { console.log('avoid displaying reminders to a client which already have what-now displayed (tab focus) ^^'); return }
   if (await getDisplayedReminder()) { console.log('avoid displaying another reminder ^^'); return }
   const motivator = getMotivator()
   showNotification(motivator.text, motivator.icon, 'reminder', true)
 }
 
-function onNotificationClick (event: ServiceWorkerEvent): void {
+function onNotificationClick (event: ServiceWorkerEvent) {
   console.log('service worker : notification click on tag', event.notification.tag)
   if (event.notification.tag === 'reminder') event.waitUntil(focusOrOpenMe())
 }
 
-function onSync (event: ServiceWorkerEvent): void {
+function onSync (event: ServiceWorkerEvent) {
   console.log('service worker : got sync request for tag', event.tag)
   if (event.tag === 'reminder') event.waitUntil(showReminder())
   else console.warn('un-handled sync tag', event.tag)

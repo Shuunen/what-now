@@ -10,21 +10,21 @@ new class WorkerService {
     void this.setupWorker()
   }
 
-  private get currentProgress (): number {
+  private get currentProgress () {
     const { progress = '0' } = document.body.dataset
     return Number.parseInt(progress, 10)
   }
 
-  private get canNotify (): boolean {
+  private get canNotify () {
     return this.notificationPerm === 'granted'
   }
 
-  private setupListeners (): void {
+  private setupListeners () {
     on('ask-notification-perm', this.askNotificationPerm.bind(this))
     on('send-reminder', this.sendReminder.bind(this))
   }
 
-  private checkNotificationPerm (): void {
+  private checkNotificationPerm () {
     this.notificationPerm = window.Notification.permission
 
     // default: user has never been asked
@@ -32,7 +32,7 @@ new class WorkerService {
     if (this.notificationPerm === 'default') emit('suggest-notification')
   }
 
-  private sendReminder (): void {
+  private sendReminder () {
     if (!this.canNotify) return
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const registration: any = navigator.serviceWorker.ready
@@ -45,18 +45,18 @@ new class WorkerService {
     registration.sync.register('reminder')
   }
 
-  private async setupWorker (): Promise<void> {
+  private async setupWorker () {
     await this.registerServiceWorker()
     this.checkNotificationPerm()
   }
 
-  private async registerServiceWorker (): Promise<void> {
+  private async registerServiceWorker () {
     if (!('serviceWorker' in navigator)) throw new Error('No Service Worker support!')
     const file = 'service-worker.js'
     await navigator.serviceWorker.register(file)
   }
 
-  private async askNotificationPerm (): Promise<void> {
+  private async askNotificationPerm () {
     if (!('permission' in Notification)) { logger.error('Notifications cannot be enabled on this device.'); return }
     this.notificationPerm = await window.Notification.requestPermission()
 
