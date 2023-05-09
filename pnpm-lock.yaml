@@ -14,7 +14,7 @@ specifiers:
   npm-parallel: '2'
   repo-check: '1.31'
   servor: '4'
-  shuutils: '7.2'
+  shuutils: '7.3'
   tailwindcss: '3'
   typescript: '5'
   vitest: '0.31'
@@ -22,14 +22,14 @@ specifiers:
 
 dependencies:
   canvas-confetti: 1.6.0
-  shuutils: 7.2.0
+  shuutils: 7.3.0
 
 devDependencies:
   '@types/canvas-confetti': 1.6.0
   '@types/node': 18.15.5
   '@types/serviceworker': 0.0.67
   '@vitest/coverage-c8': 0.31.0_vitest@0.31.0
-  dependency-cruiser: 12.12.0
+  dependency-cruiser: 12.12.1
   esbuild: 0.17.12
   eslint: 8.39.0
   eslint-config-hardcore: 35.0.0_eslint@8.39.0
@@ -3161,8 +3161,8 @@ packages:
     resolution: {integrity: sha512-hsBd2qSVCRE+5PmNdHt1uzyrFu5d3RwmFDKzyNZMFq/EwDNJF7Ee5+D5oEKF0hU6LhtoUF1macFvOe4AskQC1Q==}
     dev: true
 
-  /dependency-cruiser/12.12.0:
-    resolution: {integrity: sha512-3DB6m6bVVR50o8CZWa4yBklm2SxfDi5gHPlDmS9v4Vdng2uJxPFezM2yH9PlsJ6GlQ7tpOiiYp/gOXUr/R+KGQ==}
+  /dependency-cruiser/12.12.1:
+    resolution: {integrity: sha512-tMWkSjaXOmneiwqygV8FbypS+u5KI2cHyeakRb7x2WQDoxaSxRxEEqfdKNughHqO1LNOn8GOmvd2PuWF8EVPAQ==}
     engines: {node: ^14||^16||>=18}
     hasBin: true
     dependencies:
@@ -3199,6 +3199,7 @@ packages:
   /dequal/2.0.3:
     resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
     engines: {node: '>=6'}
+    dev: true
 
   /detect-indent/5.0.0:
     resolution: {integrity: sha512-rlpvsxUtM0PQvy9iZe640/IWwWYyBsTApREbA1pHOpmOUIl9MkP/U4z7vTtg4Oaojvqhxt7sdufnT0EzGaR31g==}
@@ -3231,6 +3232,7 @@ packages:
   /diff/5.1.0:
     resolution: {integrity: sha512-D+mk+qE8VC/PAUrlAU34N+VfXev0ghe5ywmpqrawphmVZc1bEfn56uo9qpyGp1p4xpzOHkSW4ztBd6L7Xx4ACw==}
     engines: {node: '>=0.3.1'}
+    dev: true
 
   /diff3/0.0.3:
     resolution: {integrity: sha512-iSq8ngPOt0K53A6eVr4d5Kn6GNrM2nQZtC740pzIriHtn4pOQ2lyzEXQMBeVcWERN0ye7fhBsk9PbLLQOnUx/g==}
@@ -5409,6 +5411,7 @@ packages:
   /kleur/4.1.5:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
+    dev: true
 
   /known-css-properties/0.26.0:
     resolution: {integrity: sha512-5FZRzrZzNTBruuurWpvZnvP9pum+fe0HcK8z/ooo+U+Hmp4vtbyp1/QDsqmufirXy4egGzbaH/y2uCZf+6W5Kg==}
@@ -5902,6 +5905,7 @@ packages:
   /mri/1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
     engines: {node: '>=4'}
+    dev: true
 
   /ms/2.1.2:
     resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
@@ -7002,6 +7006,7 @@ packages:
     engines: {node: '>=6'}
     dependencies:
       mri: 1.2.0
+    dev: true
 
   /safe-buffer/5.2.1:
     resolution: {integrity: sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==}
@@ -7107,6 +7112,14 @@ packages:
     dependencies:
       tiny-glob: 0.2.9
       uvu: 0.5.6
+    dev: true
+
+  /shuutils/7.3.0:
+    resolution: {integrity: sha512-M1i5OiV4McnXMCNoN2Ao+MKR+C+UEV784QZtGQzX53WYKEUBbJ5yH43qln8VsXl75AM15xKnRHZrLNtMHv3u4A==}
+    hasBin: true
+    dependencies:
+      tiny-glob: 0.2.9
+    dev: false
 
   /side-channel/1.0.4:
     resolution: {integrity: sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw==}
@@ -7837,6 +7850,7 @@ packages:
       diff: 5.1.0
       kleur: 4.1.5
       sade: 1.8.1
+    dev: true
 
   /v8-compile-cache/2.3.0:
     resolution: {integrity: sha512-l8lCEmLcLYZh4nbunNZvQCJc5pv7+RCwa8q/LdUx8u7lsWvPDKmpodJAJNwkAhJC//dFY48KuIEmjtd4RViDrA==}
