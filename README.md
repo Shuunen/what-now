@@ -82,6 +82,7 @@ You can have a look at the sources to see that this app is not sharing your data
 
 - [C8](https://github.com/bcoe/c8) : simple & effective cli for code coverage
 - [Canvas-Confetti](https://github.com/catdad/canvas-confetti) : superb fireworks/confetti effets
+- [Dependency-cruiser](https://github.com/sverweij/dependency-cruiser) : handy tool to validate and visualize dependencies
 - [Esbuild](https://github.com/evanw/esbuild) : an extremely fast JavaScript bundler and minifier
 - [Eslint](https://eslint.org) : super tool to find & fix problems
 - [Favicon.io](https://favicon.io) : cool favicon generator
@@ -94,5 +95,5 @@ You can have a look at the sources to see that this app is not sharing your data
 - [Shields.io](https://shields.io) : nice looking badges to be proud of
 - [Shuutils](https://github.com/Shuunen/shuutils) : collection of pure JS utils
 - [TailwindCss](https://tailwindcss.com) : awesome lib to produce maintainable style
-- [UvU](https://github.com/lukeed/uvu) : extremely fast and lightweight test runner for Node.js and the browser
+- [Vitest](https://github.com/vitest-dev/vitest) : super fast vite-native testing framework
 - [Watchlist](https://github.com/lukeed/watchlist) : recursively watch a list of directories & run a command on any file system
