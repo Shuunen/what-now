@@ -27,6 +27,7 @@ function getHueColor (percent = 0) {
 }
 
 async function emitHueColor (percent = 0) {
+  if (state.hueEndpoint === '') { logger.info('no hue endpoint defined'); return }
   const isEveryThingDone = percent === 100
   const body = { on: !isEveryThingDone, hue: getHueColor(percent), sat: 255, bri: 255 } // eslint-disable-line @typescript-eslint/naming-convention
   logger.info(`with a ${percent}% progress will emit hue color`, body)
