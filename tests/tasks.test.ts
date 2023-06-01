@@ -3,7 +3,7 @@ import { daysAgoIso10, sleep } from 'shuutils'
 import { expect, it } from 'vitest'
 import type { AirtableTask } from '../src/types'
 import { state } from '../src/utils/state'
-import { completeTask, daysRecurrence, daysSinceCompletion, dispatchTask, dispatchTasks, fetchList, isDataOlderThan, isTaskActive, loadTasks, pushToAirtable, toggleComplete, unCompleteTask } from '../src/utils/tasks'
+import { byActive, completeTask, daysRecurrence, daysSinceCompletion, dispatchTask, dispatchTasks, fetchList, isDataOlderThan, isTaskActive, loadTasks, pushToAirtable, toggleComplete, unCompleteTask } from '../src/utils/tasks'
 
 const id = '42'
 const today = daysAgoIso10(0)
@@ -23,50 +23,60 @@ function createTask (fields: Partial<typeof defaults> = defaults) {
   return task
 }
 
-it('a task without completed on is active', function () {
+it('isTaskActive A : a task without completed on is active', function () {
   const task = createTask({ completedOn: '' })
   expect(isTaskActive(task)).toBe(true)
   expect(task.fields.name, defaults.name)
 })
 
-it('a daily task completed yesterday is active', function () {
+it('isTaskActive B : a daily task completed yesterday is active', function () {
   const task = createTask({ once: 'day', completedOn: yesterday })
   expect(isTaskActive(task)).toBe(true)
 })
 
-it('a weekly task completed yesterday is inactive', function () {
+it('isTaskActive C : a weekly task completed yesterday is inactive', function () {
   const task = createTask({ once: 'week', completedOn: yesterday })
   expect(isTaskActive(task)).toBe(false)
 })
 
-it('a monthly task completed 20 days ago is inactive', function () {
+it('isTaskActive D : a monthly task completed 20 days ago is inactive', function () {
   const task = createTask({ once: 'month', completedOn: daysAgoIso10(20) })
   expect(isTaskActive(task)).toBe(false)
 })
 
-it('a bi-monthly task completed 20 days ago is active', function () {
+it('isTaskActive E : a bi-monthly task completed 20 days ago is active', function () {
   const task = createTask({ once: '2-weeks', completedOn: daysAgoIso10(20) })
   expect(isTaskActive(task)).toBe(true)
 })
 
-it('a bi-annual task completed 20 days ago is inactive', function () {
+it('isTaskActive F : a bi-annual task completed 20 days ago is inactive', function () {
   const task = createTask({ once: '6-months', completedOn: daysAgoIso10(20) })
   expect(isTaskActive(task)).toBe(false)
 })
 
-it('a non-handled once format result in a active task', function () {
+it('isTaskActive G : a non-handled once format result in a active task', function () {
   const task = createTask({ once: '3-paper', completedOn: yesterday })
   expect(isTaskActive(task)).toBe(true)
 })
 
-it('days since completion is 0 is no date is provided', function () {
+it('isTaskActive H : days since completion is 0 is no date is provided', function () {
   const task = createTask({ once: 'day' })
   expect(daysSinceCompletion(task)).toBe(0)
 })
 
-it('a one time task is active by default', function () {
+it('isTaskActive I : a one time task is active by default', function () {
   const task = createTask({ once: 'yes' })
   expect(isTaskActive(task)).toBe(true)
+})
+
+it('isTaskActive J : a daily task completed today is inactive', function () {
+  const task = createTask({ once: 'day', completedOn: today })
+  expect(isTaskActive(task)).toBe(false)
+})
+
+it('isTaskActive K : a daily task completed today can be considered active', function () {
+  const task = createTask({ once: 'day', completedOn: today })
+  expect(isTaskActive(task, true)).toBe(true)
 })
 
 it('toggle complete A task update completed on date', async function () {
@@ -221,3 +231,12 @@ it('unComplete A', async () => {
   expect(await unCompleteTask(createTask({ once: 'week' }))).toBe(true)
 })
 
+it('should sort tasks by active A', () => {
+  const tasks = [
+    createTask({ name: 'b', once: 'day', completedOn: today }),
+    createTask({ name: 'a', once: 'day', completedOn: yesterday }),
+    createTask({ name: 'c', once: 'month' }),
+  ]
+  const sortedTasks = Array.from(tasks).sort(byActive)
+  expect(sortedTasks[0]?.fields.name).toBe('a')
+})
