@@ -2,9 +2,10 @@ import { div, nbSecondsInMinute, tw } from 'shuutils'
 import type { AirtableTask } from '../types'
 import { logger } from '../utils/logger'
 import { state, watchState } from '../utils/state'
-import { dispatchTasks, isTaskActive } from '../utils/tasks'
+import { isTaskActive } from '../utils/tasks'
+import { credentials } from './credentials'
 
-const timer = div(tw('app-timer fixed bottom-8 right-5 text-right text-5xl font-thin leading-10 text-gray-700'))
+const timer = div(tw('app-timer fixed bottom-8 right-5 cursor-help select-none text-right text-5xl font-thin leading-10 text-gray-700'))
 
 function onTaskLoaded (tasks: AirtableTask[]) {
   logger.info('timer, on tasks loaded')
@@ -14,7 +15,7 @@ function onTaskLoaded (tasks: AirtableTask[]) {
   timer.innerHTML = minutes > 0 ? `${minutes}<br>min` : ''
 }
 
-timer.addEventListener('dblclick', () => { void dispatchTasks(state.tasks) })
+timer.addEventListener('dblclick', () => { credentials.classList.toggle('hidden') })
 
 watchState('tasks', () => { onTaskLoaded(state.tasks) })
 

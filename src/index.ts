@@ -17,7 +17,7 @@ on('user-activity', () => { void loadTasks() })
 watchState('isSetup', () => { void loadTasks() })
 
 const landing = div('landing')
-landing.append(title, status, notification, timer, credentials, tasks)
+landing.append(title, credentials, status, notification, timer, tasks)
 document.body.prepend(landing)
 
 checkCredentials(document.location.hash)
