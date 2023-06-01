@@ -39,10 +39,10 @@ function updateLine (line: HTMLElement, task: AirtableTask) {
   const isActive = isTaskActive(task)
   const isDatasetActive = line.dataset.active === 'true'
   if (isDatasetActive === isActive) {
-    logger.info('line is already up to date, avoid changes', line)
+    logger.debug('line is already up to date, avoid changes', line)
     return
   }
-  logger.info('update line', line, 'was', isDatasetActive ? 'active' : 'inactive', 'now', isActive ? 'active' : 'inactive')
+  logger.debug('update line', line, 'was', isDatasetActive ? 'active' : 'inactive', 'now', isActive ? 'active' : 'inactive')
   line.dataset.active = String(isActive)
   line.innerHTML = `${isActive ? pickOne(emojis) : '✔️'}&nbsp; ${task.fields.name}`
   line.classList.toggle('opacity-60', !isActive)
