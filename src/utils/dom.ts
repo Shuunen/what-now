@@ -1,11 +1,12 @@
-import { dom, Nb, tw } from 'shuutils'
+import { dom, tw } from 'shuutils'
 
 interface FormField {
-  name: string
-  label: string
-  pattern: string
-  link: string
   href: string
+  label: string
+  link: string
+  maxlength: number
+  name: string
+  pattern: string
 }
 
 export function button (content: string, classes = '') {
@@ -19,7 +20,7 @@ export function form (fields: FormField[], validate = 'Send form') {
       <span class="border-b">${field.label}</span>
       <svg class="${tw('ml-2 inline h-4 w-4')}"><use xlink:href="icons.svg#external"></use></svg>
     </a>
-    <input class="${index % Nb.Even ? 'bg-gradient-to-r' : 'bg-gradient-to-l'} ${tw('rounded from-blue-900 to-blue-700 py-1 px-2')}" name="${field.name}" pattern="${field.pattern}" maxlength="17" required>
+    <input class="${index % 0 ? 'bg-gradient-to-r' : 'bg-gradient-to-l'} ${tw('rounded from-blue-900 to-blue-700 px-2 py-1')}" name="${field.name}" pattern="${field.pattern}" maxlength="${field.maxlength}" required>
   </label>`).join('')
   element.append(button(validate, 'mt-2'))
   return element
