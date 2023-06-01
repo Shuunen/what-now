@@ -4,7 +4,7 @@
   "bugs": "https://github.com/Shuunen/what-now/issues",
   "dependencies": {
     "canvas-confetti": "1",
-    "shuutils": "7.2"
+    "shuutils": "7.3"
   },
   "description": "Minimalist task coach",
   "devDependencies": {
@@ -14,8 +14,8 @@
     "@vitest/coverage-c8": "0.31",
     "dependency-cruiser": "latest",
     "esbuild": "0.17",
-    "eslint": "8.39",
-    "eslint-config-hardcore": "35",
+    "eslint": "8.41",
+    "eslint-config-hardcore": "36",
     "eslint-plugin-tailwindcss": "3",
     "npm-parallel": "2",
     "repo-check": "1.31",
@@ -47,19 +47,18 @@
     "build:css": "tailwindcss -o ./public/index.css",
     "build:icons": "npx generate-icons --manifest public/app.webmanifest public/logo.svg",
     "build:js": "esbuild src/index.ts src/service-worker.ts --outdir=public --bundle",
-    "check": "repo-check",
-    "ci": "npm run build && npm run lint && npm run check && npm run test && echo ci success",
+    "check": "pnpm build && repo-check && pnpm lint && pnpm test && echo check success",
     "dev": "parallel dev:css dev:js serve",
-    "dev:css": "npm run build:css -- --watch",
-    "dev:js": "npm run build:js -- --watch",
-    "lint": "tsc --noEmit && eslint --cache --fix --ignore-path .gitignore --ext .js,.ts,.html . && depcruise src --config && echo lint success",
-    "lint:watch": "watchlist src tests -eager -- npm run lint",
+    "dev:css": "pnpm build:css --watch",
+    "dev:js": "pnpm build:js --watch",
+    "lint": "tsc --noEmit && eslint --cache --fix --ext .js,.ts,.html . && depcruise src --config && echo lint success",
+    "lint:watch": "watchlist src tests -eager -- pnpm lint",
     "mark": "unique-mark public/index.html",
     "postversion": "git push && git push --tags",
-    "preversion": "npm run ci",
+    "preversion": "pnpm check",
     "serve": "servor public --reload",
-    "start": "npm run dev",
-    "test": "npm run test:watch -- --run && echo test success",
+    "start": "pnpm dev",
+    "test": "pnpm test:watch --run && echo test success",
     "test:watch": "vitest --coverage"
   },
   "version": "1.2.0"

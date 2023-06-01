@@ -1,4 +1,4 @@
-import { emit, Nb, on } from 'shuutils'
+import { emit, on } from 'shuutils'
 import { logger } from './logger'
 
 // eslint-disable-next-line no-new
@@ -36,7 +36,7 @@ new class WorkerService {
     if (!this.canNotify) return
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const registration: any = navigator.serviceWorker.ready
-    if (this.currentProgress === Nb.Hundred) {
+    if (this.currentProgress === 100) { // eslint-disable-line @typescript-eslint/no-magic-numbers
       logger.info('no reminders in heaven')
       return
     }

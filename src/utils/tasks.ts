@@ -1,4 +1,4 @@
-import { dateIso10, daysAgoIso10, Nb, readableTimeAgo } from 'shuutils'
+import { dateIso10, daysAgoIso10, nbBefore, nbDaysInMonth, nbDaysInWeek, nbDaysInYear, nbMsInDay, nbMsInMinute, readableTimeAgo } from 'shuutils'
 import type { AirtableTask } from '../types'
 import { airtableGet, airtablePatch, airtableUrl } from './airtable'
 import { logger } from './logger'
@@ -19,16 +19,16 @@ export function daysRecurrence (task: AirtableTask) {
   const unit = matches.groups?.unit as Unit // eslint-disable-line @typescript-eslint/consistent-type-assertions
   const number = Number.parseInt(quantity, 10)
   if (unit === Unit.Day) return number
-  if (unit === Unit.Week) return number * Nb.DaysInWeek
-  if (unit === Unit.Month) return number * Nb.DaysInMonth
-  return number * Nb.DaysInYear // Unit.Year case
+  if (unit === Unit.Week) return number * nbDaysInWeek
+  if (unit === Unit.Month) return number * nbDaysInMonth
+  return number * nbDaysInYear // Unit.Year case
 }
 
 export function daysSinceCompletion (task: AirtableTask) {
   const today = dateIso10(new Date())
   const todayTimestamp = new Date(today).getTime()
   const completedOnTimestamp = new Date(task.fields['completed-on']).getTime()
-  return ((todayTimestamp - completedOnTimestamp) / Nb.MsInDay)
+  return ((todayTimestamp - completedOnTimestamp) / nbMsInDay)
 }
 
 export async function pushToAirtable (task: AirtableTask) {
@@ -74,9 +74,9 @@ export async function fetchList () {
 }
 
 export function isDataOlderThan (milliseconds: number) {
-  if (state.tasksTimestamp === 0) return true
+  if (!state.tasksTimestamp) return true
   const age = Date.now() - state.tasksTimestamp
-  const minutes = Math.round(age / Nb.MsInMinute)
+  const minutes = Math.round(age / nbMsInMinute)
 
   /* c8 ignore next */
   if (minutes > 0) logger.info('last activity', minutes, 'minute(s) ago')
@@ -85,7 +85,7 @@ export function isDataOlderThan (milliseconds: number) {
 
 export async function loadTasks () {
   if (!state.isSetup) return false
-  if (state.tasks.length > 0 && !isDataOlderThan(Nb.MsInMinute)) {
+  if (state.tasks.length > 0 && !isDataOlderThan(Number(nbMsInMinute))) {
     logger.info(`tasks are fresh (${readableTimeAgo(Date.now() - state.tasksTimestamp)})`)
     return false
   }
@@ -100,7 +100,7 @@ export async function dispatchTask (task: AirtableTask, index = 0) {
   if (['day', 'yes'].includes(task.fields.once)) return false
   const delay = daysRecurrence(task)
   const position = index % delay
-  const completionDate = daysAgoIso10((Nb.Before * position) + delay)
+  const completionDate = daysAgoIso10((nbBefore * position) + delay)
   if (completionDate === task.fields['completed-on']) return false
   task.fields['completed-on'] = completionDate
   return await pushToAirtable(task)

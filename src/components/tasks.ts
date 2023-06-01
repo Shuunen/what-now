@@ -1,5 +1,5 @@
 import confetti from 'canvas-confetti'
-import { div, dom, emit, Nb, on, pickOne, sleep, storage, tw } from 'shuutils'
+import { div, dom, emit, on, pickOne, sleep, storage, tw } from 'shuutils'
 import type { AirtableResponse, AirtableTask } from '../types'
 import { button } from '../utils/dom'
 import { logger } from '../utils/logger'
@@ -49,7 +49,7 @@ function updateLine (line: HTMLElement, task: AirtableTask) {
 }
 
 function createLine (task: AirtableTask) {
-  const line = dom('button', tw('app-task mr-auto -ml-2 max-w-full overflow-hidden text-ellipsis whitespace-nowrap px-2 py-1 text-start transition-transform duration-300 ease-out'), task.fields.name)
+  const line = dom('button', tw('app-task -ml-2 mr-auto max-w-full overflow-hidden text-ellipsis whitespace-nowrap px-2 py-1 text-start transition-transform duration-300 ease-out'), task.fields.name)
   line.dataset.taskId = task.id
   updateLine(line, task)
   lines.push(line)
@@ -60,7 +60,7 @@ function createLine (task: AirtableTask) {
 async function throwConfetti (x: number, y: number, angle: number, sound: HTMLAudioElement) { // eslint-disable-line id-length
   void sound.play()
   void confetti({ angle, origin: { x, y } }) // eslint-disable-line id-length
-  await sleep(Nb.Two * Nb.Hundred)
+  await sleep(200) // eslint-disable-line @typescript-eslint/no-magic-numbers
 }
 
 async function throwConfettiAround (element: HTMLElement) {
@@ -105,6 +105,7 @@ function lineToText (line: HTMLElement) {
 }
 
 function sortLines () {
+  // eslint-disable-next-line putout/putout
   if (lines.length === 0 || state.tasks.length === 0) { logger.info('no tasks to sort'); return }
   logger.info('sort lines...')
   lines.sort((lineA, lineB) => lineToText(lineA).localeCompare(lineToText(lineB)))
@@ -112,6 +113,7 @@ function sortLines () {
 }
 
 function updateList (list: AirtableTask[]) {
+  // eslint-disable-next-line putout/putout
   if (list.length === 0) { logger.info('no task list to display'); return }
   logger.info('update list...')
   const processed: string[] = []

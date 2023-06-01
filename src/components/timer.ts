@@ -1,4 +1,4 @@
-import { div, Nb, tw } from 'shuutils'
+import { div, nbSecondsInMinute, tw } from 'shuutils'
 import type { AirtableTask } from '../types'
 import { logger } from '../utils/logger'
 import { state, watchState } from '../utils/state'
@@ -10,7 +10,7 @@ function onTaskLoaded (tasks: AirtableTask[]) {
   logger.info('timer, on tasks loaded')
   // eslint-disable-next-line unicorn/no-array-reduce
   const seconds = tasks.reduce((total, task) => isTaskActive(task) ? total + task.fields['average-time'] : total, 0)
-  const minutes = Math.round(seconds / Nb.SecondsInMinute)
+  const minutes = Math.round(seconds / nbSecondsInMinute)
   timer.innerHTML = minutes > 0 ? `${minutes}<br>min` : ''
 }
 
