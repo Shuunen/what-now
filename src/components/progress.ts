@@ -17,12 +17,18 @@ function counterText (percent = 0) {
   return 'You made it, well done dude :)'
 }
 
+/**
+ * Returns a hue color based on the progress percentage, from red to green
+ * @param percent the progress percentage
+ * @returns the hue color between 0 (red) and 20000 (green)
+ */
+function getHueColor (percent = 0) {
+  return Math.round(percent * 20_000 / 100)
+}
+
 async function emitHueColor (percent = 0) {
-  const body = { on: true, hue: 0, sat: 255, bri: 255 } // eslint-disable-line @typescript-eslint/naming-convention
-  if (percent <= 25) body.hue = 0
-  else if (percent <= 50) body.hue = 5000
-  else if (percent <= 75) body.hue = 20_000
-  else body.bri = 0
+  const isEveryThingDone = percent === 100
+  const body = { on: !isEveryThingDone, hue: getHueColor(percent), sat: 255, bri: 255 } // eslint-disable-line @typescript-eslint/naming-convention
   logger.info(`with a ${percent}% progress will emit hue color`, body)
   const response = await fetch(state.hueEndpoint, { body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' }, method: 'PUT' })
   if (response.ok) logger.debug('emitted hue color successfully', response)
