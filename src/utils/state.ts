@@ -8,9 +8,10 @@ export const { state, watchState } = createState({
   apiKey: '',
   isLoading: false,
   isSetup: false,
+  hueEndpoint: '',
   statusError: '',
   statusInfo: 'Loading, please wait...',
   statusProgress: '',
   tasks,
   tasksTimestamp: 0,
-}, storage, /* c8 ignore next */['apiBase', 'apiKey', 'tasks', 'tasksTimestamp'])
+}, storage, /* c8 ignore next */['apiBase', 'apiKey', 'hueEndpoint', 'tasks', 'tasksTimestamp'])

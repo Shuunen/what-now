@@ -17,6 +17,18 @@ function counterText (percent = 0) {
   return 'You made it, well done dude :)'
 }
 
+async function emitHueColor (percent = 0) {
+  const body = { on: true, hue: 0, sat: 255, bri: 255 } // eslint-disable-line @typescript-eslint/naming-convention
+  if (percent <= 25) body.hue = 0
+  else if (percent <= 50) body.hue = 5000
+  else if (percent <= 75) body.hue = 20_000
+  else body.bri = 0
+  logger.info(`with a ${percent}% progress will emit hue color`, body)
+  const response = await fetch(state.hueEndpoint, { body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' }, method: 'PUT' })
+  if (response.ok) logger.debug('emitted hue color successfully', response)
+  else logger.error('emit hue color failed', response)
+}
+
 function showProgress () {
   const total = state.tasks.length
   const remaining = state.tasks.filter(task => isTaskActive(task)).length
@@ -25,6 +37,7 @@ function showProgress () {
   progress.style.width = `${percent}%`
   document.body.dataset.progress = String(percent)
   state.statusProgress = counterText(percent)
+  void emitHueColor(percent)
 }
 
 watchState('tasks', () => { showProgress() })
