@@ -38,10 +38,6 @@ on('get-tasks-error', handleError)
 function updateLine (line: HTMLElement, task: AirtableTask) {
   const isActive = isTaskActive(task)
   const isDatasetActive = line.dataset.active === 'true'
-  if (isDatasetActive === isActive) {
-    logger.debug('line is already up to date, avoid changes', line)
-    return
-  }
   logger.debug('update line', line, 'was', isDatasetActive ? 'active' : 'inactive', 'now', isActive ? 'active' : 'inactive')
   line.dataset.active = String(isActive)
   line.innerHTML = `${isActive ? pickOne(emojis) : '✔️'}&nbsp; ${task.fields.name}`
@@ -99,19 +95,6 @@ async function onClick (line: HTMLElement | null, list: AirtableTask[]) {
   updateLine(line, task)
 }
 
-function lineToText (line: HTMLElement) {
-  const match = /\w+\s*/u.exec(line.textContent ?? '')
-  return match ? match[0] : ''
-}
-
-function sortLines () {
-  // eslint-disable-next-line putout/putout
-  if (lines.length === 0 || state.tasks.length === 0) { logger.info('no tasks to sort'); return }
-  logger.info('sort lines...')
-  lines.sort((lineA, lineB) => lineToText(lineA).localeCompare(lineToText(lineB)))
-  lines.forEach(line => { tasks.append(line) })
-}
-
 function updateList (list: AirtableTask[]) {
   // eslint-disable-next-line putout/putout
   if (list.length === 0) { logger.info('no task list to display'); return }
@@ -128,7 +111,6 @@ function updateList (list: AirtableTask[]) {
   const missing = list.filter(t => !processed.includes(t.id)) // exists on Airtable but not in dom
   if (missing.length > 0) logger.info('missing tasks', missing)
   missing.forEach(task => { tasks.append(createLine(task)) })
-  sortLines()
 }
 
 watchState('tasks', () => { updateList(state.tasks) })

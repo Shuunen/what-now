@@ -4,7 +4,7 @@ import { form } from '../utils/dom'
 import { logger } from '../utils/logger'
 import { state, watchState } from '../utils/state'
 
-const credentials = div('credentials hidden')
+const credentials = div('credentials hidden pt-4')
 
 const message = text(tw('pb-2 leading-7'), `
   This webapp has been deployed from this open-source code <a class="border-b" href="https://github.com/Shuunen/what-now" target="_blank">on Github</a>. <br>
@@ -39,22 +39,30 @@ formElement.addEventListener('submit', (event: Event) => {
   state.isSetup = true
 })
 
-watchState('isSetup', () => { credentials.classList.toggle('hidden', state.isSetup) })
+function fillForm (base: string, key: string, hue: string) {
+  logger.info('credentials, fill form', { base, key, hue })
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const inputs = Array.from(formElement.elements).filter((element) => element instanceof HTMLInputElement) as HTMLInputElement[]
+  for (const input of inputs)
+    if (input.name === 'airtable-api-base') input.value = base
+    else if (input.name === 'airtable-api-key') input.value = key
+    else input.value = hue
+}
+
+watchState('isSetup', () => {
+  credentials.classList.toggle('hidden', state.isSetup)
+  fillForm(state.apiBase, state.apiKey, state.hueEndpoint)
+})
 
 on('focus', async () => {
+  if (state.isSetup) return
   const clipboard = await readClipboard()
   // clipboard can contains something like : "appABC
   // keyXYZ
   // https://zob.com"
   const regex = /"(?<app>app\w+)\n(?<key>key\w+)\n(?<hue>http[^"]+)"/u
   const { app = '', key = '', hue = '' } = regex.exec(clipboard)?.groups ?? {}
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const inputs = Array.from(formElement.elements).filter((element) => element instanceof HTMLInputElement) as HTMLInputElement[]
-  for (const input of inputs)
-    if (input.name === 'airtable-api-base') input.value = app
-    else if (input.name === 'airtable-api-key') input.value = key
-    else input.value = hue
-  logger.debug('clipboard', { app, key, hue })
+  fillForm(app, key, hue)
 })
 
 export { credentials }

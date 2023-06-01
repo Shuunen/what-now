@@ -54,11 +54,21 @@ export async function unCompleteTask (task: AirtableTask) {
   return await pushToAirtable(task)
 }
 
-export function isTaskActive (task: AirtableTask) {
+export function isTaskActive (task: AirtableTask, shouldIncludeCompletedToday = false) {
   if (task.fields['completed-on'] === '' || task.fields.once === 'yes') return true
   const recurrence = daysRecurrence(task)
   const days = daysSinceCompletion(task)
+  // eslint-disable-next-line putout/putout
+  if (shouldIncludeCompletedToday && days === 0) return true
   return days >= recurrence
+}
+
+export function byActive (taskA: AirtableTask, taskB: AirtableTask) {
+  const isAActive = isTaskActive(taskA)
+  const isBActive = isTaskActive(taskB)
+  if (isAActive && !isBActive) return -1 // eslint-disable-line @typescript-eslint/no-magic-numbers
+  if (!isAActive && isBActive) return 1
+  return 0
 }
 
 export async function fetchList () {
@@ -68,9 +78,8 @@ export async function fetchList () {
   const { records } = await airtableGet(url)
   state.statusInfo = ''
   state.tasksTimestamp = Date.now()
-
   /* c8 ignore next */
-  return (records ?? []).filter(task => isTaskActive(task))
+  return (records ?? []).filter(task => isTaskActive(task, true)).sort(byActive)
 }
 
 export function isDataOlderThan (milliseconds: number) {
