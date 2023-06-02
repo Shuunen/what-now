@@ -31,4 +31,6 @@ async function showToast (type: LogLevel, message: string, delay = 5000) {
 
 watchState('showErrorToast', () => { void showToast(LogLevel.Error, state.showErrorToast) })
 
+on('error', (error: Error) => { void showToast(LogLevel.Error, `global error catch : ${error.message}`) }, window)
+
 export { toasts }
