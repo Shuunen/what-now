@@ -51,7 +51,7 @@ new class WorkerService {
   }
 
   private async registerServiceWorker () {
-    if (!('serviceWorker' in navigator)) throw new Error('No Service Worker support!')
+    if (!('serviceWorker' in navigator)) { logger.error('No Service Worker support!'); return }
     const file = 'service-worker.js'
     await navigator.serviceWorker.register(file)
   }
