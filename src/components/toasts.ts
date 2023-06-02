@@ -1,4 +1,4 @@
-import { div, ellipsis, LogLevel, sleep, tw } from 'shuutils'
+import { div, ellipsis, LogLevel, on, sleep, tw } from 'shuutils'
 import { state, watchState } from '../utils/state'
 
 const toasts = div('app-toasts fixed bottom-3 z-10 right-5 select-none ml-5')
@@ -30,6 +30,8 @@ async function showToast (type: LogLevel, message: string, delay = 5000) {
 }
 
 watchState('showErrorToast', () => { void showToast(LogLevel.Error, state.showErrorToast) })
+
+watchState('showInfoToast', () => { void showToast(LogLevel.Info, state.showInfoToast) })
 
 on('error', (error: Error) => { void showToast(LogLevel.Error, `global error catch : ${error.message}`) }, window)
 
