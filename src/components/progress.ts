@@ -26,14 +26,21 @@ function getHueColor (percent = 0) {
   return Math.round(percent * 20_000 / 100)
 }
 
-async function emitHueColor (percent = 0) {
-  if (state.hueEndpoint === '') { logger.info('no hue endpoint defined'); return }
+function getHueColorBody (percent = 0) {
   const isEveryThingDone = percent === 100
   const body = { on: !isEveryThingDone, hue: getHueColor(percent), sat: 255, bri: 255 } // eslint-disable-line @typescript-eslint/naming-convention
   logger.info(`with a ${percent}% progress will emit hue color`, body)
-  const response = await fetch(state.hueEndpoint, { body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' }, method: 'PUT' })
-  if (response.ok) logger.debug('emitted hue color successfully', response)
-  else logger.error('emit hue color failed', response)
+  return JSON.stringify(body)
+}
+
+async function emitHueColor (percent = 0) {
+  if (state.hueEndpoint === '') { logger.info('no hue endpoint defined'); return }
+  // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/consistent-type-assertions
+  const response = await fetch(state.hueEndpoint, { body: getHueColorBody(percent), headers: { 'Content-Type': 'application/json' }, method: 'PUT' }).catch((error: unknown) => ({ ok: false, reason: (error as Error).message }))
+  if (response.ok) { logger.info('emitted hue color successfully', response); return }
+  logger.error('emit hue color failed', response)
+  const isUserOkToTest = confirm('Hue endpoint seems unreachable, do you want to test & authorize it ?') // eslint-disable-line no-alert, no-restricted-globals
+  if (isUserOkToTest) document.location.href = state.hueEndpoint
 }
 
 function showProgress () {
