@@ -9,6 +9,7 @@ export const { state, watchState } = createState({
   isLoading: false,
   isSetup: false,
   hueEndpoint: '',
+  showErrorToast: '',
   statusError: '',
   statusInfo: 'Loading, please wait...',
   statusProgress: '',
