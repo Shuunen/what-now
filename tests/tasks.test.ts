@@ -10,16 +10,16 @@ const today = daysAgoIso10(0)
 const yesterday = daysAgoIso10(1)
 
 const defaults = {
+  averageTime: 20,
+  completedOn: today,
+  done: false,
   name: 'a super task',
   once: 'day',
-  done: false,
-  completedOn: today,
-  averageTime: 20,
 }
 
 function createTask (fields: Partial<typeof defaults> = defaults) {
-  const { name, once, done, completedOn, averageTime } = { ...defaults, ...fields }
-  const task: AirtableTask = { id, createdTime: yesterday, fields: { name, once, done, 'completed-on': completedOn, 'average-time': averageTime } }
+  const { averageTime, completedOn, done, name, once } = { ...defaults, ...fields }
+  const task: AirtableTask = { createdTime: yesterday, fields: { 'average-time': averageTime, 'completed-on': completedOn, done, name, once }, id }
   return task
 }
 
@@ -30,32 +30,32 @@ it('isTaskActive A : a task without completed on is active', function () {
 })
 
 it('isTaskActive B : a daily task completed yesterday is active', function () {
-  const task = createTask({ once: 'day', completedOn: yesterday })
+  const task = createTask({ completedOn: yesterday, once: 'day' })
   expect(isTaskActive(task)).toBe(true)
 })
 
 it('isTaskActive C : a weekly task completed yesterday is inactive', function () {
-  const task = createTask({ once: 'week', completedOn: yesterday })
+  const task = createTask({ completedOn: yesterday, once: 'week' })
   expect(isTaskActive(task)).toBe(false)
 })
 
 it('isTaskActive D : a monthly task completed 20 days ago is inactive', function () {
-  const task = createTask({ once: 'month', completedOn: daysAgoIso10(20) })
+  const task = createTask({ completedOn: daysAgoIso10(20), once: 'month' })
   expect(isTaskActive(task)).toBe(false)
 })
 
 it('isTaskActive E : a bi-monthly task completed 20 days ago is active', function () {
-  const task = createTask({ once: '2-weeks', completedOn: daysAgoIso10(20) })
+  const task = createTask({ completedOn: daysAgoIso10(20), once: '2-weeks' })
   expect(isTaskActive(task)).toBe(true)
 })
 
 it('isTaskActive F : a bi-annual task completed 20 days ago is inactive', function () {
-  const task = createTask({ once: '6-months', completedOn: daysAgoIso10(20) })
+  const task = createTask({ completedOn: daysAgoIso10(20), once: '6-months' })
   expect(isTaskActive(task)).toBe(false)
 })
 
 it('isTaskActive G : a non-handled once format result in a active task', function () {
-  const task = createTask({ once: '3-paper', completedOn: yesterday })
+  const task = createTask({ completedOn: yesterday, once: '3-paper' })
   expect(isTaskActive(task)).toBe(true)
 })
 
@@ -70,17 +70,17 @@ it('isTaskActive I : a one time task is active by default', function () {
 })
 
 it('isTaskActive J : a daily task completed today is inactive', function () {
-  const task = createTask({ once: 'day', completedOn: today })
+  const task = createTask({ completedOn: today, once: 'day' })
   expect(isTaskActive(task)).toBe(false)
 })
 
 it('isTaskActive K : a daily task completed today can be considered active', function () {
-  const task = createTask({ once: 'day', completedOn: today })
+  const task = createTask({ completedOn: today, once: 'day' })
   expect(isTaskActive(task, true)).toBe(true)
 })
 
 it('toggle complete A task update completed on date', async function () {
-  const task = createTask({ once: 'day', completedOn: yesterday })
+  const task = createTask({ completedOn: yesterday, once: 'day' })
   await toggleComplete(task)
   expect(task.fields.done).toBe(false) // no a one time task, so we will have to do it again
   expect(task.fields['completed-on'], today)
@@ -93,7 +93,7 @@ it('toggle complete B one-time task mark it as done', async function () {
 })
 
 it('toggle complete C switches task active state', async function () {
-  const task = createTask({ once: 'day', completedOn: yesterday })
+  const task = createTask({ completedOn: yesterday, once: 'day' })
   expect(isTaskActive(task), 'task is active').toBe(true)
   await toggleComplete(task)
   expect(task.fields.done, 'task is not done').toBe(false)
@@ -177,13 +177,13 @@ it('dispatch task B : can dispatch a weekly task completed yesterday', async fun
 })
 
 it('dispatch task C : cannot dispatch a one time task', async function () {
-  const task = createTask({ once: 'yes', completedOn: yesterday })
+  const task = createTask({ completedOn: yesterday, once: 'yes' })
   const hasBeenUpdated = await dispatchTask(task)
   expect(hasBeenUpdated).toBe(false)
 })
 
 it('dispatch task D : cannot dispatch a weekly task completed 7 days ago', async function () {
-  const task = createTask({ once: 'week', completedOn: daysAgoIso10(7) })
+  const task = createTask({ completedOn: daysAgoIso10(7), once: 'week' })
   const hasBeenUpdated = await dispatchTask(task)
   expect(hasBeenUpdated).toBe(false)
 })
@@ -191,7 +191,7 @@ it('dispatch task D : cannot dispatch a weekly task completed 7 days ago', async
 it('load tasks but there is fresh tasks in a setup state', async function () {
   state.isSetup = true
   state.tasksTimestamp = Date.now()
-  state.tasks = [createTask({ once: 'day', completedOn: yesterday })]
+  state.tasks = [createTask({ completedOn: yesterday, once: 'day' })]
   const hasLoadedTasks = await loadTasks()
   expect(hasLoadedTasks).toBe(false)
 })
@@ -233,8 +233,8 @@ it('unComplete A', async () => {
 
 it('should sort tasks by active A', () => {
   const tasks = [
-    createTask({ name: 'b', once: 'day', completedOn: today }),
-    createTask({ name: 'a', once: 'day', completedOn: yesterday }),
+    createTask({ completedOn: today, name: 'b', once: 'day' }),
+    createTask({ completedOn: yesterday, name: 'a', once: 'day' }),
     createTask({ name: 'c', once: 'month' }),
   ]
   const sortedTasks = Array.from(tasks).sort(byActive)

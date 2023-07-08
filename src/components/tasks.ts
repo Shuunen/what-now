@@ -96,7 +96,6 @@ async function onClick (line: HTMLElement | null, list: AirtableTask[]) {
 }
 
 function updateList (list: AirtableTask[]) {
-  // eslint-disable-next-line putout/putout
   if (list.length === 0) { logger.info('no task list to display'); return }
   logger.info('update list...')
   const processed: string[] = []

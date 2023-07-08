@@ -28,7 +28,7 @@ function getHueColor (percent = 0) {
 
 function getHueColorBody (percent = 0) {
   const isEveryThingDone = percent === 100
-  const body = { on: !isEveryThingDone, hue: getHueColor(percent), sat: 255, bri: 255 } // eslint-disable-line @typescript-eslint/naming-convention
+  const body = { bri: 255, hue: getHueColor(percent), on: !isEveryThingDone, sat: 255 } // eslint-disable-line @typescript-eslint/naming-convention
   logger.info(`with a ${percent}% progress will emit hue color`, body)
   return JSON.stringify(body)
 }
@@ -47,7 +47,7 @@ function showProgress () {
   const total = state.tasks.length
   const remaining = state.tasks.filter(task => isTaskActive(task)).length
   const percent = 100 - Math.round(remaining / total * 100)
-  logger.info('show progress', { total, remaining, percent })
+  logger.info('show progress', { percent, remaining, total })
   progress.style.width = `${percent}%`
   document.body.dataset.progress = String(percent)
   state.statusProgress = counterText(percent)

@@ -17,6 +17,6 @@ class CustomLogger extends Logger {
   }
 }
 
-const logger = new CustomLogger({ willOutputToConsole: typeof window !== 'undefined', minimumLevel: LogLevel.Info })
+const logger = new CustomLogger({ minimumLevel: LogLevel.Info, willOutputToConsole: typeof window !== 'undefined' })
 
 export { logger, stuffToMessage }

@@ -55,7 +55,7 @@ interface ServiceWorkerEvent extends NotificationEvent { notification: Notificat
 
 async function getWindowClients () {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  return await clients.matchAll({ type: 'window', includeUncontrolled: true })
+  return await clients.matchAll({ includeUncontrolled: true, type: 'window' })
 }
 
 async function getCurrentClient () {
@@ -89,7 +89,7 @@ function getMotivator () {
 // eslint-disable-next-line max-params
 function showNotification (title = '', icon = 'android-chrome-192x192.png', tag = '', isPermanent = false) {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const options = { tag, icon, renotify: isPermanent, requireInteraction: isPermanent }
+  const options = { icon, renotify: isPermanent, requireInteraction: isPermanent, tag }
   void self.registration.showNotification(title, options)
 }
 

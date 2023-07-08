@@ -6,8 +6,8 @@ import { state } from './state'
 
 const enum Unit {
   Day = 'day',
-  Week = 'week',
   Month = 'month',
+  Week = 'week',
   Year = 'year',
 }
 
@@ -58,7 +58,6 @@ export function isTaskActive (task: AirtableTask, shouldIncludeCompletedToday = 
   if (task.fields['completed-on'] === '' || task.fields.once === 'yes') return true
   const recurrence = daysRecurrence(task)
   const days = daysSinceCompletion(task)
-  // eslint-disable-next-line putout/putout
   if (shouldIncludeCompletedToday && days === 0) return true
   return days >= recurrence
 }
