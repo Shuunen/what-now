@@ -2,9 +2,7 @@
 
 [![Website Up](https://img.shields.io/website/https/what-now.netlify.app.svg)](https://what-now.netlify.app)
 [![GitHub license](https://img.shields.io/github/license/shuunen/what-now.svg?color=informational)](https://github.com/Shuunen/what-now/blob/master/LICENSE)
-
-[![David](https://img.shields.io/david/shuunen/what-now.svg)](https://david-dm.org/shuunen/what-now)
-[![LGTM Grade](https://img.shields.io/lgtm/grade/javascript/github/Shuunen/what-now.svg)](https://lgtm.com/projects/g/Shuunen/what-now)
+[![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/Shuunen/what-now?style=flat)](https://codeclimate.com/github/Shuunen/what-now)
 
 ![demo](docs/logo-double.svg)
 
@@ -80,7 +78,6 @@ You can have a look at the sources to see that this app is not sharing your data
 
 ## Thanks
 
-- [C8](https://github.com/bcoe/c8) : simple & effective cli for code coverage
 - [Canvas-Confetti](https://github.com/catdad/canvas-confetti) : superb fireworks/confetti effets
 - [Dependency-cruiser](https://github.com/sverweij/dependency-cruiser) : handy tool to validate and visualize dependencies
 - [Esbuild](https://github.com/evanw/esbuild) : an extremely fast JavaScript bundler and minifier
@@ -95,5 +92,6 @@ You can have a look at the sources to see that this app is not sharing your data
 - [Shields.io](https://shields.io) : nice looking badges to be proud of
 - [Shuutils](https://github.com/Shuunen/shuutils) : collection of pure JS utils
 - [TailwindCss](https://tailwindcss.com) : awesome lib to produce maintainable style
+- [V8](https://github.com/demurgos/v8-coverage) : simple & effective cli for code coverage
 - [Vitest](https://github.com/vitest-dev/vitest) : super fast vite-native testing framework
 - [Watchlist](https://github.com/lukeed/watchlist) : recursively watch a list of directories & run a command on any file system

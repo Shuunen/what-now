@@ -24,7 +24,11 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "ESNext"
+    "target": "ESNext",
+    "types": [
+      "serviceworker"
+    ],
+    "verbatimModuleSyntax": true
   },
   "include": [
     "src",
