@@ -33,8 +33,7 @@ export function daysSinceCompletion (task: AirtableTask) {
 
 export async function pushToAirtable (task: AirtableTask) {
   logger.info('update task')
-  const url = airtableUrl(state.apiBase, state.apiKey, `tasks/${task.id}`)
-  if (url === '') return false
+  const url = airtableUrl(state.apiBase, `tasks/${task.id}`)
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const data = { fields: { 'completed-on': task.fields['completed-on'], 'done': task.fields.done } }
   const response = await airtablePatch(url, data)
@@ -72,7 +71,7 @@ export function byActive (taskA: AirtableTask, taskB: AirtableTask) {
 
 export async function fetchList () {
   logger.info('fetch list')
-  const url = airtableUrl(state.apiBase, state.apiKey, 'tasks')
+  const url = airtableUrl(state.apiBase, 'tasks')
   state.statusInfo = 'Loading tasks, please wait...'
   const { records } = await airtableGet(url)
   state.statusInfo = ''

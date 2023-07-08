@@ -2,16 +2,21 @@ import type { AirtableResponse } from '../types'
 import { logger } from './logger'
 import { state } from './state'
 
-const baseKeyLength = 17
+const baseLength = 17
+const minTokenLength = 50
+
+export function airtableHeaders (token: string) {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  return { 'Accept': 'application/json', 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+}
 
 /* c8 ignore next 11 */
 export async function airtablePatch (url: string, data: { [key: string]: unknown }) {
   if (typeof window === 'undefined') return { records: [] }
   const response = await fetch(url, {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-    method: 'PATCH',
     body: JSON.stringify(data),
+    headers: airtableHeaders(state.apiToken),
+    method: 'PATCH',
   })
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   return await response.json() as AirtableResponse
@@ -21,33 +26,31 @@ export async function airtablePatch (url: string, data: { [key: string]: unknown
 export async function airtableGet (url: string) {
   if (typeof window === 'undefined') return { records: [] }
   const response = await fetch(url, {
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    headers: { Accept: 'application/json' },
+    headers: airtableHeaders(state.apiToken),
   })
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   return await response.json() as AirtableResponse
 }
 
-export function airtableValidate (base?: string, key?: string) {
-  const isBaseOk = base !== undefined && typeof base === 'string' && base.length === baseKeyLength
-  const isKeyOk = key !== undefined && typeof key === 'string' && key.length === baseKeyLength
-  return isBaseOk && isKeyOk
+export function airtableValidate (base?: string, token?: string) {
+  const isBaseOk = base !== undefined && typeof base === 'string' && base.length === baseLength
+  const isTokenOk = token !== undefined && typeof token === 'string' && token.length > minTokenLength
+  return isBaseOk && isTokenOk
 }
 
-export function airtableUrl (base: string, key: string, target = '') {
-  if (!airtableValidate(base, key)) return ''
-  return `https://api.airtable.com/v0/${base}/${target}?api_key=${key}&view=todo`
+export function airtableUrl (base: string, target: string) {
+  return `https://api.airtable.com/v0/${base}/${target}?view=todo`
 }
 
 export function checkCredentials (hash = '') {
   logger.info('check credentials', hash.length > 0 ? `and detected hash "${hash}"` : '')
-  const matches = /#(?<app>app\w{14})&(?<key>key\w{14})/u.exec(hash)
-  if (matches?.groups?.app !== undefined && matches.groups.key !== undefined && airtableValidate(matches.groups.app, matches.groups.key)) {
+  const matches = /#(?<app>app\w{14})&(?<token>pat[\w.]{50,100})/u.exec(hash)
+  if (matches?.groups?.app !== undefined && matches.groups.token !== undefined && airtableValidate(matches.groups.app, matches.groups.token)) {
     state.apiBase = matches.groups.app
-    state.apiKey = matches.groups.key
+    state.apiToken = matches.groups.token
     logger.info('credentials found in hash')
   }
-  state.isSetup = airtableValidate(state.apiBase, state.apiKey)
+  state.isSetup = airtableValidate(state.apiBase, state.apiToken)
   logger.info('credentials are', state.isSetup ? 'valid' : 'invalid')
   state.statusInfo = state.isSetup ? '' : 'Welcome dear user !'
   return state.isSetup

@@ -5,10 +5,10 @@ const tasks: AirtableTask[] = []
 
 export const { state, watchState } = createState({
   apiBase: '',
-  apiKey: '',
+  apiToken: '',
+  hueEndpoint: '',
   isLoading: false,
   isSetup: false,
-  hueEndpoint: '',
   showErrorToast: '',
   showInfoToast: '',
   statusError: '',
@@ -16,4 +16,4 @@ export const { state, watchState } = createState({
   statusProgress: '',
   tasks,
   tasksTimestamp: 0,
-}, storage, /* c8 ignore next */['apiBase', 'apiKey', 'hueEndpoint', 'tasks', 'tasksTimestamp'])
+}, storage, /* c8 ignore next */['apiBase', 'apiToken', 'hueEndpoint', 'tasks', 'tasksTimestamp'])

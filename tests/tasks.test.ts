@@ -103,32 +103,32 @@ it('toggle complete C switches task active state', async function () {
   expect(isTaskActive(task), 'task is active again').toBe(true)
 })
 
-it('toggle complete D succeed with base & key in state', async function () {
-  const task = createTask({ once: 'day', completedOn: yesterday })
+it('toggle complete D succeed with base & token in state', async function () {
+  const task = createTask({ completedOn: yesterday, once: 'day' })
   state.apiBase = 'app12345654987123'
-  state.apiKey = 'key12345654987123'
+  state.apiToken = 'pat12345654987123azdazdzadazdzadaz465465468479649646azd46az465azdazd'
   const hasSucceed = await toggleComplete(task)
   expect(hasSucceed).toBe(true)
 })
 
-it('toggle complete E fail without base & key in state', async function () {
-  const task = createTask({ once: 'day', completedOn: yesterday })
+it('toggle complete E succeed without base & token in state', async function () {
+  const task = createTask({ completedOn: yesterday, once: 'day' })
   state.apiBase = ''
-  state.apiKey = ''
+  state.apiToken = ''
   const hasSucceed = await toggleComplete(task)
-  expect(hasSucceed).toBe(false)
+  expect(hasSucceed).toBe(true)
 })
 
-it('fetch list via triggering isSetup without base & key in state', function () {
+it('fetch list via triggering isSetup without base & token in state', function () {
   state.apiBase = ''
-  state.apiKey = ''
+  state.apiToken = ''
   state.isSetup = true
   expect(state.isSetup).toBe(true)
 })
 
-it('fetch list via fetchList with base & key in state', async function () {
+it('fetch list via fetchList with base & token in state', async function () {
   state.apiBase = 'app12345654987123'
-  state.apiKey = 'key12345654987123'
+  state.apiToken = 'pat12345654987123azdazdzadazdzadaz465465468479649646azd46az465azdazd'
   await fetchList()
   expect(state.isSetup).toBe(true)
 })
@@ -141,37 +141,37 @@ it('data old check', async function () {
   expect(isDataOlderThan(50), 'data is older than 50ms after waiting 100ms').toBe(true)
 })
 
-it('update task with base & key in state', async function () {
+it('update task with base & token in state', async function () {
   state.apiBase = 'app12345654987123'
-  state.apiKey = 'key12345654987123'
-  const task = createTask({ once: 'day', completedOn: yesterday })
+  state.apiToken = 'pat12345654987123azdazdzadazdzadaz465465468479649646azd46az465azdazd'
+  const task = createTask({ completedOn: yesterday, once: 'day' })
   const hasBeenUpdated = await toggleComplete(task)
   expect(hasBeenUpdated).toBe(true)
 })
 
-it('update task without base & key in state', async function () {
+it('update task without base & token in state', async function () {
   state.apiBase = ''
-  state.apiKey = ''
-  const task = createTask({ once: 'day', completedOn: yesterday })
+  state.apiToken = ''
+  const task = createTask({ completedOn: yesterday, once: 'day' })
   const hasBeenUpdated = await toggleComplete(task)
-  expect(hasBeenUpdated).toBe(false)
+  expect(hasBeenUpdated).toBe(true)
 })
 
 it('dispatch tasks list', async function () {
-  const task = createTask({ once: 'day', completedOn: yesterday })
+  const task = createTask({ completedOn: yesterday, once: 'day' })
   await dispatchTasks([task])
 })
 
 it('dispatch task A : cannot dispatch a daily task', async function () {
-  const task = createTask({ once: 'day', completedOn: yesterday })
+  const task = createTask({ completedOn: yesterday, once: 'day' })
   const hasBeenUpdated = await dispatchTask(task)
   expect(hasBeenUpdated).toBe(false)
 })
 
 it('dispatch task B : can dispatch a weekly task completed yesterday', async function () {
   state.apiBase = 'app12345654987123'
-  state.apiKey = 'key12345654987123'
-  const task = createTask({ once: 'week', completedOn: yesterday })
+  state.apiToken = 'pat12345654987123azdazdzadazdzadaz465465468479649646azd46az465azdazd'
+  const task = createTask({ completedOn: yesterday, once: 'week' })
   const hasBeenUpdated = await dispatchTask(task)
   expect(hasBeenUpdated).toBe(true)
 })
@@ -218,7 +218,7 @@ it('days since completion C', () => { expect(daysSinceCompletion(createTask({ co
 
 it('push to Airtable A', async function () {
   state.apiBase = 'app12345654987123'
-  state.apiKey = 'key12345654987123'
+  state.apiToken = 'pat12345654987123azdazdzadazdzadaz465465468479649646azd46az465azdazd'
   const hasPushed = await pushToAirtable(createTask({ once: 'day' }))
   expect(hasPushed).toBe(true)
 })

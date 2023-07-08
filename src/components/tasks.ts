@@ -1,5 +1,5 @@
 import confetti from 'canvas-confetti'
-import { div, dom, emit, on, pickOne, sleep, storage, tw } from 'shuutils'
+import { div, dom, emit, on, pickOne, sleep, tw } from 'shuutils'
 import type { AirtableResponse, AirtableTask } from '../types'
 import { button } from '../utils/dom'
 import { logger } from '../utils/logger'
@@ -18,8 +18,7 @@ tasks.append(progress)
 
 const retry = button('Setup credentials', tw('mt-4 hidden'))
 retry.addEventListener('click', () => {
-  storage.clear('api-base')
-  storage.clear('api-key')
+  state.isSetup = false
   emit('need-credentials')
   retry.classList.toggle('hidden')
 })
