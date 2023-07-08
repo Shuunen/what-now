@@ -44,7 +44,7 @@ function updateLine (line: HTMLElement, task: AirtableTask) {
 }
 
 function createLine (task: AirtableTask) {
-  const line = dom('button', tw('app-task -ml-2 mr-auto max-w-full overflow-hidden text-ellipsis whitespace-nowrap px-2 py-1 text-start transition-transform duration-300 ease-out'), task.fields.name)
+  const line = dom('button', tw('app-task -ml-2 mr-auto max-w-full truncate px-2 py-1 text-start transition-transform duration-300 ease-out'), task.fields.name)
   line.dataset.taskId = task.id
   updateLine(line, task)
   lines.push(line)

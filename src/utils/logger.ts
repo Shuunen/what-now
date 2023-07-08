@@ -1,4 +1,4 @@
-import { LogLevel, Logger } from 'shuutils'
+import { Logger } from 'shuutils'
 import { state } from './state'
 
 function stuffToMessage (...stuff: unknown[]): string {
@@ -17,6 +17,6 @@ class CustomLogger extends Logger {
   }
 }
 
-const logger = new CustomLogger({ minimumLevel: LogLevel.Info, willOutputToConsole: typeof window !== 'undefined' })
+const logger = new CustomLogger({ minimumLevel: '3-info', willOutputToConsole: typeof window !== 'undefined' })
 
 export { logger, stuffToMessage }
