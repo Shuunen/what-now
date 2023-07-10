@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest'
-import { airtableHeaders, airtableValidate, checkCredentials } from '../src/utils/airtable'
-import { state } from '../src/utils/state'
+import { airtableHeaders, airtableValidate, checkCredentials } from '../src/utils/airtable.utils'
+import { state } from '../src/utils/state.utils'
 
 it('airtableValidate A', () => {
   expect(airtableValidate('A')).toBe(false)

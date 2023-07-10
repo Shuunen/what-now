@@ -17,3 +17,5 @@ export const { state, watchState } = createState({
   tasks,
   tasksTimestamp: 0,
 }, storage, /* c8 ignore next */['apiBase', 'apiToken', 'hueEndpoint', 'tasks', 'tasksTimestamp'])
+
+export type CredentialField = keyof Pick<typeof state, 'apiBase' | 'apiToken' | 'hueEndpoint'>

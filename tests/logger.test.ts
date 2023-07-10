@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { stuffToMessage } from '../src/utils/logger'
+import { stuffToMessage } from '../src/utils/logger.utils'
 
 it('stuffToMessage A', function () {
   const result = stuffToMessage('a', 'b', 'c')

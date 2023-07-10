@@ -1,8 +1,8 @@
 import { div, nbSecondsInMinute, tw } from 'shuutils'
 import type { AirtableTask } from '../types'
-import { logger } from '../utils/logger'
-import { state, watchState } from '../utils/state'
-import { isTaskActive } from '../utils/tasks'
+import { logger } from '../utils/logger.utils'
+import { state, watchState } from '../utils/state.utils'
+import { isTaskActive } from '../utils/tasks.utils'
 import { credentials } from './credentials'
 
 const timer = div(tw('app-timer fixed bottom-8 right-5 cursor-help select-none text-right text-5xl font-thin leading-10 text-gray-700'))

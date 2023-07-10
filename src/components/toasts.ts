@@ -1,5 +1,5 @@
 import { div, ellipsis, on, sleep, tw } from 'shuutils'
-import { state, watchState } from '../utils/state'
+import { state, watchState } from '../utils/state.utils'
 
 const toasts = div('app-toasts fixed bottom-3 z-10 right-5 select-none ml-5')
 

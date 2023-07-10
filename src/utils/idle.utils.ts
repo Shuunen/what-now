@@ -1,5 +1,5 @@
 import { debounce, emit, nbMsInMinute } from 'shuutils'
-import { logger } from './logger'
+import { logger } from './logger.utils'
 
 // eslint-disable-next-line no-new
 new class IdleService {

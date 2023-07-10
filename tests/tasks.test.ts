@@ -2,8 +2,8 @@
 import { daysAgoIso10, sleep } from 'shuutils'
 import { expect, it } from 'vitest'
 import type { AirtableTask } from '../src/types'
-import { state } from '../src/utils/state'
-import { byActive, completeTask, daysRecurrence, daysSinceCompletion, dispatchTask, dispatchTasks, fetchList, isDataOlderThan, isTaskActive, loadTasks, pushToAirtable, toggleComplete, unCompleteTask } from '../src/utils/tasks'
+import { state } from '../src/utils/state.utils'
+import { byActive, completeTask, daysRecurrence, daysSinceCompletion, dispatchTask, dispatchTasks, fetchList, isDataOlderThan, isTaskActive, loadTasks, pushToAirtable, toggleComplete, unCompleteTask } from '../src/utils/tasks.utils'
 
 const id = '42'
 const today = daysAgoIso10(0)

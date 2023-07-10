@@ -1,5 +1,5 @@
 import { div, text, tw } from 'shuutils'
-import { state, watchState } from '../utils/state'
+import { state, watchState } from '../utils/state.utils'
 
 const error = text(tw('app-error font-bold text-red-500'), state.statusError)
 watchState('statusError', () => { error.innerHTML = state.statusError })

@@ -1,4 +1,4 @@
-export interface AirtableTask {
+export type AirtableTask = {
   createdTime: string
   fields: {
     'average-time': number // eslint-disable-line @typescript-eslint/naming-convention
@@ -10,7 +10,7 @@ export interface AirtableTask {
   id: string
 }
 
-export interface AirtableResponse {
+export type AirtableResponse = {
   error?: {
     message: string
     type: string

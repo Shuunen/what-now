@@ -13,7 +13,7 @@ export function button (content: string, classes = '') {
   return dom('button', tw(`app-button m-auto rounded bg-blue-800 px-4 py-2 sm:ml-0 ${classes}`), content)
 }
 
-export function form (fields: FormField[], validate = 'Send form') {
+export function form (fields: Readonly<FormField[]>, validate = 'Send form') {
   const element = dom('form', tw('app-form mt-4 grid gap-6'))
   element.innerHTML = fields.map((field, index) => `<label class="${tw('flex flex-col gap-4 sm:flex-row sm:items-center')}">
     <a class="sm:w-40" href="${field.href}" target="_blank" title="${field.link}">

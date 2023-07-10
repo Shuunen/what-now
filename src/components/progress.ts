@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { dom, tw } from 'shuutils'
-import { logger } from '../utils/logger'
-import { state, watchState } from '../utils/state'
-import { isTaskActive } from '../utils/tasks'
+import { logger } from '../utils/logger.utils'
+import { state, watchState } from '../utils/state.utils'
+import { isTaskActive } from '../utils/tasks.utils'
 
 const progress = dom('hr', tw('app-progress mb-4 mt-1'))
 progress.style.width = '0'

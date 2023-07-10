@@ -1,6 +1,6 @@
 import type { AirtableResponse } from '../types'
-import { logger } from './logger'
-import { state } from './state'
+import { logger } from './logger.utils'
+import { state } from './state.utils'
 
 const baseLength = 17
 const minTokenLength = 50
