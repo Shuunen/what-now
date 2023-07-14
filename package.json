@@ -14,7 +14,7 @@
     "@vitest/coverage-v8": "0.33",
     "dependency-cruiser": "latest",
     "esbuild": "0.18",
-    "eslint": "8.44",
+    "eslint": "8.45",
     "eslint-config-hardcore": "40",
     "eslint-plugin-tailwindcss": "3",
     "npm-parallel": "2",
