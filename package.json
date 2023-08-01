@@ -15,7 +15,7 @@
     "dependency-cruiser": "latest",
     "esbuild": "0.18",
     "eslint": "8.46",
-    "eslint-config-hardcore": "40",
+    "eslint-config-hardcore": "41",
     "eslint-plugin-tailwindcss": "3",
     "npm-parallel": "2",
     "repo-check": "1.33",
