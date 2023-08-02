@@ -19,8 +19,7 @@ const defaults = {
 
 function createTask (fields: Partial<typeof defaults> = defaults) {
   const { averageTime, completedOn, done, name, once } = { ...defaults, ...fields }
-  const task: AirtableTask = { createdTime: yesterday, fields: { 'average-time': averageTime, 'completed-on': completedOn, done, name, once }, id }
-  return task
+  return { createdTime: yesterday, fields: { 'average-time': averageTime, 'completed-on': completedOn, done, name, once }, id } satisfies AirtableTask
 }
 
 it('isTaskActive A : a task without completed on is active', function () {

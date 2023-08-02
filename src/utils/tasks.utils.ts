@@ -12,7 +12,7 @@ const enum Unit {
 }
 
 export function daysRecurrence (task: AirtableTask) {
-  // eslint-disable-next-line security/detect-unsafe-regex, unicorn/no-unsafe-regex
+  // eslint-disable-next-line security/detect-unsafe-regex
   const matches = /(?<quantity>\d{1,3})?-?(?<unit>day|month|week|year)/u.exec(task.fields.once)
   if (matches === null) return 0
   const quantity = matches.groups?.quantity ?? '1'
