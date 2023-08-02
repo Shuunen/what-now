@@ -51,6 +51,10 @@ function createLine (task: AirtableTask) {
   return line
 }
 
+function tossCoin () {
+  return Math.random() > 0.7 // eslint-disable-line @typescript-eslint/no-magic-numbers
+}
+
 // eslint-disable-next-line max-params
 async function throwConfetti (x: number, y: number, angle: number, sound: HTMLAudioElement) { // eslint-disable-line id-length
   void sound.play()
@@ -65,17 +69,17 @@ async function throwConfettiAround (element: HTMLElement) {
   const positionY = Math.round(bottom / window.innerHeight * 100) / 100
   let positionX = Math.round((left + delta) / window.innerWidth * 100) / 100
   const angle = 20
-  await throwConfetti(positionX, positionY, 90 + angle, fireworksLeft)
+  if (tossCoin()) await throwConfetti(positionX, positionY, 90 + angle, fireworksLeft)
   positionX = Math.round((right - delta) / window.innerWidth * 100) / 100
-  await throwConfetti(positionX, positionY, 90 - angle, fireworksRight)
+  if (tossCoin()) await throwConfetti(positionX, positionY, 90 - angle, fireworksRight)
   /* eslint-enable @typescript-eslint/no-magic-numbers */
 }
 
 async function visuallyToggleComplete (line: HTMLElement, task: AirtableTask) {
   line.classList.add('scale-125')
-  const hasBeenUpdated = await toggleComplete(task)
+  void toggleComplete(task)
+  await sleep(200) // eslint-disable-line @typescript-eslint/no-magic-numbers
   line.classList.remove('scale-125')
-  return hasBeenUpdated
 }
 
 function getTaskFromElement (element: HTMLElement | null, list: AirtableTask[]) {
@@ -84,11 +88,10 @@ function getTaskFromElement (element: HTMLElement | null, list: AirtableTask[]) 
   return task
 }
 
-async function onClick (line: HTMLElement | null, list: AirtableTask[]) {
+function onClick (line: HTMLElement | null, list: AirtableTask[]) {
   const task = getTaskFromElement(line, list)
   if (task === undefined || line === null) return
-  const hasBeenUpdated = await visuallyToggleComplete(line, task)
-  if (!hasBeenUpdated) { logger.error('failed to update this task'); return }
+  void visuallyToggleComplete(line, task)
   if (!isTaskActive(task)) void throwConfettiAround(line)
   state.tasks = state.tasks.map(t => (t.id === task.id ? task : t))
   updateLine(line, task)
@@ -116,7 +119,7 @@ watchState('tasks', () => { updateList(state.tasks) })
 watchState('isSetup', () => { if (state.isSetup && state.tasks.length > 0) updateList(state.tasks) })
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-tasks.addEventListener('click', (event: Event) => { void onClick(event.target as HTMLElement, state.tasks) })
+tasks.addEventListener('click', (event: Event) => { onClick(event.target as HTMLElement, state.tasks) })
 
 export { tasks }
 
