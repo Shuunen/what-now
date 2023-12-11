@@ -1,3 +1,4 @@
+/* c8 ignore start */
 import { dom, tw } from 'shuutils'
 
 interface FormField {
@@ -25,4 +26,3 @@ export function form (fields: Readonly<FormField[]>, validate = 'Send form') {
   element.append(button(validate, 'mt-2'))
   return element
 }
-

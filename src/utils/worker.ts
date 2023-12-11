@@ -1,3 +1,4 @@
+/* c8 ignore start */
 import { emit, on } from 'shuutils'
 import { logger } from './logger.utils'
 

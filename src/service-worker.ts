@@ -86,7 +86,7 @@ function getMotivator () {
   return pickOne(motivators)
 }
 
-// eslint-disable-next-line max-params
+// eslint-disable-next-line @typescript-eslint/max-params
 function showNotification (title = '', icon = 'android-chrome-192x192.png', tag = '', isPermanent = false) {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const options = { icon, renotify: isPermanent, requireInteraction: isPermanent, tag }
@@ -97,7 +97,7 @@ async function showReminder () {
   if (await isCurrentClientFocused()) { console.log('avoid displaying reminders to a client which already have what-now displayed (tab focus) ^^'); return }
   if (await getDisplayedReminder()) { console.log('avoid displaying another reminder ^^'); return }
   const motivator = getMotivator()
-  showNotification(motivator.text, motivator.icon, 'reminder', true)
+  showNotification(motivator?.text, motivator?.icon, 'reminder', true)
 }
 
 function onNotificationClick (event: ServiceWorkerEvent) {

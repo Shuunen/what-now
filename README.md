@@ -4,7 +4,7 @@
 [![GitHub license](https://img.shields.io/github/license/shuunen/what-now.svg?color=informational)](https://github.com/Shuunen/what-now/blob/master/LICENSE)
 [![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/Shuunen/what-now?style=flat)](https://codeclimate.com/github/Shuunen/what-now)
 
-![demo](docs/logo-double.svg)
+![logo](docs/logo-double.svg)
 
 > Minimalist task coach
 

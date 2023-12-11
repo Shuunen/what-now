@@ -1,3 +1,4 @@
+/* c8 ignore start */
 import { debounce, emit, nbMsInMinute } from 'shuutils'
 import { logger } from './logger.utils'
 

@@ -39,7 +39,7 @@ function updateLine (line: HTMLElement, task: AirtableTask) {
   const isDatasetActive = line.dataset.active === 'true'
   logger.debug('update line', line, 'was', isDatasetActive ? 'active' : 'inactive', 'now', isActive ? 'active' : 'inactive')
   line.dataset.active = String(isActive)
-  line.innerHTML = `${isActive ? pickOne(emojis) : '✔️'}&nbsp; ${task.fields.name}`
+  line.innerHTML = `${isActive ? pickOne(emojis) ?? '😇' : '✔️'}&nbsp; ${task.fields.name}`
   line.classList.toggle('opacity-60', !isActive)
 }
 
@@ -55,8 +55,8 @@ function tossCoin () {
   return Math.random() > 0.7 // eslint-disable-line @typescript-eslint/no-magic-numbers
 }
 
-// eslint-disable-next-line max-params
-async function throwConfetti (x: number, y: number, angle: number, sound: HTMLAudioElement) { // eslint-disable-line id-length
+// eslint-disable-next-line @typescript-eslint/max-params, id-length
+async function throwConfetti (x: number, y: number, angle: number, sound: HTMLAudioElement) {
   void sound.play()
   void confetti({ angle, origin: { x, y } }) // eslint-disable-line id-length
   await sleep(200) // eslint-disable-line @typescript-eslint/no-magic-numbers
