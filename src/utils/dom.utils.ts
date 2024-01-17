@@ -19,7 +19,7 @@ export function form (fields: Readonly<FormField[]>, validate = 'Send form') {
   element.innerHTML = fields.map((field, index) => `<label class="${tw('flex flex-col gap-4 sm:flex-row sm:items-center')}">
     <a class="sm:w-40" href="${field.href}" target="_blank" title="${field.link}">
       <span class="border-b">${field.label}</span>
-      <svg class="${tw('ml-2 inline h-4 w-4')}"><use xlink:href="icons.svg#external"></use></svg>
+      <svg class="${tw('ml-2 inline size-4')}"><use xlink:href="icons.svg#external"></use></svg>
     </a>
     <input class="${index % 0 ? 'bg-gradient-to-r' : 'bg-gradient-to-l'} ${tw('rounded from-blue-900 to-blue-700 px-2 py-1')}" name="${field.name}" pattern="${field.pattern}" maxlength="${field.maxlength}" required>
   </label>`).join('')
