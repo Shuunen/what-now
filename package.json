@@ -18,7 +18,7 @@
     "eslint-config-hardcore": "45.2",
     "eslint-plugin-tailwindcss": "3",
     "npm-parallel": "2",
-    "repo-check": "1.34",
+    "repo-check": "1.35",
     "servor": "4",
     "tailwindcss": "3",
     "typescript": "5.3",
