@@ -6,6 +6,7 @@
     "serviceworker",
     "twind"
   ],
+  "vs-browser.url": "http://localhost:8080/",
   "workbench.colorCustomizations": {
     "activityBar.background": "#530E49",
     "titleBar.activeBackground": "#751466",
