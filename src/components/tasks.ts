@@ -89,8 +89,9 @@ function getTaskFromElement (element: HTMLElement | null, list: AirtableTask[]) 
 }
 
 function onClick (line: HTMLElement | null, list: AirtableTask[]) {
+  if (line?.dataset.taskId === undefined) return
   const task = getTaskFromElement(line, list)
-  if (task === undefined || line === null) return
+  if (task === undefined) return
   void visuallyToggleComplete(line, task)
   if (!isTaskActive(task)) void throwConfettiAround(line)
   state.tasks = state.tasks.map(t => (t.id === task.id ? task : t))

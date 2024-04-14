@@ -1,8 +1,9 @@
 /* c8 ignore start */
 import { logger } from './logger.utils'
+import { state } from './state.utils'
 
 // eslint-disable-next-line @microsoft/sdl/no-insecure-url, sonar/no-clear-text-protocols
-export async function isHomeNetwork (checkUrl = 'http://192.168.0.1') {
+async function isHomeNetwork (checkUrl = 'http://192.168.0.1') {
   // eslint-disable-next-line promise/avoid-new
   return await new Promise<boolean>((resolve) => {
     const xhr = new XMLHttpRequest()
@@ -23,4 +24,12 @@ export async function isHomeNetwork (checkUrl = 'http://192.168.0.1') {
     }
     xhr.send()
   })
+}
+
+export async function checkHomeNetwork () {
+  const isHomeBefore = state.isHomeNetwork
+  const isHomeNow = await isHomeNetwork()
+  if (isHomeBefore === isHomeNow) return
+  state.isHomeNetwork = isHomeNow
+  logger.info(`isHomeNetwork is now ${String(isHomeNow)}`)
 }
