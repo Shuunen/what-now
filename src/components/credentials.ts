@@ -14,9 +14,9 @@ const message = text(tw('pb-2 leading-7'), `
 credentials.append(message)
 
 const fields = [
-  { href: 'https://airtable.com/api', label: 'Airtable api base', link: 'find my api base', maxlength: 17, name: 'airtable-api-base', pattern: '^app\\w{14}$' },
-  { href: 'https://airtable.com/create/tokens', label: 'Airtable api token', link: 'find my api token', maxlength: 100, name: 'airtable-api-token', pattern: '^pat[\\w\\.]{50,100}$' },
-  { href: 'https://developers.meethue.com/develop/get-started-2/', label: 'Hue status light', link: 'find my endpoint', maxlength: 150, name: 'hue-status-light', pattern: '^https://.+/api/\\w+/lights/\\d+/state$' },
+  { href: 'https://airtable.com/api', label: 'Airtable api base', link: 'find my api base', maxlength: 17, name: 'airtable-api-base', pattern: String.raw`^app\w{14}$` },
+  { href: 'https://airtable.com/create/tokens', label: 'Airtable api token', link: 'find my api token', maxlength: 100, name: 'airtable-api-token', pattern: String.raw`^pat[\w\.]{50,100}$` },
+  { href: 'https://developers.meethue.com/develop/get-started-2/', label: 'Hue status light', link: 'find my endpoint', maxlength: 150, name: 'hue-status-light', pattern: String.raw`^https://.+/api/\w+/lights/\d+/state$` },
 ] as const
 const formElement = form(fields, 'Use these')
 credentials.append(formElement)
