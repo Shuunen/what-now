@@ -1,7 +1,7 @@
 import { Logger } from 'shuutils'
 import { state } from './state.utils'
 
-function stuffToMessage (...stuff: unknown[]): string {
+function stuffToMessage (...stuff: unknown[]) {
   return stuff.map(thing => {
     if (typeof thing === 'string') return thing
     if (typeof thing === 'object') return JSON.stringify(thing)
@@ -9,9 +9,10 @@ function stuffToMessage (...stuff: unknown[]): string {
   }).join(', ')
 }
 
-/* c8 ignore next 5 */
+/* c8 ignore next 6 */
+// eslint-disable-next-line no-restricted-syntax
 class CustomLogger extends Logger {
-  public override error (...stuff: unknown[]): void {
+  public override error (...stuff: unknown[]) {
     super.error(...stuff)
     state.showErrorToast = stuffToMessage(...stuff)
   }

@@ -43,13 +43,14 @@ formElement.addEventListener('submit', (event: Event) => {
 function fillForm (data: Record<CredentialField, string>) {
   logger.info('credentials, fill form', data)
   const { apiBase, apiToken, hueEndpoint } = data
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const inputs = Array.from(formElement.elements).filter((element) => element instanceof HTMLInputElement) as HTMLInputElement[]
-  for (const input of inputs)
+  const inputs = Array.from(formElement.elements)
+  for (const input of inputs) {
+    if (!(input instanceof HTMLInputElement)) continue // eslint-disable-line no-continue
     if (input.name === fields[0].name && apiBase.length > 0) input.value = apiBase
     else if (input.name === fields[1].name && apiToken.length > 0) input.value = apiToken
     else if (hueEndpoint.length > 0) input.value = hueEndpoint
     else logger.debug('nothing to fill')
+  }
 }
 
 watchState('isSetup', () => {
