@@ -3,7 +3,7 @@ import { airtableValidate } from '../utils/airtable.utils'
 import { parseClipboard } from '../utils/credentials.utils'
 import { form } from '../utils/dom.utils'
 import { logger } from '../utils/logger.utils'
-import { state, watchState, type CredentialField } from '../utils/state.utils'
+import { type CredentialField, state, watchState } from '../utils/state.utils'
 
 const credentials = div('credentials hidden pt-4')
 
@@ -21,13 +21,17 @@ const fields = [
 const formElement = form(fields, 'Use these')
 credentials.append(formElement)
 
+/**
+ * Get form credentials
+ * @returns the form credentials
+ */
 function getFormCredentials () {
   const apiBase = (formElement.elements[0] as HTMLInputElement).value // eslint-disable-line @typescript-eslint/consistent-type-assertions
   const apiToken = (formElement.elements[1] as HTMLInputElement).value // eslint-disable-line @typescript-eslint/consistent-type-assertions
-  const hueEndpoint = (formElement.elements[2] as HTMLInputElement).value // eslint-disable-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-magic-numbers
+  const hueEndpoint = (formElement.elements[2] as HTMLInputElement).value // eslint-disable-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-magic-numbers, no-useless-assignment
   const isOk = airtableValidate(apiBase, apiToken)
   state.statusError = isOk ? '' : 'Invalid credentials'
-  return { apiBase, apiToken, hueEndpoint, isOk } satisfies Record<CredentialField, string> & { isOk: boolean }
+  return { apiBase, apiToken, hueEndpoint, isOk } satisfies { isOk: boolean } & Record<CredentialField, string>
 }
 
 formElement.addEventListener('submit', (event: Event) => {
@@ -40,12 +44,16 @@ formElement.addEventListener('submit', (event: Event) => {
   state.isSetup = true
 })
 
-function fillForm (data: Record<CredentialField, string>) {
+/**
+ * Fill the form
+ * @param data - the data to fill the form with
+ */
+function fillForm (data: Readonly<Record<CredentialField, string>>) {
   logger.info('credentials, fill form', data)
   const { apiBase, apiToken, hueEndpoint } = data
   const inputs = Array.from(formElement.elements)
   for (const input of inputs) {
-    if (!(input instanceof HTMLInputElement)) continue // eslint-disable-line no-continue
+    if (!(input instanceof HTMLInputElement)) continue
     if (input.name === fields[0].name && apiBase.length > 0) input.value = apiBase
     else if (input.name === fields[1].name && apiToken.length > 0) input.value = apiToken
     else if (hueEndpoint.length > 0) input.value = hueEndpoint

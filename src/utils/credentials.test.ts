@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { parseClipboard } from '../src/utils/credentials.utils'
+import { parseClipboard } from './credentials.utils'
 
 it('parseClipboard A empty', () => {
   expect(parseClipboard('')).toMatchInlineSnapshot(`

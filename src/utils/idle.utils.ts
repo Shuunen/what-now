@@ -5,31 +5,36 @@ import { logger } from './logger.utils'
 // eslint-disable-next-line no-new
 new class IdleService {
 
-  private inactiveSince = 0
+  private readonly checkInactivityEvery = 10
 
-  private readonly resetTimerDelay = 200 // ms
+  private inactiveSince = 0 // ms
 
-  private readonly checkInactivityEvery = 10 // minutes
+  private readonly resetTimerDelay = 200 // minutes
 
   private readonly sendReminderEvery = 30 // minutes
 
   private timer!: NodeJS.Timeout
 
+  /**
+   * Constructor
+   */
   public constructor () {
     this.setupListeners()
     this.resetTimer('init')
   }
-
-  private setupListeners () {
-    const events = ['mousedown', 'touchstart', 'visibilitychange', 'focus', 'blur']
-    const resetTimer = debounce(this.resetTimer.bind(this), this.resetTimerDelay)
-    events.forEach(name => { window.addEventListener(name, event => { void resetTimer(event.type) }, true) })
+  /**
+   * Check inactivity
+   */
+  private checkInactivity () {
+    const inactivePeriod = Date.now() - this.inactiveSince
+    const minutes = Math.round(inactivePeriod / nbMsInMinute)
+    logger.info('user has been inactive for', minutes, 'minute(s)')
+    if (minutes === this.sendReminderEvery) emit('send-reminder')
   }
-
-  private setupTimer () {
-    this.timer = setInterval(() => { this.checkInactivity() }, this.checkInactivityEvery * nbMsInMinute)
-  }
-
+  /**
+   * Reset timer
+   * @param from - event that triggered the reset
+   */
   private resetTimer (from = 'unknown event') {
     logger.info('timer reset due to', from)
     this.inactiveSince = Date.now()
@@ -37,11 +42,18 @@ new class IdleService {
     this.setupTimer()
     emit('user-activity', from)
   }
-
-  private checkInactivity () {
-    const inactivePeriod = Date.now() - this.inactiveSince
-    const minutes = Math.round(inactivePeriod / nbMsInMinute)
-    logger.info('user has been inactive for', minutes, 'minute(s)')
-    if (minutes === this.sendReminderEvery) emit('send-reminder')
+  /**
+   * Setup listeners
+   */
+  private setupListeners () {
+    const events = ['mousedown', 'touchstart', 'visibilitychange', 'focus', 'blur']
+    const resetTimer = debounce(this.resetTimer.bind(this), this.resetTimerDelay)
+    for (const name of events) window.addEventListener(name, event => { void resetTimer(event.type) }, true)
+  }
+  /**
+   * Setup timer
+   */
+  private setupTimer () {
+    this.timer = setInterval(() => { this.checkInactivity() }, this.checkInactivityEvery * nbMsInMinute)
   }
 }

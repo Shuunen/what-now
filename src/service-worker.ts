@@ -1,8 +1,9 @@
+/* eslint-disable jsdoc/require-jsdoc */
 /* eslint-disable no-console */ // console.log is needed here, cannot use logger
 import { pickOne } from 'shuutils'
 
 const version = 9
-const url = new URL('', self.location.origin).href // eslint-disable-line total-functions/no-partial-url-constructor
+const url = new URL('', self.location.origin).href
 const motivators = [
   {
     icon: 'https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/emojione/211/rocket_1f680.png',
@@ -55,31 +56,35 @@ interface ServiceWorkerEvent extends NotificationEvent { notification: Notificat
 
 async function getWindowClients () {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  return await clients.matchAll({ includeUncontrolled: true, type: 'window' })
+  return clients.matchAll({ includeUncontrolled: true, type: 'window' })
 }
 
 async function getCurrentClient () {
-  return await getWindowClients().then(clients => clients.find(client => client.url === url))
+  // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+  return getWindowClients().then(clients => clients.find(client => client.url === url))
 }
 
 async function openMeInAnewTab () {
-  return await clients.openWindow(url)
+  return clients.openWindow(url)
 }
 
 async function focusOrOpenMe () {
-  return await getCurrentClient().then(async (client) => client ? await client.focus() : await openMeInAnewTab())
+  // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+  return getCurrentClient().then(async (client) => client ? client.focus() : openMeInAnewTab())
 }
 
 async function isCurrentClientFocused () {
-  return await getCurrentClient().then(client => ((client?.focused ?? false) || client?.visibilityState === 'visible'))
+  // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+  return getCurrentClient().then(client => ((client?.focused ?? false) || client?.visibilityState === 'visible'))
 }
 
 async function getNotifications () {
-  return await self.registration.getNotifications()
+  return self.registration.getNotifications()
 }
 
 async function getDisplayedReminder () {
-  return await getNotifications().then(notifications => notifications.find(notification => notification.tag === 'reminder'))
+  // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
+  return getNotifications().then(notifications => notifications.find(notification => notification.tag === 'reminder'))
 }
 
 function getMotivator () {
@@ -100,11 +105,13 @@ async function showReminder () {
   showNotification(motivator?.text, motivator?.icon, 'reminder', true)
 }
 
+// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 function onNotificationClick (event: ServiceWorkerEvent) {
   console.log('service worker : notification click on tag', event.notification.tag)
   if (event.notification.tag === 'reminder') event.waitUntil(focusOrOpenMe())
 }
 
+// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 function onSync (event: ServiceWorkerEvent) {
   console.log('service worker : got sync request for tag', event.tag)
   if (event.tag === 'reminder') event.waitUntil(showReminder())

@@ -60,7 +60,6 @@ You can have a look at the sources to see that this app is not sharing your data
 
 ## TODO
 
-- [ ] reactivate this lint rule : no-param-reassign
 - [ ] try to use reefjs.com on this project
 
 ## Benchmarks

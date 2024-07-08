@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/prefer-readonly-parameter-types */
+/* eslint-disable jsdoc/require-jsdoc */
 import confetti from 'canvas-confetti'
 import { div, dom, emit, on, pickOne, sleep, tw } from 'shuutils'
 import type { AirtableResponse, AirtableTask } from '../types'
@@ -83,7 +85,7 @@ async function visuallyToggleComplete (line: HTMLElement, task: AirtableTask) {
 }
 
 function getTaskFromElement (element: HTMLElement | null, list: AirtableTask[]) {
-  const task = list.find(t => t.id === element?.dataset.taskId)
+  const task = list.find(item => item.id === element?.dataset.taskId)
   if (task === undefined) logger.error('failed to find task with id', element?.dataset.taskId, 'in list', list)
   return task
 }
@@ -94,25 +96,26 @@ function onClick (line: HTMLElement | null, list: AirtableTask[]) {
   if (task === undefined) return
   void visuallyToggleComplete(line, task)
   if (!isTaskActive(task)) void throwConfettiAround(line)
-  state.tasks = state.tasks.map(t => (t.id === task.id ? task : t))
+  state.tasks = state.tasks.map(item => (item.id === task.id ? task : item))
   updateLine(line, task)
 }
 
+// eslint-disable-next-line max-statements
 function updateList (list: AirtableTask[]) {
   if (list.length === 0) { logger.info('no task list to display'); return }
   logger.info('update list...')
   const processed: string[] = []
-  lines.forEach(line => {
-    const task = list.find(t => (t.id === line.dataset.taskId))
+  for (const line of lines) {
+    const task = list.find(item => (item.id === line.dataset.taskId))
     if (task === undefined) line.classList.add('hidden') // hide the task in dom that is not active anymore
     else {
       processed.push(task.id)
       updateLine(line, task)
     }
-  })
-  const missing = list.filter(t => !processed.includes(t.id)) // exists on Airtable but not in dom
+  }
+  const missing = list.filter(item => !processed.includes(item.id)) // exists on Airtable but not in dom
   if (missing.length > 0) logger.info('missing tasks', missing)
-  missing.forEach(task => { tasks.append(createLine(task)) })
+  for (const task of missing) tasks.append(createLine(task))
 }
 
 watchState('tasks', () => { updateList(state.tasks) })

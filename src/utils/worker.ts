@@ -1,4 +1,6 @@
 /* c8 ignore start */
+/* eslint-disable @typescript-eslint/class-methods-use-this */
+/* eslint-disable jsdoc/require-jsdoc */
 import { emit, on } from 'shuutils'
 import { logger } from './logger.utils'
 
@@ -11,26 +13,35 @@ new class WorkerService {
     void this.setupWorker()
   }
 
-  private get currentProgress () {
-    const { progress = '0' } = document.body.dataset
-    return Number.parseInt(progress, 10)
+  private async askNotificationPerm () {
+    if (!('permission' in Notification)) { logger.error('Notifications cannot be enabled on this device.'); return }
+    this.notificationPerm = await window.Notification.requestPermission()
+    // granted: user has accepted the request
+    // default: user has dismissed the notification permission popup by clicking on x
+    // denied: user has denied the request.
+    if (!this.canNotify) logger.info('Notification permission not granted')
   }
 
   private get canNotify () {
     return this.notificationPerm === 'granted'
   }
 
-  private setupListeners () {
-    on('ask-notification-perm', this.askNotificationPerm.bind(this))
-    on('send-reminder', this.sendReminder.bind(this))
-  }
-
   private checkNotificationPerm () {
     this.notificationPerm = window.Notification.permission
-
     // default: user has never been asked
     // denied: user has refused
     if (this.notificationPerm === 'default') emit('suggest-notification')
+  }
+
+  private get currentProgress () {
+    const { progress = '0' } = document.body.dataset
+    return Number.parseInt(progress, 10)
+  }
+
+  private async registerServiceWorker () {
+    if (!('serviceWorker' in navigator)) { logger.error('No Service Worker support!'); return }
+    const file = 'service-worker.js'
+    await navigator.serviceWorker.register(file)
   }
 
   private sendReminder () {
@@ -46,24 +57,13 @@ new class WorkerService {
     registration.sync.register('reminder')
   }
 
+  private setupListeners () {
+    on('ask-notification-perm', this.askNotificationPerm.bind(this))
+    on('send-reminder', this.sendReminder.bind(this))
+  }
+
   private async setupWorker () {
     await this.registerServiceWorker()
     this.checkNotificationPerm()
-  }
-
-  private async registerServiceWorker () {
-    if (!('serviceWorker' in navigator)) { logger.error('No Service Worker support!'); return }
-    const file = 'service-worker.js'
-    await navigator.serviceWorker.register(file)
-  }
-
-  private async askNotificationPerm () {
-    if (!('permission' in Notification)) { logger.error('Notifications cannot be enabled on this device.'); return }
-    this.notificationPerm = await window.Notification.requestPermission()
-
-    // granted: user has accepted the request
-    // default: user has dismissed the notification permission popup by clicking on x
-    // denied: user has denied the request.
-    if (!this.canNotify) logger.info('Notification permission not granted')
   }
 }

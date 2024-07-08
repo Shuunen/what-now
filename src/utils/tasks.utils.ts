@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/prefer-readonly-parameter-types */
+/* eslint-disable jsdoc/require-jsdoc */
 import { dateIso10, daysAgoIso10, nbBefore, nbDaysInMonth, nbDaysInWeek, nbDaysInYear, nbMsInDay, nbMsInMinute, readableTimeAgo } from 'shuutils'
 import type { AirtableTask } from '../types'
 import { airtableGet, airtablePatch, airtableUrl } from './airtable.utils'
@@ -12,7 +14,6 @@ const enum Unit {
 }
 
 export function daysRecurrence (task: AirtableTask) {
-  // eslint-disable-next-line security/detect-unsafe-regex
   const matches = /(?<quantity>\d{1,3})?-?(?<unit>day|month|week|year)/u.exec(task.fields.once)
   if (matches === null) return 0
   const quantity = matches.groups?.quantity ?? '1'
@@ -43,14 +44,14 @@ export async function pushToAirtable (task: AirtableTask) {
 export async function completeTask (task: AirtableTask) {
   task.fields['completed-on'] = dateIso10(new Date()) // task is complete for today
   task.fields.done = task.fields.once === 'yes' // but it also can be done totally if it was a one time job
-  return await pushToAirtable(task)
+  return pushToAirtable(task)
 }
 
 export async function unCompleteTask (task: AirtableTask) {
   // to un-complete, need to put the last completed on just before the required number of days
   task.fields['completed-on'] = daysAgoIso10(daysRecurrence(task))
   task.fields.done = false
-  return await pushToAirtable(task)
+  return pushToAirtable(task)
 }
 
 export function isTaskActive (task: AirtableTask, shouldIncludeCompletedToday = false) {
@@ -64,7 +65,7 @@ export function isTaskActive (task: AirtableTask, shouldIncludeCompletedToday = 
 export function byActive (taskA: AirtableTask, taskB: AirtableTask) {
   const isAActive = isTaskActive(taskA)
   const isBActive = isTaskActive(taskB)
-  if (isAActive && !isBActive) return -1 // eslint-disable-line @typescript-eslint/no-magic-numbers
+  if (isAActive && !isBActive) return -1
   if (!isAActive && isBActive) return 1
   return 0
 }
@@ -74,8 +75,8 @@ export async function fetchList () {
   const url = airtableUrl(state.apiBase, 'tasks')
   state.statusInfo = 'Loading tasks, please wait...'
   const { records } = await airtableGet(url)
-  state.statusInfo = ''
-  state.tasksTimestamp = Date.now()
+  state.statusInfo = '' // eslint-disable-line require-atomic-updates
+  state.tasksTimestamp = Date.now() // eslint-disable-line require-atomic-updates
   /* c8 ignore next */
   return (records ?? []).filter(task => isTaskActive(task, true)).sort(byActive)
 }
@@ -98,8 +99,8 @@ export async function loadTasks () {
   }
   const tasks = await fetchList()
   logger.info('found', tasks.length, 'task(s)')
-  state.isLoading = false
-  state.tasks = tasks
+  state.isLoading = false // eslint-disable-line require-atomic-updates
+  state.tasks = tasks // eslint-disable-line require-atomic-updates
   return true
 }
 
@@ -110,18 +111,18 @@ export async function dispatchTask (task: AirtableTask, index = 0) {
   const completionDate = daysAgoIso10((nbBefore * position) + delay)
   if (completionDate === task.fields['completed-on']) return false
   task.fields['completed-on'] = completionDate
-  return await pushToAirtable(task)
+  return pushToAirtable(task)
 }
 
 export async function dispatchTasks (tasks: AirtableTask[]) {
   logger.info('dispatch tasks')
-  await Promise.all(tasks.map(async (task, index) => await dispatchTask(task, index)))
+  await Promise.all(tasks.map(async (task, index) => dispatchTask(task, index)))
   state.tasksTimestamp = 0 // invalidate cache
   await loadTasks()
 }
 
 export async function toggleComplete (task: AirtableTask) {
-  if (isTaskActive(task)) return await completeTask(task)
-  return await unCompleteTask(task)
+  if (isTaskActive(task)) return completeTask(task)
+  return unCompleteTask(task)
 }
 

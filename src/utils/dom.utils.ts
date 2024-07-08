@@ -1,19 +1,31 @@
 /* c8 ignore start */
 import { dom, tw } from 'shuutils'
 
-interface FormField {
+type FormField = Readonly<{
   href: string
   label: string
   link: string
   maxlength: number
   name: string
   pattern: string
-}
+}>
 
+/**
+ * Create a button
+ * @param content - button text
+ * @param classes - additional classes
+ * @returns button element
+ */
 export function button (content: string, classes = '') {
   return dom('button', tw(`app-button m-auto rounded bg-blue-800 px-4 py-2 sm:ml-0 ${classes}`), content)
 }
 
+/**
+ * Create a form
+ * @param fields - form fields
+ * @param validate - button text
+ * @returns form element
+ */
 export function form (fields: Readonly<FormField[]>, validate = 'Send form') {
   const element = dom('form', tw('app-form mt-4 grid gap-6'))
   element.innerHTML = fields.map((field, index) => `<label class="${tw('flex flex-col gap-4 sm:flex-row sm:items-center')}">
