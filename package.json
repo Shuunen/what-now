@@ -9,7 +9,7 @@
   "description": "Minimalist task coach",
   "devDependencies": {
     "@types/canvas-confetti": "1",
-    "@types/node": "20",
+    "@types/node": "22",
     "@types/serviceworker": "0",
     "@vitest/coverage-v8": "2.1",
     "dependency-cruiser": "latest",
