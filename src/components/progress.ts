@@ -38,7 +38,7 @@ function getHueColorBody (percent = 0) {
 async function emitHueColor (percent = 0) {
   if (state.hueEndpoint === '') { logger.info('no hue endpoint defined'); return }
   if (!state.isHomeNetwork) { logger.info('not in home network'); return }
-  // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/consistent-type-assertions
+  // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-type-assertion
   const response = await fetch(state.hueEndpoint, { body: getHueColorBody(percent), headers: { 'Content-Type': 'application/json' }, method: 'PUT' }).catch((error: unknown) => ({ ok: false, reason: (error as Error).message }))
   if (response.ok) { logger.info('emitted hue color successfully', response); return }
   logger.error('emit hue color failed', response)

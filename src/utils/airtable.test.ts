@@ -1,6 +1,11 @@
 import { expect, it } from 'vitest'
 import { airtableHeaders, airtableValidate, checkCredentials } from './airtable.utils'
 import { state } from './state.utils'
+import { isBrowserEnvironment } from 'shuutils'
+
+it('should detect browser env', () => {
+  expect(isBrowserEnvironment()).toMatchInlineSnapshot(`false`)
+})
 
 it('airtableValidate A', () => {
   expect(airtableValidate('A')).toBe(false)

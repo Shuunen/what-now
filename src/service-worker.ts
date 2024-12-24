@@ -79,7 +79,7 @@ async function isCurrentClientFocused () {
 }
 
 async function getNotifications () {
-  return self.registration.getNotifications()
+  return globalThis.registration.getNotifications()
 }
 
 async function getDisplayedReminder () {
@@ -95,14 +95,14 @@ function getMotivator () {
 function showNotification (title = '', icon = 'android-chrome-192x192.png', tag = '', isPermanent = false) {
   // eslint-disable-next-line @typescript-eslint/naming-convention
   const options = { icon, renotify: isPermanent, requireInteraction: isPermanent, tag }
-  void self.registration.showNotification(title, options)
+  void globalThis.registration.showNotification(title, options)
 }
 
 async function showReminder () {
   if (await isCurrentClientFocused()) { console.log('avoid displaying reminders to a client which already have what-now displayed (tab focus) ^^'); return }
   if (await getDisplayedReminder()) { console.log('avoid displaying another reminder ^^'); return }
   const motivator = getMotivator()
-  showNotification(motivator?.text, motivator?.icon, 'reminder', true)
+  showNotification(motivator.text, motivator.icon, 'reminder', true)
 }
 
 // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
@@ -120,12 +120,14 @@ function onSync (event: ServiceWorkerEvent) {
 
 self.addEventListener('install', () => {
   console.log('service worker : install version', version)
-  void self.skipWaiting()
+  void globalThis.skipWaiting()
 })
 
 self.addEventListener('activate', () => {
   console.log('service worker : activate version', version)
 })
 
-self.addEventListener('notificationclick', onNotificationClick as EventListenerOrEventListenerObject) // eslint-disable-line @typescript-eslint/consistent-type-assertions
-self.addEventListener('sync', onSync as EventListenerOrEventListenerObject) // eslint-disable-line @typescript-eslint/consistent-type-assertions
+// eslint-disable-next-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-type-assertion
+self.addEventListener('notificationclick', onNotificationClick as EventListenerOrEventListenerObject)
+// eslint-disable-next-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-type-assertion
+self.addEventListener('sync', onSync as EventListenerOrEventListenerObject)

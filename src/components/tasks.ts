@@ -41,7 +41,7 @@ function updateLine (line: HTMLElement, task: AirtableTask) {
   const isDatasetActive = line.dataset.active === 'true'
   logger.debug('update line', line, 'was', isDatasetActive ? 'active' : 'inactive', 'now', isActive ? 'active' : 'inactive')
   line.dataset.active = String(isActive)
-  line.innerHTML = `${isActive ? pickOne(emojis) ?? '😇' : '✔️'}&nbsp; ${task.fields.name}`
+  line.innerHTML = `${isActive ? pickOne(emojis) : '✔️'}&nbsp; ${task.fields.name}`
   line.classList.toggle('opacity-60', !isActive)
 }
 
@@ -122,7 +122,7 @@ watchState('tasks', () => { updateList(state.tasks) })
 
 watchState('isSetup', () => { if (state.isSetup && state.tasks.length > 0) updateList(state.tasks) })
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+// eslint-disable-next-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-type-assertion
 tasks.addEventListener('click', (event: Event) => { onClick(event.target as HTMLElement, state.tasks) })
 
 export { tasks }

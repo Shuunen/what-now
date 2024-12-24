@@ -1,3 +1,4 @@
+import { isBrowserEnvironment } from 'shuutils'
 import type { AirtableResponse } from '../types'
 import { logger } from './logger.utils'
 import { state } from './state.utils'
@@ -23,13 +24,13 @@ export function airtableHeaders (token: string) {
  * @returns the response
  */
 export async function airtablePatch (url: string, data: Readonly<Record<string, unknown>>) {
-  if (typeof window === 'undefined') return { records: [] }
+  if (!isBrowserEnvironment()) return { records: [] }
   const response = await fetch(url, {
     body: JSON.stringify(data),
     headers: airtableHeaders(state.apiToken),
     method: 'PATCH',
   })
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-type-assertion
   return await response.json() as AirtableResponse
 }
 
@@ -40,11 +41,11 @@ export async function airtablePatch (url: string, data: Readonly<Record<string, 
  * @returns the response
  */
 export async function airtableGet (url: string) {
-  if (typeof window === 'undefined') return { records: [] }
+  if (!isBrowserEnvironment()) return { records: [] }
   const response = await fetch(url, {
     headers: airtableHeaders(state.apiToken),
   })
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-type-assertion
   return await response.json() as AirtableResponse
 }
 

@@ -1,4 +1,4 @@
-import { div, on, readClipboard, text, tw } from 'shuutils'
+import { div, nbFirst, nbSecond, nbThird, on, readClipboard, text, tw } from 'shuutils'
 import { airtableValidate } from '../utils/airtable.utils'
 import { parseClipboard } from '../utils/credentials.utils'
 import { form } from '../utils/dom.utils'
@@ -26,12 +26,14 @@ credentials.append(formElement)
  * @returns the form credentials
  */
 function getFormCredentials () {
-  const apiBase = (formElement.elements[0] as HTMLInputElement).value // eslint-disable-line @typescript-eslint/consistent-type-assertions
-  const apiToken = (formElement.elements[1] as HTMLInputElement).value // eslint-disable-line @typescript-eslint/consistent-type-assertions
-  const hueEndpoint = (formElement.elements[2] as HTMLInputElement).value // eslint-disable-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-magic-numbers, no-useless-assignment
+  /* eslint-disable @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-type-assertion */
+  const apiBase = (formElement.elements[nbFirst] as HTMLInputElement).value
+  const apiToken = (formElement.elements[nbSecond] as HTMLInputElement).value
+  const hueEndpoint = (formElement.elements[nbThird] as HTMLInputElement).value
+  /* eslint-enable @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-type-assertion */
   const isOk = airtableValidate(apiBase, apiToken)
   state.statusError = isOk ? '' : 'Invalid credentials'
-  return { apiBase, apiToken, hueEndpoint, isOk } satisfies { isOk: boolean } & Record<CredentialField, string>
+  return { apiBase, apiToken, hueEndpoint, isOk } satisfies Record<CredentialField, string> & { isOk: boolean }
 }
 
 formElement.addEventListener('submit', (event: Event) => {

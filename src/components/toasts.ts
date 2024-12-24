@@ -50,6 +50,6 @@ watchState('showErrorToast', () => { void showToast('error', state.showErrorToas
 
 watchState('showInfoToast', () => { void showToast('info', state.showInfoToast) })
 
-on('error', (error: Readonly<Error>) => { void showToast('error', `global error catch : ${error.message}`) }, window)
+on('error', (error: Readonly<Error>) => { void showToast('error', `global error catch : ${error.message}`) })
 
 export { toasts }

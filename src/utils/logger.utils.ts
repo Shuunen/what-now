@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/prefer-readonly-parameter-types */
 /* eslint-disable jsdoc/require-jsdoc */
-import { Logger } from 'shuutils'
+import { isBrowserEnvironment, Logger } from 'shuutils'
 import { state } from './state.utils'
 
 function stuffToMessage (...stuff: unknown[]) {
@@ -20,6 +20,6 @@ class CustomLogger extends Logger {
   }
 }
 
-const logger = new CustomLogger({ minimumLevel: '3-info', willOutputToConsole: typeof window !== 'undefined' })
+const logger = new CustomLogger({ minimumLevel: '3-info', willOutputToConsole: isBrowserEnvironment() })
 
 export { logger, stuffToMessage }

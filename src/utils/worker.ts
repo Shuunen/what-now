@@ -6,7 +6,7 @@ import { logger } from './logger.utils'
 
 // eslint-disable-next-line no-new
 new class WorkerService {
-  private notificationPerm = window.Notification.permission
+  private notificationPerm = globalThis.Notification.permission
 
   public constructor () {
     this.setupListeners()
@@ -15,7 +15,7 @@ new class WorkerService {
 
   private async askNotificationPerm () {
     if (!('permission' in Notification)) { logger.error('Notifications cannot be enabled on this device.'); return }
-    this.notificationPerm = await window.Notification.requestPermission()
+    this.notificationPerm = await globalThis.Notification.requestPermission()
     // granted: user has accepted the request
     // default: user has dismissed the notification permission popup by clicking on x
     // denied: user has denied the request.
@@ -27,7 +27,7 @@ new class WorkerService {
   }
 
   private checkNotificationPerm () {
-    this.notificationPerm = window.Notification.permission
+    this.notificationPerm = globalThis.Notification.permission
     // default: user has never been asked
     // denied: user has refused
     if (this.notificationPerm === 'default') emit('suggest-notification')

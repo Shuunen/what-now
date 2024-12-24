@@ -4,7 +4,7 @@
   "bugs": "https://github.com/Shuunen/what-now/issues",
   "dependencies": {
     "canvas-confetti": "1",
-    "shuutils": "9.0"
+    "shuutils": "10.1"
   },
   "description": "Minimalist task coach",
   "devDependencies": {
@@ -15,9 +15,9 @@
     "dependency-cruiser": "latest",
     "esbuild": "0.24",
     "eslint": "*",
-    "eslint-plugin-shuunen": "0.3",
+    "eslint-plugin-shuunen": "0.4",
     "npm-parallel": "2",
-    "repo-check": "1.39",
+    "repo-check": "1.40",
     "servor": "4",
     "tailwindcss": "3",
     "typescript": "5.7",
@@ -50,7 +50,10 @@
     "dev": "parallel dev:css dev:js serve",
     "dev:css": "pnpm build:css --watch",
     "dev:js": "pnpm build:js --watch",
-    "lint": "tsc --noEmit && eslint --cache src && depcruise src --config && echo lint success",
+    "lint": "pnpm lint:deps && pnpm lint:eslint && pnpm lint:tsc && echo lint success",
+    "lint:deps": "depcruise src --config",
+    "lint:eslint": "eslint --cache src && echo lint:eslint success",
+    "lint:tsc": "tsc --noEmit && echo lint:tsc success",
     "lint:watch": "watchlist src tests -eager -- pnpm lint",
     "mark": "unique-mark public/index.html",
     "postversion": "git push && git push --tags",

@@ -17,7 +17,8 @@ export function daysRecurrence (task: AirtableTask) {
   const matches = /(?<quantity>\d{1,3})?-?(?<unit>day|month|week|year)/u.exec(task.fields.once)
   if (matches === null) return 0
   const quantity = matches.groups?.quantity ?? '1'
-  const unit = matches.groups?.unit as Unit // eslint-disable-line @typescript-eslint/consistent-type-assertions
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-type-assertion
+  const unit = matches.groups?.unit as Unit
   const number = Number.parseInt(quantity, 10)
   if (unit === Unit.Day) return number
   if (unit === Unit.Week) return number * nbDaysInWeek
