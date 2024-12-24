@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // @ts-expect-error missing types
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const shuunen = require('eslint-plugin-shuunen')
+import shuunen from 'eslint-plugin-shuunen'
 
-module.exports = [
+export default [
   ...shuunen.configs.base,
   ...shuunen.configs.node,
   ...shuunen.configs.browser,
