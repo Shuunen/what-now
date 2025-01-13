@@ -4,7 +4,7 @@
   "bugs": "https://github.com/Shuunen/what-now/issues",
   "dependencies": {
     "canvas-confetti": "1",
-    "shuutils": "10.1"
+    "shuutils": "10.2"
   },
   "description": "Minimalist task coach",
   "devDependencies": {
@@ -55,7 +55,7 @@
     "lint:eslint": "eslint --cache src && echo lint:eslint success",
     "lint:tsc": "tsc --noEmit && echo lint:tsc success",
     "lint:watch": "watchlist src tests -eager -- pnpm lint",
-    "mark": "unique-mark public/index.html",
+    "mark": "unique-mark public/index.{html}",
     "postversion": "git push && git push --tags",
     "preversion": "pnpm check",
     "serve": "servor public --reload",
