@@ -8,14 +8,13 @@ import { title } from './components/title'
 import { toasts } from './components/toasts'
 import { checkCredentials } from './utils/airtable.utils'
 import './utils/idle.utils'
-import { checkHomeNetwork } from './utils/network.utils'
 import { watchState } from './utils/state.utils'
 import { loadTasks } from './utils/tasks.utils'
 import './utils/worker'
 
 storage.prefix = 'what-now_'
 
-on('user-activity', () => { void loadTasks(); void checkHomeNetwork() })
+on('user-activity', () => { void loadTasks() })
 watchState('isSetup', () => { void loadTasks() })
 
 const landing = div('landing')

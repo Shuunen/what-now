@@ -7,7 +7,6 @@ export const { state, watchState } = createState({
   apiBase: '',
   apiToken: '',
   hueEndpoint: '',
-  isHomeNetwork: false,
   isLoading: false,
   isSetup: false,
   showErrorToast: '',
