@@ -5,19 +5,6 @@ import { logger } from '../utils/logger.utils'
 import { state, watchState } from '../utils/state.utils'
 import { isTaskActive } from '../utils/tasks.utils'
 
-const socket = new WebSocket("ws://192.168.1.188:54430")
-let isSocketOpen = false
-socket.addEventListener("open", () => {
-  logger.info("status ws, connected")
-  isSocketOpen = true
-})
-socket.addEventListener("message", (event) => { // eslint-disable-line @typescript-eslint/prefer-readonly-parameter-types
-  logger.info("status ws, message from server :", event.data)
-})
-socket.addEventListener("error", (error) => {
-  logger.error("status ws, error :", error)
-})
-
 const progress = dom('hr', tw('app-progress mb-4 mt-1'))
 progress.style.width = '0'
 
@@ -31,13 +18,37 @@ function counterText (percent = 0) {
   return 'You made it, well done dude :)'
 }
 
-function emitHueColor (percent = 0) {
-  if (isSocketOpen) socket.send(`set-progress ${percent}`)
-  else logger.warn("Socket is not open, can't send progress")
+/**
+ * Returns a hue color based on the progress percentage, from red to green
+ * @param percent the progress percentage
+ * @returns the hue color between 0 (red) and 20000 (green)
+ */
+function getHueColor (percent = 0) {
+  return Math.round(percent * 20_000 / 100)
 }
 
-// eslint-disable-next-line complexity
+function getHueColorBody (percent = 0) {
+  const isEveryThingDone = percent === 100
+  const body = { bri: 255, hue: getHueColor(percent), on: !isEveryThingDone, sat: 255 } // eslint-disable-line @typescript-eslint/naming-convention
+  logger.info(`with a ${percent}% progress will emit hue color`, body)
+  return JSON.stringify(body)
+}
+
+// eslint-disable-next-line max-statements
+async function emitHueColor (percent = 0) {
+  if (state.hueEndpoint === '') { logger.info('no hue endpoint defined'); return }
+  if (!state.isHomeNetwork) { logger.info('not in home network'); return }
+  // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-type-assertion
+  const response = await fetch(state.hueEndpoint, { body: getHueColorBody(percent), headers: { 'Content-Type': 'application/json' }, method: 'PUT' }).catch((error: unknown) => ({ ok: false, reason: (error as Error).message }))
+  if (response.ok) { logger.info('emitted hue color successfully', response); return }
+  logger.error('emit hue color failed', response)
+  const isUserOkToTest = confirm('Hue endpoint seems unreachable, do you want to test & authorize it ?') // eslint-disable-line no-alert
+  if (isUserOkToTest) document.location.href = state.hueEndpoint
+}
+
+// eslint-disable-next-line max-statements, complexity
 function getProgressBackground (percent = 0) {
+  if (!state.isHomeNetwork) { logger.info('not in home network'); return 'from-gray-800 to-gray-900' }
   if (percent <= 10) return 'from-red-700 to-red-800'
   if (percent <= 20) return 'from-red-800 to-orange-700'
   if (percent <= 30) return 'from-orange-700 to-yellow-700'
@@ -62,13 +73,12 @@ function showProgressSync () {
   // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
   const remaining = state.tasks.filter(task => isTaskActive(task)).length
   const percent = 100 - Math.round(remaining / total * 100)
-  if (Number.isNaN(percent) || percent < 0 || percent > 100) return
   logger.info('show progress', { percent, remaining, total })
   progress.style.width = `${percent}%`
   document.body.dataset.progress = String(percent)
   state.statusProgress = counterText(percent)
   showProgressBackground(percent)
-  emitHueColor(percent)
+  void emitHueColor(percent)
 }
 
 const showProgress = debounce(showProgressSync, 300)
@@ -81,6 +91,8 @@ const showProgress = debounce(showProgressSync, 300)
 // }
 
 watchState('tasks', () => { void showProgress() })
+
+watchState('isHomeNetwork', () => { void showProgress() })
 
 watchState('isSetup', () => { if (state.isSetup) void showProgress() })
 
