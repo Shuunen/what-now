@@ -17,38 +17,21 @@ function counterText (percent = 0) {
   if (percent < 100) return 'Lasts tasks remaining !'
   return 'You made it, well done dude :)'
 }
-
-/**
- * Returns a hue color based on the progress percentage, from red to green
- * @param percent the progress percentage
- * @returns the hue color between 0 (red) and 20000 (green)
- */
-function getHueColor (percent = 0) {
-  return Math.round(percent * 20_000 / 100)
-}
-
-function getHueColorBody (percent = 0) {
-  const isEveryThingDone = percent === 100
-  const body = { bri: 255, hue: getHueColor(percent), on: !isEveryThingDone, sat: 255 } // eslint-disable-line @typescript-eslint/naming-convention
-  logger.info(`with a ${percent}% progress will emit hue color`, body)
-  return JSON.stringify(body)
-}
-
-// eslint-disable-next-line max-statements
 async function emitHueColor (percent = 0) {
   if (state.hueEndpoint === '') { logger.info('no hue endpoint defined'); return }
-  if (!state.isHomeNetwork) { logger.info('not in home network'); return }
+  const options = {
+    body: `progress=${percent}`,
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    method: 'POST',
+    mode: 'no-cors',
+  } as const
   // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-type-assertion
-  const response = await fetch(state.hueEndpoint, { body: getHueColorBody(percent), headers: { 'Content-Type': 'application/json' }, method: 'PUT' }).catch((error: unknown) => ({ ok: false, reason: (error as Error).message }))
-  if (response.ok) { logger.info('emitted hue color successfully', response); return }
-  logger.error('emit hue color failed', response)
-  const isUserOkToTest = confirm('Hue endpoint seems unreachable, do you want to test & authorize it ?') // eslint-disable-line no-alert
-  if (isUserOkToTest) document.location.href = state.hueEndpoint
+  const response = await fetch(state.hueEndpoint, options).catch((error: unknown) => ({ ok: false, reason: (error as Error).message }))
+  logger.info('emitted hue color', response)
 }
 
-// eslint-disable-next-line max-statements, complexity
+// eslint-disable-next-line complexity
 function getProgressBackground (percent = 0) {
-  if (!state.isHomeNetwork) { logger.info('not in home network'); return 'from-gray-800 to-gray-900' }
   if (percent <= 10) return 'from-red-700 to-red-800'
   if (percent <= 20) return 'from-red-800 to-orange-700'
   if (percent <= 30) return 'from-orange-700 to-yellow-700'
@@ -91,8 +74,6 @@ const showProgress = debounce(showProgressSync, 300)
 // }
 
 watchState('tasks', () => { void showProgress() })
-
-watchState('isHomeNetwork', () => { void showProgress() })
 
 watchState('isSetup', () => { if (state.isSetup) void showProgress() })
 
