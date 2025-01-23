@@ -19,7 +19,7 @@
     "npm-parallel": "2",
     "repo-check": "1.40",
     "servor": "4",
-    "tailwindcss": "3",
+    "tailwindcss": "4",
     "typescript": "5.7",
     "vitest": "3.0",
     "watchlist": "0"
