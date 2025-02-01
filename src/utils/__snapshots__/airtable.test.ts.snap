@@ -1,9 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`airtableHeaders A 1`] = `
-{
-  "Accept": "application/json",
-  "Authorization": "Bearer pat123546",
-  "Content-Type": "application/json",
-}
-`;

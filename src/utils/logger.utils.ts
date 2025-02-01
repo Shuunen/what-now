@@ -1,3 +1,4 @@
+/* c8 ignore start */
 /* eslint-disable @typescript-eslint/prefer-readonly-parameter-types */
 /* eslint-disable jsdoc/require-jsdoc */
 import { isBrowserEnvironment, Logger } from 'shuutils'
@@ -11,7 +12,6 @@ function stuffToMessage (...stuff: unknown[]) {
   }).join(', ')
 }
 
-/* c8 ignore next 6 */
 // eslint-disable-next-line no-restricted-syntax
 class CustomLogger extends Logger {
   public override error (...stuff: unknown[]) {

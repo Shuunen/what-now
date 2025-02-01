@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/prefer-readonly-parameter-types */
 /* eslint-disable jsdoc/require-jsdoc */
 import confetti from 'canvas-confetti'
-import { div, dom, emit, on, pickOne, sleep, tw } from 'shuutils'
-import type { AirtableResponse, AirtableTask } from '../types'
+import { div, dom, emit, pickOne, sleep, tw } from 'shuutils'
+import type { Task } from '../types'
 import { button } from '../utils/dom.utils'
 import { logger } from '../utils/logger.utils'
 import { state, watchState } from '../utils/state.utils'
@@ -26,27 +26,17 @@ retry.addEventListener('click', () => {
 })
 tasks.append(retry)
 
-function handleError (response: AirtableResponse) {
-  logger.error('handle error response', response)
-  let message = response.error && response.error.type === 'UNAUTHORIZED' ? 'The credentials you provided does not work' : 'Failed to fetch data from Airtable'
-  message += ', click the button below to try again.'
-  state.statusError = message
-  retry.classList.toggle('hidden')
-}
-
-on('get-tasks-error', handleError)
-
-function updateLine (line: HTMLElement, task: AirtableTask) {
+function updateLine (line: HTMLElement, task: Task) {
   const isActive = isTaskActive(task)
   const isDatasetActive = line.dataset.active === 'true'
   logger.debug('update line', line, 'was', isDatasetActive ? 'active' : 'inactive', 'now', isActive ? 'active' : 'inactive')
   line.dataset.active = String(isActive)
-  line.innerHTML = `${isActive ? pickOne(emojis) : '✔️'}&nbsp; ${task.fields.name}`
+  line.innerHTML = `${isActive ? pickOne(emojis) : '✔️'}&nbsp; ${task.name}`
   line.classList.toggle('opacity-60', !isActive)
 }
 
-function createLine (task: AirtableTask) {
-  const line = dom('button', tw('app-task -ml-2 mr-auto max-w-full truncate px-2 py-1 text-start transition-transform duration-300 ease-out'), task.fields.name)
+function createLine (task: Task) {
+  const line = dom('button', tw('app-task -ml-2 mr-auto max-w-full truncate px-2 py-1 text-start transition-transform duration-300 ease-out'), task.name)
   line.dataset.taskId = task.id
   updateLine(line, task)
   lines.push(line)
@@ -77,31 +67,32 @@ async function throwConfettiAround (element: HTMLElement) {
   /* eslint-enable @typescript-eslint/no-magic-numbers */
 }
 
-async function visuallyToggleComplete (line: HTMLElement, task: AirtableTask) {
+async function visuallyToggleComplete (line: HTMLElement, task: Task) {
   line.classList.add('scale-125')
   void toggleComplete(task)
   await sleep(200) // eslint-disable-line @typescript-eslint/no-magic-numbers
   line.classList.remove('scale-125')
 }
 
-function getTaskFromElement (element: HTMLElement | null, list: AirtableTask[]) {
+function getTaskFromElement (element: HTMLElement | null, list: Task[]) {
   const task = list.find(item => item.id === element?.dataset.taskId)
   if (task === undefined) logger.error('failed to find task with id', element?.dataset.taskId, 'in list', list)
   return task
 }
 
-function onClick (line: HTMLElement | null, list: AirtableTask[]) {
+function onClick (line: HTMLElement | null, list: Task[]) {
   if (line?.dataset.taskId === undefined) return
   const task = getTaskFromElement(line, list)
   if (task === undefined) return
   void visuallyToggleComplete(line, task)
   if (!isTaskActive(task)) void throwConfettiAround(line)
+  logger.info('task will be updated in state', task)
   state.tasks = state.tasks.map(item => (item.id === task.id ? task : item))
   updateLine(line, task)
 }
 
 // eslint-disable-next-line max-statements
-function updateList (list: AirtableTask[]) {
+function updateList (list: Task[]) {
   if (list.length === 0) { logger.info('no task list to display'); return }
   logger.info('update list...')
   const processed: string[] = []
@@ -113,7 +104,7 @@ function updateList (list: AirtableTask[]) {
       updateLine(line, task)
     }
   }
-  const missing = list.filter(item => !processed.includes(item.id)) // exists on Airtable but not in dom
+  const missing = list.filter(item => !processed.includes(item.id)) // exists on api but not in dom
   if (missing.length > 0) logger.info('missing tasks', missing)
   for (const task of missing) tasks.append(createLine(task))
 }

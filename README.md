@@ -39,22 +39,17 @@ Else enjoy it, you can even contribute to make it better !
 
 ## How does it work ?
 
-The tasks are stored on [Airtable](https://airtable.com/invite/r/haFeqo8t), it's a great service like Google Spreadsheet but with way more functionalities.
+The tasks are stored on [AppWrite](appwrite.io), it's a great db provider with a nice free tier.
 
-I created a free demo account on Airtable so you can understand how is works :
+The app is a single page app, your credentials are stored in the local storage of your browser to let you close the tab and re-open it later without the need to fill your credentials again.
 
-- This table with recurring tasks : [https://airtable.com/shreHMPG1ZtgmT5az](https://airtable.com/shreHMPG1ZtgmT5az)
-- Render like this in What-now : [https://what-now.netlify.app/#appQaesCng5o5xqE2&keyvPT7WLHLud5ZnX](https://what-now.netlify.app/#appQaesCng5o5xqE2&keyvPT7WLHLud5ZnX) (credentials from the demo account are passed in parameters)
+The data is fetched from AppWrite, then processed to display the tasks in the right order.
 
-## How can I have mine ?
+When you mark a task as done, the app sends the new status to AppWrite.
 
-1. Create a [Airtable](https://airtable.com/invite/r/haFeqo8t) free account
-2. Open this [sample table](https://airtable.com/shrYQeD7BurQgyQz3), on the top right click "copy base" so you have your private copy of this to start
-3. Go to [What Now](https://what-now.netlify.app) and type your credentials, see the related links in the form to help you find your own credentials
+Your data is stored on AppWrite, your credentials are stored in your browser, the app does not store anything else.
 
-Tadaa ! You should see your todo list appearing, you can now fill your tasks in Airtable, return to What-Now should trigger a sync.
-
-Your data will stay between you and Airtable, your credentials will be stored in the local storage of your browser to let you close the what-now tab and re-open it later without the need to fill your credentials again.
+Your data is yours, you can delete it anytime on AppWrite, you can also delete the credentials in your browser.
 
 You can have a look at the sources to see that this app is not sharing your data with anyone, no analytics, trackers or other annoying things.
 
@@ -77,6 +72,7 @@ You can have a look at the sources to see that this app is not sharing your data
 
 ## Thanks
 
+- [AppWrite](https://appwrite.io) : great db provider with a nice free tier <3
 - [Canvas-Confetti](https://github.com/catdad/canvas-confetti) : superb fireworks/confetti effets
 - [Dependency-cruiser](https://github.com/sverweij/dependency-cruiser) : handy tool to validate and visualize dependencies
 - [Esbuild](https://github.com/evanw/esbuild) : an extremely fast JavaScript bundler and minifier

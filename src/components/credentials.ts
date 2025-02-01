@@ -1,6 +1,5 @@
 import { div, nbFirst, nbSecond, nbThird, on, readClipboard, text, tw } from 'shuutils'
-import { airtableValidate } from '../utils/airtable.utils'
-import { parseClipboard } from '../utils/credentials.utils'
+import { parseClipboard, validateCredentials } from '../utils/credentials.utils'
 import { form } from '../utils/dom.utils'
 import { logger } from '../utils/logger.utils'
 import { type CredentialField, state, watchState } from '../utils/state.utils'
@@ -14,8 +13,8 @@ const message = text(tw('pb-2 leading-7'), `
 credentials.append(message)
 
 const fields = [
-  { href: 'https://airtable.com/api', label: 'Airtable api base', link: 'find my api base', maxlength: 17, name: 'airtable-api-base', pattern: String.raw`^app\w{14}$` },
-  { href: 'https://airtable.com/create/tokens', label: 'Airtable api token', link: 'find my api token', maxlength: 100, name: 'airtable-api-token', pattern: String.raw`^pat[\w\.]{50,100}$` },
+  { href: 'https://cloud.appwrite.io/', label: 'AppWrite database id', link: 'AppWrite cloud', maxlength: 100, name: 'appwrite-database-id', pattern: String.raw`^\w+$` },
+  { href: 'https://cloud.appwrite.io/', label: 'AppWrite collection id', link: 'AppWrite cloud', maxlength: 100, name: 'appwrite-collection-id', pattern: String.raw`^\w+$` },
   { href: 'https://developers.meethue.com/develop/get-started-2/', label: 'Hue status light', link: 'find my endpoint', maxlength: 150, name: 'hue-status-light', pattern: String.raw`^https://.+$` },
 ] as const
 const formElement = form(fields, 'Use these')
@@ -27,21 +26,21 @@ credentials.append(formElement)
  */
 function getFormCredentials () {
   /* eslint-disable @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-type-assertion */
-  const apiBase = (formElement.elements[nbFirst] as HTMLInputElement).value
-  const apiToken = (formElement.elements[nbSecond] as HTMLInputElement).value
+  const apiDatabase = (formElement.elements[nbFirst] as HTMLInputElement).value
+  const apiCollection = (formElement.elements[nbSecond] as HTMLInputElement).value
   const hueEndpoint = (formElement.elements[nbThird] as HTMLInputElement).value
   /* eslint-enable @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-type-assertion */
-  const isOk = airtableValidate(apiBase, apiToken)
+  const isOk = validateCredentials(apiDatabase, apiCollection)
   state.statusError = isOk ? '' : 'Invalid credentials'
-  return { apiBase, apiToken, hueEndpoint, isOk } satisfies Record<CredentialField, string> & { isOk: boolean }
+  return { apiCollection, apiDatabase, hueEndpoint, isOk } satisfies Record<CredentialField, string> & { isOk: boolean }
 }
 
 formElement.addEventListener('submit', (event: Event) => {
   event.preventDefault()
-  const { apiBase, apiToken, hueEndpoint, isOk } = getFormCredentials()
+  const { apiCollection, apiDatabase, hueEndpoint, isOk } = getFormCredentials()
   if (!isOk) return
-  state.apiBase = apiBase
-  state.apiToken = apiToken
+  state.apiDatabase = apiDatabase
+  state.apiCollection = apiCollection
   state.hueEndpoint = hueEndpoint
   state.isSetup = true
 })
@@ -52,12 +51,12 @@ formElement.addEventListener('submit', (event: Event) => {
  */
 function fillForm (data: Readonly<Record<CredentialField, string>>) {
   logger.info('credentials, fill form', data)
-  const { apiBase, apiToken, hueEndpoint } = data
+  const { apiCollection, apiDatabase, hueEndpoint } = data
   const inputs = Array.from(formElement.elements)
   for (const input of inputs) {
     if (!(input instanceof HTMLInputElement)) continue
-    if (input.name === fields[0].name && apiBase.length > 0) input.value = apiBase
-    else if (input.name === fields[1].name && apiToken.length > 0) input.value = apiToken
+    if (input.name === fields[0].name && apiDatabase.length > 0) input.value = apiDatabase
+    else if (input.name === fields[1].name && apiCollection.length > 0) input.value = apiCollection
     else if (hueEndpoint.length > 0) input.value = hueEndpoint
     else logger.debug('nothing to fill')
   }
@@ -71,6 +70,7 @@ watchState('isSetup', () => {
 on('focus', async () => {
   if (state.isSetup) return
   const clipboard = await readClipboard()
+  logger.info('clipboard contains :', clipboard)
   fillForm(parseClipboard(clipboard))
 })
 

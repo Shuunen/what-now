@@ -1,11 +1,11 @@
 import { createState, storage } from 'shuutils'
-import type { AirtableTask } from '../types'
+import type { Task } from '../types'
 
-const tasks: AirtableTask[] = []
+const tasks: Task[] = []
 
 export const { state, watchState } = createState({
-  apiBase: '',
-  apiToken: '',
+  apiCollection: '',
+  apiDatabase: '',
   hueEndpoint: '',
   isLoading: false,
   isSetup: false,
@@ -16,6 +16,6 @@ export const { state, watchState } = createState({
   statusProgress: '',
   tasks,
   tasksTimestamp: 0,
-}, storage, /* c8 ignore next */['apiBase', 'apiToken', 'hueEndpoint', 'tasks', 'tasksTimestamp'])
+}, storage, /* c8 ignore next */['apiDatabase', 'apiCollection', 'hueEndpoint', 'tasks', 'tasksTimestamp'])
 
-export type CredentialField = keyof Pick<typeof state, 'apiBase' | 'apiToken' | 'hueEndpoint'>
+export type CredentialField = keyof Pick<typeof state, 'apiCollection' | 'apiDatabase' | 'hueEndpoint'>

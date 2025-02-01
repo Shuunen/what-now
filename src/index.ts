@@ -6,7 +6,8 @@ import { tasks } from './components/tasks'
 import { timer } from './components/timer'
 import { title } from './components/title'
 import { toasts } from './components/toasts'
-import { checkCredentials } from './utils/airtable.utils'
+import { checkUrlCredentials } from './utils/credentials.utils'
+import './utils/database.utils'
 import './utils/idle.utils'
 import { watchState } from './utils/state.utils'
 import { loadTasks } from './utils/tasks.utils'
@@ -21,4 +22,4 @@ const landing = div('landing')
 landing.append(title, credentials, status, notification, timer, tasks, toasts)
 document.body.prepend(landing)
 
-checkCredentials(document.location.hash)
+checkUrlCredentials(document.location.hash)

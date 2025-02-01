@@ -3,6 +3,7 @@
   "author": "Romain Racamier-Lafon <romain.racamier@gmail.com>",
   "bugs": "https://github.com/Shuunen/what-now/issues",
   "dependencies": {
+    "appwrite": "16.1",
     "canvas-confetti": "1",
     "shuutils": "10.2"
   },
@@ -53,6 +54,7 @@
     "lint": "pnpm lint:deps && pnpm lint:eslint && pnpm lint:tsc && echo lint success",
     "lint:deps": "depcruise src --config",
     "lint:eslint": "eslint --cache src && echo lint:eslint success",
+    "lint:eslint:inspect": "eslint --inspect-config",
     "lint:tsc": "tsc --noEmit && echo lint:tsc success",
     "lint:watch": "watchlist src tests -eager -- pnpm lint",
     "mark": "unique-mark public/index.{html}",

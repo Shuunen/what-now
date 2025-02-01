@@ -1,21 +1,57 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-import { daysAgoIso10, sleep } from 'shuutils'
-import { expect, it } from 'vitest'
-import type { AirtableTask } from '../types'
+// eslint-disable-next-line max-classes-per-file
+import { daysAgoIso10, functionReturningVoid, sleep } from 'shuutils'
+import { expect, it, vi } from 'vitest'
+import type { Task } from '../types'
 import { state } from './state.utils'
-import { byActive, completeTask, daysRecurrence, daysSinceCompletion, dispatchTask, dispatchTasks, fetchList, isDataOlderThan, isTaskActive, loadTasks, pushToAirtable, toggleComplete, unCompleteTask } from './tasks.utils'
+import { byActive, completeTask, daysRecurrence, daysSinceCompletion, dispatchTask, dispatchTasks, fetchList, isDataOlderThan, isTaskActive, loadTasks, toggleComplete, unCompleteTask } from './tasks.utils'
 
-const id = '42'
 const today = daysAgoIso10(0)
 const yesterday = daysAgoIso10(1)
 
-const defaults = {
-  averageTime: 20,
+vi.mock('appwrite', () => {
+  /* eslint-disable @typescript-eslint/naming-convention, jsdoc/require-jsdoc, no-restricted-syntax, @typescript-eslint/explicit-member-accessibility,  @typescript-eslint/prefer-readonly-parameter-types, @typescript-eslint/max-params, @typescript-eslint/class-methods-use-this */
+  class Databases {
+    constructor (client?: Client) {
+      if (client) functionReturningVoid()
+    }
+    createDocument (databaseId: string, collectionId: string, documentId: string, data: object) {
+      return { $id: documentId, collectionId, databaseId, ...data }
+    }
+    listDocuments (databaseId: string, collectionId: string) {
+      return { documents: [{ $id: databaseId, name: collectionId }] }
+    }
+    updateDocument (databaseId: string, collectionId: string, documentId: string, data: object) {
+      return { $id: documentId, collectionId, databaseId, ...data }
+    }
+  }
+  class Client {
+    constructor () {
+      functionReturningVoid()
+    }
+    setEndpoint (endpoint: string) {
+      if (endpoint) functionReturningVoid()
+      return this
+    }
+    setProject (project: string) {
+      if (project) functionReturningVoid()
+      return this
+    }
+  }
+  const Query = {
+    limit: functionReturningVoid,
+  }
+  return { Client, Databases, Query }
+  /* eslint-enable @typescript-eslint/naming-convention, jsdoc/require-jsdoc, no-restricted-syntax, @typescript-eslint/explicit-member-accessibility,  @typescript-eslint/prefer-readonly-parameter-types, @typescript-eslint/max-params, @typescript-eslint/class-methods-use-this */
+})
+
+const defaults: Task = {
   completedOn: today,
-  done: false,
+  id: 'id-123',
+  isDone: false,
+  minutes: 20,
   name: 'a super task',
   once: 'day',
-}
+} satisfies Task
 
 /**
  * Create a task with default values
@@ -24,14 +60,14 @@ const defaults = {
  */
 // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 function createTask (fields: Partial<typeof defaults> = defaults) {
-  const { averageTime, completedOn, done, name, once } = { ...defaults, ...fields }
-  return { createdTime: yesterday, fields: { 'average-time': averageTime, 'completed-on': completedOn, done, name, once }, id } satisfies AirtableTask
+  const { completedOn, id, isDone, minutes, name, once } = { ...defaults, ...fields }
+  return { completedOn, id, isDone, minutes, name, once } satisfies Task
 }
 
 it('isTaskActive A : a task without completed on is active', () => {
   const task = createTask({ completedOn: '' })
   expect(isTaskActive(task)).toBe(true)
-  expect(task.fields.name, defaults.name)
+  expect(task.name, defaults.name)
 })
 
 it('isTaskActive B : a daily task completed yesterday is active', () => {
@@ -84,56 +120,61 @@ it('isTaskActive K : a daily task completed today can be considered active', () 
   expect(isTaskActive(task, true)).toBe(true)
 })
 
+it('isTaskActive L : a daily task that is done is inactive', () => {
+  const task = createTask({ completedOn: today, isDone: true, once: 'day' })
+  expect(isTaskActive(task)).toBe(false)
+})
+
 it('toggle complete A task update completed on date', async () => {
   const task = createTask({ completedOn: yesterday, once: 'day' })
   await toggleComplete(task)
-  expect(task.fields.done).toBe(false) // no a one time task, so we will have to do it again
-  expect(task.fields['completed-on'], today)
+  expect(task.isDone).toBe(false) // no a one time task, so we will have to do it again
+  expect(task.completedOn, today)
 })
 
 it('toggle complete B one-time task mark it as done', async () => {
   const task = createTask({ once: 'yes' })
   await toggleComplete(task)
-  expect(task.fields.done).toBe(true)
+  expect(task.isDone).toBe(true)
 })
 
 it('toggle complete C switches task active state', async () => {
   const task = createTask({ completedOn: yesterday, once: 'day' })
   expect(isTaskActive(task), 'task is active').toBe(true)
   await toggleComplete(task)
-  expect(task.fields.done, 'task is not done').toBe(false)
+  expect(task.isDone, 'task is not done').toBe(false)
   expect(isTaskActive(task), 'task is no more active').toBe(false)
   await toggleComplete(task)
-  expect(task.fields.done, 'task still not done').toBe(false)
+  expect(task.isDone, 'task still not done').toBe(false)
   expect(isTaskActive(task), 'task is active again').toBe(true)
 })
 
 it('toggle complete D succeed with base & token in state', async () => {
   const task = createTask({ completedOn: yesterday, once: 'day' })
-  state.apiBase = 'app12345654987123'
-  state.apiToken = 'pat12345654987123azdazdzadazdzadaz465465468479649646azd46az465azdazd'
+  state.apiDatabase = 'app12345654987123'
+  state.apiCollection = 'pat12345654987123azdazdzadazdzadaz465465468479649646azd46az465azdazd'
   const hasSucceed = await toggleComplete(task)
   expect(hasSucceed).toBe(true)
 })
 
 it('toggle complete E succeed without base & token in state', async () => {
   const task = createTask({ completedOn: yesterday, once: 'day' })
-  state.apiBase = ''
-  state.apiToken = ''
+  state.apiDatabase = ''
+  state.apiCollection = ''
   const hasSucceed = await toggleComplete(task)
   expect(hasSucceed).toBe(true)
 })
 
 it('fetch list via triggering isSetup without base & token in state', () => {
-  state.apiBase = ''
-  state.apiToken = ''
+  state.apiDatabase = ''
+  state.apiCollection = ''
   state.isSetup = true
   expect(state.isSetup).toBe(true)
 })
 
 it('fetch list via fetchList with base & token in state', async () => {
-  state.apiBase = 'app12345654987123'
-  state.apiToken = 'pat12345654987123azdazdzadazdzadaz465465468479649646azd46az465azdazd'
+  state.apiDatabase = 'app12345654987123'
+  state.apiCollection = 'pat12345654987123azdazdzadazdzadaz465465468479649646azd46az465azdazd'
   await fetchList()
   expect(state.isSetup).toBe(true)
 })
@@ -144,22 +185,6 @@ it('data old check', async () => {
   state.tasksTimestamp = Date.now()
   await sleep(100)
   expect(isDataOlderThan(50), 'data is older than 50ms after waiting 100ms').toBe(true)
-})
-
-it('update task with base & token in state', async () => {
-  state.apiBase = 'app12345654987123'
-  state.apiToken = 'pat12345654987123azdazdzadazdzadaz465465468479649646azd46az465azdazd'
-  const task = createTask({ completedOn: yesterday, once: 'day' })
-  const hasBeenUpdated = await toggleComplete(task)
-  expect(hasBeenUpdated).toBe(true)
-})
-
-it('update task without base & token in state', async () => {
-  state.apiBase = ''
-  state.apiToken = ''
-  const task = createTask({ completedOn: yesterday, once: 'day' })
-  const hasBeenUpdated = await toggleComplete(task)
-  expect(hasBeenUpdated).toBe(true)
 })
 
 it('dispatch tasks list', async () => {
@@ -174,8 +199,8 @@ it('dispatch task A : cannot dispatch a daily task', async () => {
 })
 
 it('dispatch task B : can dispatch a weekly task completed yesterday', async () => {
-  state.apiBase = 'app12345654987123'
-  state.apiToken = 'pat12345654987123azdazdzadazdzadaz465465468479649646azd46az465azdazd'
+  state.apiDatabase = 'app12345654987123'
+  state.apiCollection = 'pat12345654987123azdazdzadazdzadaz465465468479649646azd46az465azdazd'
   const task = createTask({ completedOn: yesterday, once: 'week' })
   const hasBeenUpdated = await dispatchTask(task)
   expect(hasBeenUpdated).toBe(true)
@@ -221,12 +246,6 @@ it('days since completion A', () => { expect(daysSinceCompletion(createTask({ co
 it('days since completion B', () => { expect(daysSinceCompletion(createTask({ completedOn: yesterday }))).toBe(1) })
 it('days since completion C', () => { expect(daysSinceCompletion(createTask({ completedOn: daysAgoIso10(2) }))).toBe(2) })
 
-it('push to Airtable A', async () => {
-  state.apiBase = 'app12345654987123'
-  state.apiToken = 'pat12345654987123azdazdzadazdzadaz465465468479649646azd46az465azdazd'
-  const hasPushed = await pushToAirtable(createTask({ once: 'day' }))
-  expect(hasPushed).toBe(true)
-})
 
 it('complete A', async () => {
   expect(await completeTask(createTask({ once: 'day' }))).toBe(true)
@@ -243,5 +262,5 @@ it('should sort tasks by active A', () => {
     createTask({ name: 'c', once: 'month' }),
   ]
   const sortedTasks = Array.from(tasks).sort(byActive)
-  expect(sortedTasks[0]?.fields.name).toBe('a')
+  expect(sortedTasks[0]?.name).toBe('a')
 })

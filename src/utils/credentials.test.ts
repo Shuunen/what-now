@@ -1,34 +1,58 @@
 import { expect, it } from 'vitest'
-import { parseClipboard } from './credentials.utils'
+import { checkUrlCredentials, parseClipboard, validateCredentials } from './credentials.utils'
+import { state } from './state.utils'
+
+const validUuid = '12345678-90ab-cdef-ffff-ffffffffffff'
+const invalidUuid = '12345678-90ab-cdef-ffff-ffffffffffff!'
+const validUrl = 'https://zob.com'
 
 it('parseClipboard A empty', () => {
-  expect(parseClipboard('')).toMatchInlineSnapshot(`
-    {
-      "apiBase": "",
-      "apiToken": "",
-      "hueEndpoint": "",
-    }
-  `)
+  const { apiCollection, apiDatabase, hueEndpoint } = parseClipboard('')
+  expect(apiCollection).toBe('')
+  expect(apiDatabase).toBe('')
+  expect(hueEndpoint).toBe('')
 })
 
 it('parseClipboard B invalid', () => {
-  expect(parseClipboard('app1238479649646azd46az465azdazd\nhttps://zob.com')).toMatchInlineSnapshot(`
-    {
-      "apiBase": "",
-      "apiToken": "",
-      "hueEndpoint": "",
-    }
-  `)
+  const { apiCollection, apiDatabase, hueEndpoint } = parseClipboard(`"${invalidUuid}\n${validUuid}\n${validUrl}"`)
+  expect(apiCollection).toBe('')
+  expect(apiDatabase).toBe('')
+  expect(hueEndpoint).toBe('')
 })
 
 it('parseClipboard C valid', () => {
-  expect(parseClipboard(`"app1238479649646azd46az465azdazd
-pat12345654987123azdazdzadazdzadaz465465468479649646azd46az465azdazd
-https://zob.com"`)).toMatchInlineSnapshot(`
-  {
-    "apiBase": "app1238479649646azd46az465azdazd",
-    "apiToken": "pat12345654987123azdazdzadazdzadaz465465468479649646azd46az465azdazd",
-    "hueEndpoint": "https://zob.com",
-  }
-`)
+  const { apiCollection, apiDatabase, hueEndpoint } = parseClipboard(`"${validUuid}\n${validUuid}\n${validUrl}"`)
+  expect(apiCollection).toBe(validUuid)
+  expect(apiDatabase).toBe(validUuid)
+  expect(hueEndpoint).toBe(validUrl)
+})
+
+it('validateCredentials A', () => {
+  expect(validateCredentials('A')).toBe(false)
+})
+
+it('validateCredentials B valid credentials', () => {
+  expect(validateCredentials(validUuid, validUuid)).toBe(true)
+})
+
+it('checkUrlCredentials A nothing setup', () => {
+  expect(checkUrlCredentials()).toBe(false)
+})
+
+it('checkUrlCredentials B giving valid hash', () => {
+  expect(checkUrlCredentials(`#${validUuid}&${validUuid}`)).toBe(true)
+})
+
+it('checkUrlCredentials C giving invalid hash', () => {
+  state.apiDatabase = ''
+  state.apiCollection = ''
+  const hasSucceed = checkUrlCredentials(`#${invalidUuid}&${validUuid}`)
+  expect(hasSucceed).toBe(false)
+})
+
+it('checkUrlCredentials D with a with valid base & token in state', () => {
+  state.apiDatabase = validUuid
+  state.apiCollection = validUuid
+  const hasSucceed = checkUrlCredentials()
+  expect(hasSucceed).toBe(true)
 })
