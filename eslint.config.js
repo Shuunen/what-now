@@ -4,6 +4,10 @@
 import shuunen from 'eslint-plugin-shuunen'
 
 export default [
+  {
+    ignores: ['public/*.js'],
+    name: 'what-now-ignores',
+  },
   ...shuunen.configs.base,
   ...shuunen.configs.node,
   ...shuunen.configs.browser,
