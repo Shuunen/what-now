@@ -3,7 +3,7 @@
   "author": "Romain Racamier-Lafon <romain.racamier@gmail.com>",
   "bugs": "https://github.com/Shuunen/what-now/issues",
   "dependencies": {
-    "appwrite": "16.1",
+    "appwrite": "17.0",
     "canvas-confetti": "1",
     "shuutils": "10.2"
   },
