@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/prefer-readonly-parameter-types */
 /* eslint-disable jsdoc/require-jsdoc */
-import { dateIso10, daysAgoIso10, nbBefore, nbDaysInMonth, nbDaysInWeek, nbDaysInYear, nbMsInDay, nbMsInMinute, readableTimeAgo } from 'shuutils'
+import { dateIso10, daysAgoIso10, nbBefore, nbDaysInMonth, nbDaysInWeek, nbDaysInYear, nbMsInDay, nbMsInMinute, readableTimeAgo, Result } from 'shuutils'
 import type { Task } from '../types'
 import { logger } from './logger.utils'
 import { state } from './state.utils'
@@ -66,10 +66,12 @@ export function byActive (taskA: Task, taskB: Task) {
 export async function fetchList () {
   logger.info('fetch list')
   state.statusInfo = 'Loading tasks, please wait...'
-  const list = await getTasks()
+  const result = await getTasks()
+  if (!result.ok) return result
   state.statusInfo = ''
   state.tasksTimestamp = Date.now()
-  return list.filter(task => isTaskActive(task, true)).sort(byActive)
+  const list = result.value.filter(task => isTaskActive(task, true)).sort(byActive)
+  return Result.ok(list)
 }
 
 export function isDataOlderThan (milliseconds: number) {
@@ -82,24 +84,22 @@ export function isDataOlderThan (milliseconds: number) {
 }
 
 export async function loadTasks () {
-  if (!state.isSetup) return false
-  if (state.tasks.length > 0 && !isDataOlderThan(Number(nbMsInMinute))) {
-    logger.info(`tasks are fresh (${readableTimeAgo(Date.now() - state.tasksTimestamp)})`)
-    return false
-  }
-  const tasks = await fetchList()
-  logger.info('found', tasks.length, 'task(s)')
+  if (!state.isSetup) return Result.error('not setup, cannot load tasks')
+  if (state.tasks.length > 0 && !isDataOlderThan(Number(nbMsInMinute))) return Result.ok(`tasks are fresh (${readableTimeAgo(Date.now() - state.tasksTimestamp)})`)
+  const result = await fetchList()
+  if (!result.ok) return result
+  logger.info('found', result.value.length, 'task(s)')
   state.isLoading = false // eslint-disable-line require-atomic-updates
-  state.tasks = tasks // eslint-disable-line require-atomic-updates
-  return true
+  state.tasks = result.value // eslint-disable-line require-atomic-updates
+  return Result.ok('tasks loaded')
 }
 
 export async function dispatchTask (task: Task, index = 0) {
-  if (['day', 'yes'].includes(task.once)) return false
+  if (['day', 'yes'].includes(task.once)) return Result.error(task.once === 'yes' ? 'one-time task, cannot dispatch' : 'daily task, nothing to dispatch')
   const delay = daysRecurrence(task)
   const position = index % delay
   const completionDate = daysAgoIso10((nbBefore * position) + delay)
-  if (completionDate === task.completedOn) return false
+  if (completionDate === task.completedOn) return Result.error('task already dispatched')
   task.completedOn = completionDate
   return updateTask(task)
 }

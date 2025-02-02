@@ -1,9 +1,10 @@
-// eslint-disable-next-line max-classes-per-file
-import { daysAgoIso10, functionReturningVoid, sleep } from 'shuutils'
+/* eslint-disable max-classes-per-file, max-lines */
+import { daysAgoIso10, daysFromNow, functionReturningVoid, sleep } from 'shuutils'
 import { expect, it, vi } from 'vitest'
 import type { Task } from '../types'
 import { state } from './state.utils'
 import { byActive, completeTask, daysRecurrence, daysSinceCompletion, dispatchTask, dispatchTasks, fetchList, isDataOlderThan, isTaskActive, loadTasks, toggleComplete, unCompleteTask } from './tasks.utils'
+import { addTask, localToRemoteTask } from './database.utils'
 
 const today = daysAgoIso10(0)
 const yesterday = daysAgoIso10(1)
@@ -14,13 +15,19 @@ vi.mock('appwrite', () => {
     constructor (client?: Client) {
       if (client) functionReturningVoid()
     }
-    createDocument (databaseId: string, collectionId: string, documentId: string, data: object) {
+    async createDocument (databaseId: string, collectionId: string, documentId: string, data: object) {
+      await sleep(10)
+      if (documentId === 'fail-trigger') throw new Error('fail-trigger')
       return { $id: documentId, collectionId, databaseId, ...data }
     }
-    listDocuments (databaseId: string, collectionId: string) {
+    async listDocuments (databaseId: string, collectionId: string) {
+      await sleep(10)
+      if (databaseId === 'fail-trigger') throw new Error('fail-trigger')
       return { documents: [{ $id: databaseId, name: collectionId }] }
     }
-    updateDocument (databaseId: string, collectionId: string, documentId: string, data: object) {
+    async updateDocument (databaseId: string, collectionId: string, documentId: string, data: object) {
+      await sleep(10)
+      if (documentId === 'fail-trigger') throw new Error('fail-trigger')
       return { $id: documentId, collectionId, databaseId, ...data }
     }
   }
@@ -153,16 +160,16 @@ it('toggle complete D succeed with base & token in state', async () => {
   const task = createTask({ completedOn: yesterday, once: 'day' })
   state.apiDatabase = 'app12345654987123'
   state.apiCollection = 'pat12345654987123azdazdzadazdzadaz465465468479649646azd46az465azdazd'
-  const hasSucceed = await toggleComplete(task)
-  expect(hasSucceed).toBe(true)
+  const result = await toggleComplete(task)
+  expect(result.ok).toBe(true)
 })
 
 it('toggle complete E succeed without base & token in state', async () => {
   const task = createTask({ completedOn: yesterday, once: 'day' })
   state.apiDatabase = ''
   state.apiCollection = ''
-  const hasSucceed = await toggleComplete(task)
-  expect(hasSucceed).toBe(true)
+  const result = await toggleComplete(task)
+  expect(result.ok).toBe(true)
 })
 
 it('fetch list via triggering isSetup without base & token in state', () => {
@@ -194,42 +201,75 @@ it('dispatch tasks list', async () => {
 
 it('dispatch task A : cannot dispatch a daily task', async () => {
   const task = createTask({ completedOn: yesterday, once: 'day' })
-  const hasBeenUpdated = await dispatchTask(task)
-  expect(hasBeenUpdated).toBe(false)
+  const result = await dispatchTask(task)
+  expect(result).toMatchInlineSnapshot(`
+    Err {
+      "error": "daily task, nothing to dispatch",
+      "ok": false,
+    }
+  `)
 })
 
 it('dispatch task B : can dispatch a weekly task completed yesterday', async () => {
-  state.apiDatabase = 'app12345654987123'
-  state.apiCollection = 'pat12345654987123azdazdzadazdzadaz465465468479649646azd46az465azdazd'
   const task = createTask({ completedOn: yesterday, once: 'week' })
-  const hasBeenUpdated = await dispatchTask(task)
-  expect(hasBeenUpdated).toBe(true)
+  const result = await dispatchTask(task)
+  expect(result.ok).toBe(true)
 })
 
 it('dispatch task C : cannot dispatch a one time task', async () => {
   const task = createTask({ completedOn: yesterday, once: 'yes' })
-  const hasBeenUpdated = await dispatchTask(task)
-  expect(hasBeenUpdated).toBe(false)
+  const result = await dispatchTask(task)
+  expect(result).toMatchInlineSnapshot(`
+    Err {
+      "error": "one-time task, cannot dispatch",
+      "ok": false,
+    }
+  `)
 })
 
 it('dispatch task D : cannot dispatch a weekly task completed 7 days ago', async () => {
   const task = createTask({ completedOn: daysAgoIso10(7), once: 'week' })
-  const hasBeenUpdated = await dispatchTask(task)
-  expect(hasBeenUpdated).toBe(false)
+  const result = await dispatchTask(task)
+  expect(result).toMatchInlineSnapshot(`
+    Err {
+      "error": "task already dispatched",
+      "ok": false,
+    }
+  `)
 })
 
-it('load tasks but there is fresh tasks in a setup state', async () => {
+it('loadTasks A fresh tasks in a setup state', async () => {
   state.isSetup = true
   state.tasksTimestamp = Date.now()
   state.tasks = [createTask({ completedOn: yesterday, once: 'day' })]
-  const hasLoadedTasks = await loadTasks()
-  expect(hasLoadedTasks).toBe(false)
+  expect(await loadTasks()).toMatchInlineSnapshot(`
+    Ok {
+      "ok": true,
+      "value": "tasks are fresh (now)",
+    }
+  `)
 })
 
-it('load tasks but state is not setup', async () => {
+it('loadTasks B state is not setup', async () => {
   state.isSetup = false
-  const hasLoadedTasks = await loadTasks()
-  expect(hasLoadedTasks).toBe(false)
+  expect(await loadTasks()).toMatchInlineSnapshot(`
+    Err {
+      "error": "not setup, cannot load tasks",
+      "ok": false,
+    }
+  `)
+})
+
+it('loadTasks C failed to fetch tasks', async () => {
+  state.apiDatabase = 'fail-trigger'
+  state.isSetup = true
+  state.tasksTimestamp = daysFromNow(-1).getTime()
+  expect(await loadTasks()).toMatchInlineSnapshot(`
+    Err {
+      "error": [Error: fail-trigger],
+      "ok": false,
+    }
+  `)
 })
 
 it('days recurrence A', () => { expect(daysRecurrence(createTask({ once: 'day' }))).toBe(1) })
@@ -248,11 +288,15 @@ it('days since completion C', () => { expect(daysSinceCompletion(createTask({ co
 
 
 it('complete A', async () => {
-  expect(await completeTask(createTask({ once: 'day' }))).toBe(true)
+  const task = createTask({ once: 'day' })
+  const result = await completeTask(task)
+  expect(result.ok).toBe(true)
 })
 
 it('unComplete A', async () => {
-  expect(await unCompleteTask(createTask({ once: 'week' }))).toBe(true)
+  const task = createTask({ once: 'week' })
+  const result = await unCompleteTask(task)
+  expect(result.ok).toBe(true)
 })
 
 it('should sort tasks by active A', () => {
@@ -263,4 +307,21 @@ it('should sort tasks by active A', () => {
   ]
   const sortedTasks = Array.from(tasks).sort(byActive)
   expect(sortedTasks[0]?.name).toBe('a')
+})
+
+it('addTask A success', async () => {
+  const task = localToRemoteTask(createTask({ name: 'nice task', once: 'day' }))
+  const result = await addTask(task)
+  expect(result.ok).toBe(true)
+})
+
+it('addTask B failing', async () => {
+  const task = localToRemoteTask(createTask({ name: 'fail-trigger', once: 'day' }))
+  const result = await addTask(task)
+  expect(result).toMatchInlineSnapshot(`
+    Err {
+      "error": [Error: fail-trigger],
+      "ok": false,
+    }
+  `)
 })
