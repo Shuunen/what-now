@@ -57,7 +57,7 @@
     "lint:eslint:inspect": "eslint --inspect-config",
     "lint:tsc": "tsc --noEmit && echo lint:tsc success",
     "lint:watch": "watchlist src tests -eager -- pnpm lint",
-    "mark": "unique-mark public/index.{html}",
+    "mark": "unique-mark public/index.{*}",
     "postversion": "git push && git push --tags",
     "preversion": "pnpm check",
     "serve": "servor public --reload",
