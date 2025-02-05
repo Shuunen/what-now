@@ -8,6 +8,7 @@ function stuffToMessage (...stuff: unknown[]) {
   return stuff.map(thing => {
     if (typeof thing === 'string') return thing
     if (typeof thing === 'object') return JSON.stringify(thing)
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
     return String(thing)
   }).join(', ')
 }

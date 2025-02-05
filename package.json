@@ -16,7 +16,7 @@
     "dependency-cruiser": "latest",
     "esbuild": "0.24",
     "eslint": "*",
-    "eslint-plugin-shuunen": "0.4",
+    "eslint-plugin-shuunen": "1.0",
     "repo-check": "1.40",
     "tailwindcss": "3",
     "typescript": "5.7",
