@@ -2,6 +2,6 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   html: {
-    cspNonce: 'shu1772n1'
+    cspNonce: 'shu1772n1',
   },
 })

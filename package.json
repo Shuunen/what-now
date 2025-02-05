@@ -49,7 +49,7 @@
     "dev": "vite --port 8080",
     "lint": "pnpm lint:deps && pnpm lint:eslint && pnpm lint:tsc && echo lint success",
     "lint:deps": "depcruise src --config",
-    "lint:eslint": "eslint --cache src && echo lint:eslint success",
+    "lint:eslint": "eslint --cache && echo lint:eslint success",
     "lint:eslint:inspect": "eslint --inspect-config",
     "lint:tsc": "tsc --noEmit && echo lint:tsc success",
     "postversion": "git push && git push --tags",
