@@ -112,6 +112,7 @@ export default {
         couldNotResolve: true,
         pathNot: [
           'shuutils',
+          'vite/client'
         ],
       },
     },

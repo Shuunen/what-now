@@ -2,7 +2,7 @@
 /* eslint-disable no-console */ // console.log is needed here, cannot use logger
 import { pickOne } from 'shuutils'
 
-const version = 9
+const version = '__unique-mark__'
 const url = new URL('', self.location.origin).href
 const motivators = [
   {

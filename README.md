@@ -81,15 +81,13 @@ You can have a look at the sources to see that this app is not sharing your data
 - [Florian Reichelt](https://freesound.org/people/florianreichelt/sounds/459973/) : fireworks sound effect hosted on FreeSound
 - [Github](https://github.com) : for all their great work year after year, pushing OSS forward
 - [Netlify](https://netlify.com) : awesome company that offers free CI & hosting for OSS projects
-- [Npm-parallel](https://github.com/spion/npm-parallel) : to keep my npm scripts clean & readable
 - [Repo-checker](https://github.com/Shuunen/repo-checker) : eslint cover /src code and this tool the rest ^^
-- [Servor](https://github.com/lukejacksonn/servor) : dependency free dev server for single page app development
 - [Shields.io](https://shields.io) : nice looking badges to be proud of
 - [Shuutils](https://github.com/Shuunen/shuutils) : collection of pure JS utils
 - [TailwindCss](https://tailwindcss.com) : awesome lib to produce maintainable style
 - [V8](https://github.com/demurgos/v8-coverage) : simple & effective cli for code coverage
+- [Vite](https://github.com/vitejs/vite) : super fast frontend tooling
 - [Vitest](https://github.com/vitest-dev/vitest) : super fast vite-native testing framework
-- [Watchlist](https://github.com/lukeed/watchlist) : recursively watch a list of directories & run a command on any file system
 
 ## Stargazers over time
 

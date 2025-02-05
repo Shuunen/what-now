@@ -1,23 +1,30 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "checkJs": true,
     "esModuleInterop": true,
     "exactOptionalPropertyTypes": true,
     "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
     "lib": [
       "ESNext",
-      "DOM"
+      "DOM",
+      "DOM.Iterable"
     ],
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleDetection": "force",
+    "moduleResolution": "bundler",
+    "noEmit": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
     "noPropertyAccessFromIndexSignature": false,
     "noUncheckedIndexedAccess": true,
+    "noUncheckedSideEffectImports": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "outDir": "./dist",
@@ -28,13 +35,12 @@
     "types": [
       "serviceworker"
     ],
+    "useDefineForClassFields": true,
     "verbatimModuleSyntax": true
   },
   "include": [
     "src",
-    "tests",
     ".*.js",
-    "*.cjs",
     "*.js",
     "*.ts"
   ]

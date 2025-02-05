@@ -12,6 +12,7 @@ import './utils/idle.utils'
 import { watchState } from './utils/state.utils'
 import { loadTasks } from './utils/tasks.utils'
 import './utils/worker'
+import './style.css'
 
 storage.prefix = 'what-now_'
 
