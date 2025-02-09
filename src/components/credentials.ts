@@ -3,6 +3,7 @@ import { parseClipboard, validateCredentials } from '../utils/credentials.utils'
 import { form } from '../utils/dom.utils'
 import { logger } from '../utils/logger.utils'
 import { type CredentialField, state, watchState } from '../utils/state.utils'
+import { downloadData } from '../utils/database.utils'
 
 const credentials = div('credentials hidden pt-4')
 
@@ -17,7 +18,7 @@ const fields = [
   { href: 'https://cloud.appwrite.io/', label: 'AppWrite collection id', link: 'AppWrite cloud', maxlength: 100, name: 'appwrite-collection-id', pattern: String.raw`^\w+$` },
   { href: 'https://developers.meethue.com/develop/get-started-2/', label: 'Hue status light', link: 'find my endpoint', maxlength: 150, name: 'hue-status-light', pattern: String.raw`^https://.+$` },
 ] as const
-const formElement = form(fields, 'Use these')
+const formElement = form(fields)
 credentials.append(formElement)
 
 /**
@@ -73,5 +74,7 @@ on('focus', async () => {
   logger.info('clipboard contains :', clipboard)
   fillForm(parseClipboard(clipboard))
 })
+
+on('download-data-click', () => { void downloadData() })
 
 export { credentials }

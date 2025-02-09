@@ -1,5 +1,5 @@
 import { Client, Databases, Query, type Models } from 'appwrite'
-import { nbPercentMax, Result, slugify } from 'shuutils'
+import { dateIso10, nbPercentMax, nbSpacesIndent, Result, slugify, toastError, toastSuccess } from 'shuutils'
 import type { AppWriteTask, Task } from '../types'
 import { logger } from './logger.utils'
 import { state } from './state.utils'
@@ -74,4 +74,30 @@ export async function getTasks () {
   const tasks = result.value.documents.map<Task>((task) => remoteToLocalTask(task))
   logger.info(`found ${tasks.length} tasks on db`, tasks)
   return Result.ok(tasks)
+}
+
+/* c8 ignore start */
+/**
+ * Download the data from the database
+ * @returns the result of the operation
+ */
+// eslint-disable-next-line max-statements
+export async function downloadData () {
+  const result = await Result.trySafe(database.listDocuments<AppWriteTaskModel>(state.apiDatabase, state.apiCollection, [Query.limit(nbPercentMax)]))
+  if (!result.ok) {
+    toastError('Failed to download data')
+    logger.error('failed to download data', result.error)
+    return
+  }
+  const json = JSON.stringify(result.value.documents, undefined, nbSpacesIndent)
+  const blob = new Blob([json], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `${dateIso10()}_what-now_tasks.json`
+  document.body.append(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+  toastSuccess('Data downloaded')
 }
