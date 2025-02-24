@@ -17,7 +17,7 @@
     "esbuild": "0.25",
     "eslint": "*",
     "eslint-plugin-shuunen": "1.0",
-    "repo-check": "1.40",
+    "repo-check": "1.42",
     "tailwindcss": "3",
     "typescript": "5.7",
     "vite": "6.1",
