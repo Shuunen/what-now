@@ -5,7 +5,7 @@
   "dependencies": {
     "appwrite": "17.0",
     "canvas-confetti": "1",
-    "shuutils": "10.5"
+    "shuutils": "10.6"
   },
   "description": "Minimalist task coach",
   "devDependencies": {
