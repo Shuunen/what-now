@@ -10,7 +10,7 @@ const toasts = div('app-toasts fixed bottom-3 z-10 right-5 select-none ml-5')
  * @returns the toast element
  */
 function buildToast (type: 'error' | 'info', message: string) {
-  const toast = div(tw('app-toast mt-2 rounded-lg bg-gradient-to-tr p-4 opacity-0 shadow-lg transition-all delay-300 ease-in-out'))
+  const toast = div(tw('app-toast mt-2 rounded-lg bg-linear-to-tr p-4 opacity-0 shadow-lg transition-all delay-300 ease-in-out'))
   const icon = div(tw('relative -top-0.5 float-left opacity-60 saturate-0'), type === 'error' ? '⚠' : 'ℹ️')
   const text = div(tw('ml-1 inline'), ellipsis(message, 100))  // eslint-disable-line @typescript-eslint/no-magic-numbers
   toast.append(icon, text)

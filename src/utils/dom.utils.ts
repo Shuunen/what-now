@@ -17,7 +17,7 @@ type FormField = Readonly<{
  * @returns button element
  */
 export function button (content: string, classes = '') {
-  const element = dom('button', tw(`app-button rounded bg-blue-800 px-4 py-2 ${classes}`), content)
+  const element = dom('button', tw(`app-button rounded-sm bg-blue-800 px-4 py-2 ${classes}`), content)
   return element
 }
 
@@ -48,7 +48,7 @@ export function form (fields: Readonly<FormField[]>) {
       <span class="border-b">${field.label}</span>
       <svg class="${tw('ml-2 inline size-4')}"><use xlink:href="icons.svg#external"></use></svg>
     </a>
-    <input class="${index % 0 ? 'bg-gradient-to-r' : 'bg-gradient-to-l'} ${tw('rounded from-blue-900 to-blue-700 px-2 py-1 sm:w-96')}" name="${field.name}" pattern="${field.pattern}" maxlength="${field.maxlength}" required>
+    <input class="${index % 0 ? 'bg-linear-to-r' : 'bg-linear-to-l'} ${tw('rounded-sm from-blue-900 to-blue-700 px-2 py-1 sm:w-96')}" name="${field.name}" pattern="${field.pattern}" maxlength="${field.maxlength}" required>
   </label>`).join('')
   const buttons = [button('Use these'), buttonSecondary('Download data')]
   element.append(div(tw('flex gap-4'), buttons))
