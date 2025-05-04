@@ -57,6 +57,19 @@ You can have a look at the sources to see that this app is not sharing your data
 
 - [ ] try to use reefjs.com on this project
 
+## New UX/UI & ideas
+
+1. instead of tasks, the daily goal might be to reach levels like : chores, health, mental and each task will give points to each level
+2. there could be bonus & malus tasks, for exemple walk 8000 steps will give points to health but drinking alcool will remove some
+3. also these gauges might not be interesting on a daily basis, maybe a longer period of time
+4. maybe alcool could be a gauge & for exemple a few shots will raise a green state alcool gauge to an orange state, and a night in a bar drinkng pints over pints will raise the gauge to red, and the next day, if no alcool taken, that gauge could repair or recover and slightly go back to orange state, and the next day to green-ish etc
+
+in terms of ui/ux :
+
+1. a dashboard that shows global state
+2. a slider at the bottom that shows every levels/gauges and where visually we can already see a level/gauge that has not reach it's goal state/level/amount
+3. ideally we could see progressions over months or years
+  
 ## Benchmarks
 
 ### Build ts sources to js
@@ -73,6 +86,7 @@ You can have a look at the sources to see that this app is not sharing your data
 ## Thanks
 
 - [AppWrite](https://appwrite.io) : great db provider with a nice free tier <3
+- [Boxy Svg](https://boxy-svg.com) : simple & effective svg editor
 - [Canvas-Confetti](https://github.com/catdad/canvas-confetti) : superb fireworks/confetti effets
 - [Dependency-cruiser](https://github.com/sverweij/dependency-cruiser) : handy tool to validate and visualize dependencies
 - [Esbuild](https://github.com/evanw/esbuild) : an extremely fast JavaScript bundler and minifier
@@ -84,6 +98,7 @@ You can have a look at the sources to see that this app is not sharing your data
 - [Repo-checker](https://github.com/Shuunen/repo-checker) : eslint cover /src code and this tool the rest ^^
 - [Shields.io](https://shields.io) : nice looking badges to be proud of
 - [Shuutils](https://github.com/Shuunen/shuutils) : collection of pure JS utils
+- [Svg Omg](https://jakearchibald.github.io/svgomg/) : the great king of svg file size reduction
 - [TailwindCss](https://tailwindcss.com) : awesome lib to produce maintainable style
 - [V8](https://github.com/demurgos/v8-coverage) : simple & effective cli for code coverage
 - [Vite](https://github.com/vitejs/vite) : super fast frontend tooling
