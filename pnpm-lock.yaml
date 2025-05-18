@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       appwrite:
-        specifier: '17.0'
-        version: 17.0.2
+        specifier: '18.0'
+        version: 18.0.0
       canvas-confetti:
         specifier: '1'
         version: 1.9.3
@@ -35,7 +35,7 @@ importers:
         version: 3.1.2(vitest@3.1.2(@types/node@22.15.3)(jiti@2.4.2)(lightningcss@1.29.2)(yaml@2.7.1))
       dependency-cruiser:
         specifier: latest
-        version: 16.10.1
+        version: 16.10.2
       esbuild:
         specifier: '0.25'
         version: 0.25.3
@@ -685,8 +685,8 @@ packages:
     resolution: {integrity: sha512-bN798gFfQX+viw3R7yrGWRqnrN2oRkEkUjjl4JNn4E8GxxbjtG3FbrEIIY3l8/hrwUwIeCZvi4QuOTP4MErVug==}
     engines: {node: '>=12'}
 
-  appwrite@17.0.2:
-    resolution: {integrity: sha512-h8frLDRYzFDLS9xA2s8ZSlH/prPFq/ma5477fgQHHLcE/t9RDxNImpq9AleRUb9Oh1YJiP49HCObxgSTGW5AQA==}
+  appwrite@18.0.0:
+    resolution: {integrity: sha512-19qs1dj6s/6MbC1Ds6PuwR7qA5p2zGs4fPVIgSItP3kiBnm5+ScA4FNkBbwrT99Kq+mcfG3LA1GRJDOkPMUkxQ==}
 
   are-docs-informative@0.0.2:
     resolution: {integrity: sha512-ixiS0nLNNG5jNQzgZJNoUpBKdo9yTYZMGJ+QgT2jmjR7G7+QHRCc4v6LQ3NgE7EBJq+o0ams3waJwkrlBom8Ig==}
@@ -847,8 +847,8 @@ packages:
     resolution: {integrity: sha512-g7nH6P6dyDioJogAAGprGpCtVImJhpPk/roCzdb3fIh61/s/nPsfR6onyMwkCAR/OlC3yBC0lESvUoQEAssIrw==}
     engines: {node: '>= 0.8'}
 
-  dependency-cruiser@16.10.1:
-    resolution: {integrity: sha512-Uw8/emAfzD+Zcua6Hfg1wCnskJd2QSRGKw5tUWrCtA8PBSz+n/zfUYCTjFi9MwdiTA5oecN93FBvh9jJhTLs4A==}
+  dependency-cruiser@16.10.2:
+    resolution: {integrity: sha512-3tvyt9g3QV6iD6SLC+71bYZnKGTxHo/8dJeguhTgB2T0ui9k/6BbFlibrFYSlb7WeNHS1OlKUFY+BEQ1+w8gvg==}
     engines: {node: ^18.17||>=20}
     hasBin: true
 
@@ -2561,7 +2561,7 @@ snapshots:
 
   ansi-styles@6.2.1: {}
 
-  appwrite@17.0.2: {}
+  appwrite@18.0.0: {}
 
   are-docs-informative@0.0.2: {}
 
@@ -2701,7 +2701,7 @@ snapshots:
 
   depd@2.0.0: {}
 
-  dependency-cruiser@16.10.1:
+  dependency-cruiser@16.10.2:
     dependencies:
       acorn: 8.14.1
       acorn-jsx: 5.3.2(acorn@8.14.1)
