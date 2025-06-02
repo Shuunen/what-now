@@ -13,7 +13,7 @@
     "@types/canvas-confetti": "1",
     "@types/node": "22",
     "@types/serviceworker": "0",
-    "@vitest/coverage-v8": "3.1",
+    "@vitest/coverage-v8": "3.2",
     "dependency-cruiser": "latest",
     "esbuild": "0.25",
     "eslint": "*",
@@ -22,7 +22,7 @@
     "tailwindcss": "4.1",
     "typescript": "5.8",
     "vite": "6.3",
-    "vitest": "3.1"
+    "vitest": "3.2"
   },
   "files": [
     "src"
