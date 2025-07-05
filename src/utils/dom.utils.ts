@@ -17,7 +17,7 @@ type FormField = Readonly<{
  * @returns button element
  */
 export function button (content: string, classes = '') {
-  const element = dom('button', tw(`app-button rounded-sm bg-blue-800 px-4 py-2 ${classes}`), content)
+  const element = dom('button', tw(`app-button cursor-pointer rounded-sm bg-blue-800 px-4 py-2 ${classes}`), content)
   return element
 }
 
