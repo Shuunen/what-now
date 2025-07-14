@@ -8,6 +8,12 @@
 
 > Minimalist task coach
 
+## Archived
+
+This current repo is archived since it migrated to [Shuunen/monorepo](https://github.com/Shuunen/monorepo/tree/master/apps/what-now).
+
+Further development will be done there 🚀
+
 ## What is it ?
 
 This app is a minimalist todo list based on recurring tasks.
