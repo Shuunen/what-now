@@ -12,13 +12,6 @@ export default defineConfig({
       transformMixedEsModules: true,
     },
     reportCompressedSize: false,
-    rolldownOptions: {
-      output: {
-        codeSplitting: {
-          groups: [{ name: 'react', test: /react/ }],
-        },
-      },
-    },
   },
   plugins: [react(), tailwindcss(), uniqueMark(), cspNonce()],
   preview: { port: 4300 },
