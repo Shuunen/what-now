@@ -1,6 +1,6 @@
 // oxlint-disable react/no-multi-comp
 // oxlint-disable max-lines
-import { invariant } from 'es-toolkit'
+import { invariant, kebabCase } from 'es-toolkit'
 import { ArrowLeftRightIcon, CalendarIcon, DownloadIcon, MinusIcon, MoveLeftIcon, MoveRightIcon, PlusIcon, SaveIcon, UploadIcon } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { dateIso10, formatDate } from 'shuutils'
@@ -68,6 +68,44 @@ function TaskCardControls({
   )
 }
 
+type TaskCardHandlersOptions = {
+  task: Task
+  currentRecurrence: number
+  onFrequencyChange: (taskId: string, newDays: number) => void
+  onDateChange: (taskId: string, direction: 'before' | 'after') => void
+}
+
+/**
+ * Hook bundling the frequency/date change callbacks for a single task card
+ * @param options - The task, its current recurrence, and the change handlers
+ * @param options.task - The task the card represents
+ * @param options.currentRecurrence - The task's effective recurrence in days
+ * @param options.onFrequencyChange - Handler for frequency changes
+ * @param options.onDateChange - Handler for date changes
+ * @returns The four click handlers used by TaskCardControls
+ */
+function useTaskCardHandlers({ task, currentRecurrence, onFrequencyChange, onDateChange }: TaskCardHandlersOptions) {
+  const handleIncrease = useCallback(() => {
+    const higherFrequency = getHigherFrequency(currentRecurrence)
+    if (higherFrequency !== undefined) onFrequencyChange(task.id, higherFrequency)
+  }, [currentRecurrence, onFrequencyChange, task.id])
+
+  const handleDecrease = useCallback(() => {
+    const lowerFrequency = getLowerFrequency(currentRecurrence)
+    if (lowerFrequency !== undefined) onFrequencyChange(task.id, lowerFrequency)
+  }, [currentRecurrence, onFrequencyChange, task.id])
+
+  const handleBefore = useCallback(() => {
+    onDateChange(task.id, 'before')
+  }, [onDateChange, task.id])
+
+  const handleAfter = useCallback(() => {
+    onDateChange(task.id, 'after')
+  }, [onDateChange, task.id])
+
+  return { handleAfter, handleBefore, handleDecrease, handleIncrease }
+}
+
 /**
  * Component to render a single task card with hover controls for frequency editing
  * @param properties - Component properties containing the task and handlers
@@ -93,24 +131,7 @@ function TaskCard({
   const currentRecurrence = modifications[task.id] ?? originalRecurrence
   const recurrenceLabel = currentRecurrence === dailyRecurrence ? 'daily' : `${currentRecurrence}-days`
   const isModified = modifications[task.id] !== undefined
-
-  const handleIncrease = useCallback(() => {
-    const higherFrequency = getHigherFrequency(currentRecurrence)
-    if (higherFrequency !== undefined) onFrequencyChange(task.id, higherFrequency)
-  }, [currentRecurrence, onFrequencyChange, task.id])
-
-  const handleDecrease = useCallback(() => {
-    const lowerFrequency = getLowerFrequency(currentRecurrence)
-    if (lowerFrequency !== undefined) onFrequencyChange(task.id, lowerFrequency)
-  }, [currentRecurrence, onFrequencyChange, task.id])
-
-  const handleBefore = useCallback(() => {
-    onDateChange(task.id, 'before')
-  }, [onDateChange, task.id])
-
-  const handleAfter = useCallback(() => {
-    onDateChange(task.id, 'after')
-  }, [onDateChange, task.id])
+  const { handleAfter, handleBefore, handleDecrease, handleIncrease } = useTaskCardHandlers({ currentRecurrence, onDateChange, onFrequencyChange, task })
 
   const canIncrease = getHigherFrequency(currentRecurrence) !== undefined
   const canDecrease = getLowerFrequency(currentRecurrence) !== undefined
@@ -118,7 +139,13 @@ function TaskCard({
   const title = `${task.name} (${task.minutes} min, completed ${daysSinceCompletion(task)} days ago)`
 
   return (
-    <div className={`rounded border-2 px-2 py-1 text-xs ${colorClass} ${isModified ? 'ring-2 ring-yellow-400/50' : ''} group relative w-full truncate text-left`} data-completed-on={task.completedOn} data-once={task.once} title={title}>
+    <div
+      className={`rounded border-2 px-2 py-1 text-xs ${colorClass} ${isModified ? 'ring-2 ring-yellow-400/50' : ''} group relative w-full truncate text-left`}
+      data-completed-on={task.completedOn}
+      data-once={task.once}
+      data-testid={`task-card-${kebabCase(task.name)}`}
+      title={title}
+    >
       <div className="truncate font-medium">{task.name}</div>
       <div className="text-xs opacity-75">{recurrenceLabel}</div>
       <TaskCardControls canDecrease={canDecrease} canIncrease={canIncrease} canMove={canMove} onAfter={handleAfter} onBefore={handleBefore} onDecrease={handleDecrease} onIncrease={handleIncrease} />

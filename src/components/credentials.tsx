@@ -13,7 +13,7 @@ const fields = [
     link: 'dashboard',
     maxlength: 100,
     name: 'appwrite-database-id',
-    pattern: String.raw`^\w+$`,
+    pattern: String.raw`^[\w-]+$`,
   },
   {
     href: 'https://cloud.appwrite.io/',
@@ -21,7 +21,7 @@ const fields = [
     link: 'dashboard',
     maxlength: 100,
     name: 'appwrite-collection-id',
-    pattern: String.raw`^\w+$`,
+    pattern: String.raw`^[\w-]+$`,
   },
   {
     href: 'https://github.com/Shuunen/what-now/blob/master/docs/webhook.md',
