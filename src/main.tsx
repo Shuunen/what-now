@@ -1,4 +1,4 @@
-/* v8 ignore start -- @preserve */
+/* v8 ignore start */
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'

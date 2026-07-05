@@ -1,4 +1,4 @@
-/* v8 ignore file -- @preserve */
+/* v8 ignore file */
 // oxlint-disable no-new
 import { debounce, emit, nbMsInMinute } from 'shuutils'
 import { logger } from './logger.utils'

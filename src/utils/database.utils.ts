@@ -111,7 +111,7 @@ export async function getTasks() {
  * Download the data from the database
  * @returns the result of the operation
  */
-/* v8 ignore next -- @preserve */
+/* v8 ignore next */
 export async function downloadData() {
   const result = await Result.trySafe(
     tablesDb.listRows<AppWriteTaskModel>({

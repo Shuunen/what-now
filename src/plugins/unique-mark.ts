@@ -54,9 +54,7 @@ function injectMarkInAsset({ asset, fileName, mark, placeholder }: { asset: Reco
     console.warn(yellow(`Warning /!\\ no content found for ${fileName}, skipping mark injection.`))
     return
   }
-  /* v8 ignore stop */
   const oldContent = asset[contentKey]
-  /* v8 ignore start */
   if (typeof oldContent !== 'string') return
   /* v8 ignore stop */
   const newContent = injectMark(oldContent, placeholder, mark)
