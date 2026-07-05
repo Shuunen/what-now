@@ -1,10 +1,9 @@
-/* c8 ignore start */
+/* v8 ignore file -- @preserve */
+// oxlint-disable no-new
 import { debounce, emit, nbMsInMinute } from 'shuutils'
 import { logger } from './logger.utils'
 
-// eslint-disable-next-line no-new
-new class IdleService {
-
+new (class IdleService {
   private readonly checkInactivityEvery = 10
 
   private inactiveSince = 0 // ms
@@ -18,14 +17,14 @@ new class IdleService {
   /**
    * Constructor
    */
-  public constructor () {
+  public constructor() {
     this.setupListeners()
     this.resetTimer('init')
   }
   /**
    * Check inactivity
    */
-  private checkInactivity () {
+  private checkInactivity() {
     const inactivePeriod = Date.now() - this.inactiveSince
     const minutes = Math.round(inactivePeriod / nbMsInMinute)
     logger.info('user has been inactive for', minutes, 'minute(s)')
@@ -35,7 +34,7 @@ new class IdleService {
    * Reset timer
    * @param from - event that triggered the reset
    */
-  private resetTimer (from = 'unknown event') {
+  private resetTimer(from = 'unknown event') {
     logger.info('timer reset due to', from)
     this.inactiveSince = Date.now()
     clearTimeout(this.timer)
@@ -45,15 +44,24 @@ new class IdleService {
   /**
    * Setup listeners
    */
-  private setupListeners () {
+  private setupListeners() {
     const events = ['mousedown', 'touchstart', 'visibilitychange', 'focus', 'blur-sm']
     const resetTimer = debounce(this.resetTimer.bind(this), this.resetTimerDelay)
-    for (const name of events) globalThis.addEventListener(name, event => { void resetTimer(event.type) }, true)
+    for (const name of events)
+      globalThis.addEventListener(
+        name,
+        event => {
+          resetTimer(event.type)
+        },
+        true,
+      )
   }
   /**
    * Setup timer
    */
-  private setupTimer () {
-    this.timer = setInterval(() => { this.checkInactivity() }, this.checkInactivityEvery * nbMsInMinute)
+  private setupTimer() {
+    this.timer = setInterval(() => {
+      this.checkInactivity()
+    }, this.checkInactivityEvery * nbMsInMinute)
   }
-}
+})()

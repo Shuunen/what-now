@@ -1,18 +1,11 @@
 # What Now
 
 [![Website Up](https://img.shields.io/website/https/what-now.netlify.app.svg)](https://what-now.netlify.app)
-[![GitHub license](https://img.shields.io/github/license/shuunen/what-now.svg?color=informational)](https://github.com/Shuunen/what-now/blob/master/LICENSE)
-[![Code Climate maintainability](https://img.shields.io/codeclimate/maintainability/Shuunen/what-now?style=flat)](https://codeclimate.com/github/Shuunen/what-now)
+[![Project license](https://img.shields.io/github/license/Shuunen/what-now.svg?color=informational)](https://github.com/Shuunen/what-now/blob/master/LICENSE)
 
 ![logo](docs/logo-double.svg)
 
 > Minimalist task coach
-
-## Archived
-
-This current repo is archived since it migrated to [Shuunen/monorepo](https://github.com/Shuunen/monorepo/tree/master/apps/what-now).
-
-Further development will be done there 🚀
 
 ## What is it ?
 
@@ -75,7 +68,7 @@ in terms of ui/ux :
 1. a dashboard that shows global state
 2. a slider at the bottom that shows every levels/gauges and where visually we can already see a level/gauge that has not reach it's goal state/level/amount
 3. ideally we could see progressions over months or years
-  
+
 ## Benchmarks
 
 ### Build ts sources to js

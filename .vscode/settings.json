@@ -1,13 +1,14 @@
 {
-  "[typescript]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
+  "[markdown]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
-  "cSpell.words": [
-    "ipapi",
-    "serviceworker",
-    "twind"
-  ],
-  "vs-browser.url": "http://localhost:8080/",
+  "cSpell.words": ["appwrite", "shuunen", "trmnl", "webmanifest"],
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.formatOnSave": true,
+  "js/ts.experimental.useTsgo": true,
+  "oxc.fixKind": "all",
+  "oxc.typeAware": true,
+  "oxc.unusedDisableDirectives": "deny",
   "workbench.colorCustomizations": {
     "activityBar.background": "#530E49",
     "titleBar.activeBackground": "#751466",

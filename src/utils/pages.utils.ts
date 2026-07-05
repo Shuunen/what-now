@@ -1,0 +1,22 @@
+import { CalendarIcon, CircleQuestionMarkIcon, HomeIcon, SettingsIcon } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import type { FloatingMenuAction } from '../components/floating-menu'
+
+/**
+ * Returns a filtered list of navigation actions, excluding any whose name includes the given string.
+ * Each action contains a `handleClick` function for navigation, an `icon` component, and a `name`.
+ * @returns An array of action objects excluding those whose names include the `except` string.
+ */
+export function useActions() {
+  const navigate = useNavigate()
+  const currentPath = globalThis.location.pathname
+  function getAction(icon: FloatingMenuAction['icon'], name: FloatingMenuAction['name'], path: string) {
+    return {
+      disabled: path === currentPath,
+      handleClick: () => navigate(path),
+      icon,
+      name,
+    } satisfies FloatingMenuAction
+  }
+  return [getAction(HomeIcon, 'Tasks', '/'), getAction(CalendarIcon, 'Planner', '/planner'), getAction(SettingsIcon, 'Settings', '/settings'), getAction(CircleQuestionMarkIcon, 'About', '/about')]
+}
