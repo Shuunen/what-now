@@ -11,7 +11,7 @@ import { downloadData, getTasks } from '../utils/database.utils'
 import { logger } from '../utils/logger.utils'
 import { useActions } from '../utils/pages.utils'
 import { createTaskDistribution, dailyRecurrence, getHigherFrequency, getLowerFrequency, getTaskColor, saveTaskModifications, weekDays } from '../utils/planner.utils'
-import { daysRecurrence, daysSinceCompletion, dispatchTasks, isTaskActive } from '../utils/tasks.utils'
+import { daysRecurrence, daysSinceCompletion, dispatchTasksAndUpdate, isTaskActive } from '../utils/tasks.utils'
 import { handleTasksUpload } from '../utils/upload.utils'
 
 type TaskModifications = {
@@ -485,10 +485,10 @@ function PlannerHeader({
  * @returns Object containing action handlers
  */
 function usePlannerActions(tasks: Task[], setTasks: React.Dispatch<React.SetStateAction<Task[]>>, loadTasks: () => Promise<void>) {
-  const handleTasksDispatch = useCallback(() => {
+  const handleTasksDispatch = useCallback(async () => {
     const active = tasks.filter(task => isTaskActive(task))
     logger.info('dispatching active tasks...', { active })
-    dispatchTasks(active)
+    await dispatchTasksAndUpdate(active)
     setTasks([...tasks])
   }, [tasks, setTasks])
 

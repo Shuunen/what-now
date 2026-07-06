@@ -15,7 +15,8 @@ if (!process.env.HUE_ENDPOINT || !process.env.TRMNL_ENDPOINT) {
   const dotenv = readFileSync(envPath, 'utf8')
   const lines = dotenv.split('\n')
   for (const line of lines) {
-    const [key, value] = line.split('=')
+    const [key, ...valueParts] = line.split('=')
+    const value = valueParts.join('=')
     if (key && value && !process.env[key]) process.env[key] = value
   }
 }

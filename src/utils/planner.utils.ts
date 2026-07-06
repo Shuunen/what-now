@@ -5,8 +5,7 @@ import { daysRecurrence, daysSinceCompletion } from './tasks.utils'
 
 export const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 export const daysInWeek = 14
-// oxlint-disable-next-line no-magic-numbers
-export const allDayIndices = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+export const allDayIndices = Array.from({ length: daysInWeek }, (_unused, index) => index)
 export const dailyRecurrence = 1
 export const twoDayRecurrence = 2
 export const threeDayRecurrence = 3

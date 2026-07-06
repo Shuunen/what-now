@@ -12,6 +12,8 @@ new (class IdleService {
 
   private readonly sendReminderEvery = 30 // minutes
 
+  private hasSentReminder = false
+
   private timer!: NodeJS.Timeout
 
   /**
@@ -28,7 +30,10 @@ new (class IdleService {
     const inactivePeriod = Date.now() - this.inactiveSince
     const minutes = Math.round(inactivePeriod / nbMsInMinute)
     logger.info('user has been inactive for', minutes, 'minute(s)')
-    if (minutes === this.sendReminderEvery) emit('send-reminder')
+    if (minutes >= this.sendReminderEvery && !this.hasSentReminder) {
+      this.hasSentReminder = true
+      emit('send-reminder')
+    }
   }
   /**
    * Reset timer
@@ -37,6 +42,7 @@ new (class IdleService {
   private resetTimer(from = 'unknown event') {
     logger.info('timer reset due to', from)
     this.inactiveSince = Date.now()
+    this.hasSentReminder = false
     clearTimeout(this.timer)
     this.setupTimer()
     emit('user-activity', from)

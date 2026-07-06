@@ -109,7 +109,7 @@ export function dispatchTask(task: Task, index = 0) {
 
 export function dispatchTasks(tasks: Task[]) {
   logger.info('dispatch tasks...')
-  return tasks.map(task => dispatchTask(task))
+  return tasks.map((task, index) => dispatchTask(task, index))
 }
 
 export async function dispatchTasksAndUpdate(tasks: Task[]) {
