@@ -1,0 +1,73 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`planner utils > allDayIndices A should contain indices for all days 1`] = `
+[
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+]
+`;
+
+exports[`planner utils > createTaskDistribution A should create empty distribution for empty task list 1`] = `
+{
+  "0": [],
+  "1": [],
+  "10": [],
+  "11": [],
+  "12": [],
+  "13": [],
+  "2": [],
+  "3": [],
+  "4": [],
+  "5": [],
+  "6": [],
+  "7": [],
+  "8": [],
+  "9": [],
+}
+`;
+
+exports[`planner utils > validFrequencies A should be in ascending order 1`] = `
+[
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  14,
+  21,
+  28,
+]
+`;
+
+exports[`planner utils > weekDays A should contain all fourteen days 1`] = `
+[
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+]
+`;

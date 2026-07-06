@@ -1,11 +1,14 @@
 .cache
 .DS_Store
 .env
-.eslintcache
-.nyc_output
 *.log
 *.tgz
+.turbo
 coverage
 dist
 node_modules
-sample.*
+out-tsc
+playwright-report
+test-output
+test-results
+tsconfig.tsbuildinfo
