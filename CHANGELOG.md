@@ -9,24 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.1.0] - 2026-07-12
 
-### Added
+### Added in 2.1.0
 
 - Finale celebration screen with confetti and sound when all tasks are done
 - Animated checkmark icon for completed tasks
 - Progress-driven accent color across the tasks page
 
-### Changed
+### Changed in 2.1.0
 
 - Restyled task list, status text, and floating menu for the dark redesign
 - Simplified progress bar rendering and background handling
 
-### Removed
+### Removed in 2.1.0
 
 - Emoji-based active task markers and animated gradient background
 
 ## [2.0.0] - 2026-07-06
 
-### Changed
+### Changed in 2.0.0
 
 - Migrated the project back out of the monorepo into its own repository
 
