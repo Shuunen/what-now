@@ -4,6 +4,15 @@
 
 - `README.md` — project description, features, TODOs
 - `docs/webhook.md` — webhook server protocol
+- `CHANGELOG.md` — release history, [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format
+
+## Versioning
+
+Follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html). On every user-facing change:
+
+1. Bump `version` in `package.json` (MAJOR for breaking changes, MINOR for new features/UX, PATCH for fixes)
+2. Add an entry to `CHANGELOG.md` under a new `## [x.y.z] - YYYY-MM-DD` section, grouped by Added/Changed/Fixed/Removed
+3. Update the compare links at the bottom of `CHANGELOG.md`
 
 ## After any codebase change
 
@@ -18,7 +27,6 @@ Never disable a lint rule without asking the user. Try to fix the code first the
 - **Constants**: camelCase only, never UPPER_SNAKE_CASE
 - **Absent values**: `undefined`, never `null`; use `isNil` from es-toolkit to check
 - **Narrowing**: use `invariant(x, "msg")` from es-toolkit — never `x!` or silent `if (!x) return`
-- **Semantic CSS**: Use only semantic class names in markup; centralize shared styling css files via CSS selectors and tailwind `@apply`, not scattered utility classes
 
 ## Testing practices
 

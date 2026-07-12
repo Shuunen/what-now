@@ -1,10 +1,32 @@
-import { webhookPayload } from './progress.utils'
+import { computeProgressPercent, progressAccentColor, webhookPayload } from './progress.utils'
 import { state } from './state.utils'
 import { taskMock } from './tasks.utils'
 
 describe('progress.utils', () => {
   afterEach(() => {
     vi.restoreAllMocks()
+  })
+
+  it('computeProgressPercent A should return 0 for an empty task list', () => {
+    expect(computeProgressPercent([])).toBe(0)
+  })
+
+  it('computeProgressPercent B should return 0 when no task is completed', () => {
+    const tasks = [taskMock({ completedOn: '' }), taskMock({ completedOn: '', id: 'task-2' })]
+    expect(computeProgressPercent(tasks)).toBe(0)
+  })
+
+  it('computeProgressPercent C should return 100 when all tasks are completed', () => {
+    const tasks = [taskMock({ id: 'task-1', isDone: true, once: 'yes' }), taskMock({ id: 'task-2', isDone: true, once: 'yes' })]
+    expect(computeProgressPercent(tasks)).toBe(100)
+  })
+
+  it('progressAccentColor A should return a low-hue color for 0 percent', () => {
+    expect(progressAccentColor(0)).toMatchInlineSnapshot(`"oklch(72% 0.18 22)"`)
+  })
+
+  it('progressAccentColor B should return a high-hue color for 100 percent', () => {
+    expect(progressAccentColor(100)).toMatchInlineSnapshot(`"oklch(72% 0.18 150)"`)
   })
 
   it('webhookPayload A should return correct payload with default progress', () => {
