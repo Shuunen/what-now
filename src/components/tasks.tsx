@@ -21,7 +21,7 @@ export function Tasks({ tasks }: { tasks: Task[] }) {
         const isActive = isTaskActive(task)
         return (
           <Button
-            className={`-ml-2 items-center gap-4 pb-3 pl-2 whitespace-normal transition-transform duration-300 ease-out ${isActive ? '' : 'opacity-60'}`}
+            className={`-ml-2 items-center gap-4 pb-3 pl-2 text-start whitespace-nowrap transition-transform duration-300 ease-out ${isActive ? '' : 'opacity-60'}`}
             key={task.id}
             name={task.name}
             onClick={() => onTaskClick(task)}
@@ -29,9 +29,9 @@ export function Tasks({ tasks }: { tasks: Task[] }) {
             variant="ghost"
           >
             <span className={`flex size-6 shrink-0 items-center justify-center rounded-full ${isActive ? 'border-2 border-white/30' : ''}`} style={isActive ? undefined : { background: accentColor }}>
-              {!isActive && <CheckmarkIcon />}
+              {!isActive && <CheckmarkIcon className="text-black" />}
             </span>
-            <span className={`text-lg leading-none font-medium ${isActive ? '' : 'relative inline-block text-white/50'}`}>
+            <span className={`max-w-60 overflow-hidden text-lg leading-none font-medium text-ellipsis ${isActive ? '' : 'relative inline-block text-white/50'}`}>
               {task.name}
               {!isActive && <span aria-hidden="true" className="absolute top-1/2 left-0 h-[2.4px] w-full -translate-y-1/2 animate-[wn-strike_0.4s_ease-out_forwards] rounded-sm" style={{ background: accentColor }} />}
             </span>

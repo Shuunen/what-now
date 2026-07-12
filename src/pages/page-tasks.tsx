@@ -24,10 +24,10 @@ export function PageTasks() {
   return (
     <div className={cn('relative mx-auto flex grow flex-col gap-4 py-24', state.isSetup ? '' : 'text-center')} data-testid="page-tasks">
       <div
-        className="pointer-events-none absolute top-1/5 left-4/5 size-135 -translate-x-1/2 -translate-y-1/2 animate-[pulse_6s_ease-in-out_infinite] blur-[96px]"
+        className="pointer-events-none absolute top-1/5 left-4/5 size-80 -translate-x-1/2 -translate-y-1/2 animate-[pulse_6s_ease-in-out_infinite] blur-[96px] md:left-full md:size-135"
         style={{ background: `radial-gradient(circle at 50% 42%, ${accentColor}, transparent 50%)` }}
       />
-      <h1 className="relative z-10 -ml-2 text-6xl leading-16 font-extrabold tracking-tight">
+      <h1 className="relative z-1 -ml-2 text-6xl leading-16 font-extrabold tracking-tight">
         <span className="opacity-80">What</span>
         <br />
         <span className="ml-1">now</span> <span className="font-light opacity-10">?</span>

@@ -1,11 +1,11 @@
-export function CheckmarkIcon() {
+export function CheckmarkIcon({ className }: { className?: string }) {
   return (
     <svg
       aria-hidden="true"
-      className="animate-[wn-draw_0.4s_cubic-bezier(0.65,0,0.35,1)_0.08s_forwards]"
+      className={`animate-[wn-draw_0.4s_cubic-bezier(0.65,0,0.35,1)_0.08s_forwards] ${className ?? ''}`}
       fill="none"
       height="14"
-      stroke="#4a4a4a"
+      stroke="currentColor"
       strokeDasharray={100}
       strokeDashoffset={100}
       strokeLinecap="round"
