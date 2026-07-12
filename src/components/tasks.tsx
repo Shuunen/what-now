@@ -6,6 +6,7 @@ import { logger } from '../utils/logger.utils'
 import { computeProgressPercent, progressAccentColor } from '../utils/progress.utils'
 import { state } from '../utils/state.utils'
 import { isTaskActive, toggleComplete } from '../utils/tasks.utils'
+import { CheckmarkIcon } from './icons/checkmark-icon'
 import { Button } from './ui/button'
 
 function useConfettiEffects() {
@@ -55,24 +56,7 @@ function renderTask({ accentColor, isActive, onClick, task }: { accentColor: str
   return (
     <Button className={`-ml-2 items-center gap-4 pb-3 pl-2 whitespace-normal transition-transform duration-300 ease-out ${isActive ? '' : 'opacity-60'}`} key={task.id} name={task.name} onClick={onClick} type="button" variant="ghost">
       <span className={`flex size-6 shrink-0 items-center justify-center rounded-full ${isActive ? 'border-2 border-white/30' : ''}`} style={isActive ? undefined : { background: accentColor }}>
-        {!isActive && (
-          <svg
-            aria-hidden="true"
-            className="animate-[wn-draw_0.4s_cubic-bezier(0.65,0,0.35,1)_0.08s_forwards]"
-            fill="none"
-            height="14"
-            stroke="#4a4a4a"
-            strokeDasharray={100}
-            strokeDashoffset={100}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={3}
-            viewBox="0 0 24 24"
-            width="14"
-          >
-            <polyline pathLength={100} points="5 12.5 10 17.5 19 7" />
-          </svg>
-        )}
+        {!isActive && <CheckmarkIcon />}
       </span>
       <span className={`text-lg leading-none font-medium ${isActive ? '' : 'relative inline-block text-white/50'}`}>
         {task.name}
