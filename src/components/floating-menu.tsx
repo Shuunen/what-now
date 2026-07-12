@@ -1,4 +1,4 @@
-import { LoaderCircleIcon, type LucideProps, PackageIcon, PackageOpenIcon } from 'lucide-react'
+import { LoaderCircleIcon, type LucideProps, MenuIcon, XIcon } from 'lucide-react'
 import { createElement, type ForwardRefExoticComponent, type RefAttributes, useMemo, useState } from 'react'
 import { testIdFromProps } from '../utils/form.utils'
 import { cn } from '../utils/styles.utils'
@@ -19,7 +19,7 @@ export type FloatingMenuAction = {
 
 export function FloatingMenu({ actions, isLoading = false, isSettingsRequired = false }: Readonly<{ actions: FloatingMenuAction[]; isLoading?: boolean; isSettingsRequired?: boolean }>) {
   const [isOpen, setIsOpen] = useState(false)
-  const iconOpen = useMemo(() => (isOpen ? <PackageOpenIcon /> : <PackageIcon />), [isOpen])
+  const iconOpen = useMemo(() => (isOpen ? <XIcon /> : <MenuIcon />), [isOpen])
   const icon = useMemo(() => (isLoading ? <LoaderCircleIcon /> : iconOpen), [iconOpen, isLoading])
   const availableActions = useMemo(() => (isSettingsRequired ? actions.filter(action => ['Tasks', 'Settings'].includes(action.name)) : actions), [actions, isSettingsRequired])
   return (
@@ -27,7 +27,7 @@ export function FloatingMenu({ actions, isLoading = false, isSettingsRequired = 
       {isOpen && <div className="fixed right-0 bottom-0 z-10 size-full bg-black/20 bg-linear-to-tl" data-component="speed-dial-backdrop" />}
       <Popover onOpenChange={setIsOpen}>
         <PopoverTrigger
-          className={cn('fixed right-5 bottom-5 cursor-pointer rounded-full bg-primary p-4 text-primary-foreground transition-all', isSettingsRequired ? 'animate-pulse' : 'opacity-50 hover:opacity-100')}
+          className={cn('fixed right-5 bottom-5 z-20 cursor-pointer rounded-full p-3 text-white transition-opacity', isSettingsRequired ? 'animate-pulse opacity-100' : 'opacity-20 hover:opacity-100')}
           data-testid="floating-menu-trigger"
         >
           {icon}
