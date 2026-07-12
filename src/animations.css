@@ -1,0 +1,35 @@
+@keyframes wn-draw {
+  from {
+    stroke-dashoffset: 100;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes wn-strike {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes wn-bloom {
+  0% {
+    transform: scale(0) rotate(-28deg);
+    opacity: 0;
+  }
+
+  62% {
+    transform: scale(1.22) rotate(7deg);
+  }
+
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}

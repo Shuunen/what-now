@@ -51,7 +51,7 @@ export function Finale({ tasks }: { tasks: Task[] }) {
 
   return (
     <div
-      className="fixed inset-0 z-30 flex animate-[wn-finale_0.4s_ease] cursor-pointer flex-col items-center justify-center gap-4 bg-black/80 px-5 text-center text-white backdrop-blur-sm"
+      className="fixed inset-0 z-30 flex animate-in cursor-pointer flex-col items-center justify-center gap-4 bg-black/80 px-5 text-center text-white backdrop-blur-sm duration-400 ease-out zoom-in-90 fade-in"
       data-testid="finale"
       onClick={() => setIsVisible(false)}
     >
