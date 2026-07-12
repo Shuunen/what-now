@@ -1,0 +1,35 @@
+# Changelog
+
+All notable changes to this project are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [2.1.0] - 2026-07-12
+
+### Added
+
+- Finale celebration screen with confetti and sound when all tasks are done
+- Animated checkmark icon for completed tasks
+- Progress-driven accent color across the tasks page
+
+### Changed
+
+- Restyled task list, status text, and floating menu for the dark redesign
+- Simplified progress bar rendering and background handling
+
+### Removed
+
+- Emoji-based active task markers and animated gradient background
+
+## [2.0.0] - 2026-07-06
+
+### Changed
+
+- Migrated the project back out of the monorepo into its own repository
+
+[Unreleased]: https://github.com/Shuunen/what-now/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/Shuunen/what-now/compare/v2.0.0...v2.1.0
+[2.0.0]: https://github.com/Shuunen/what-now/releases/tag/v2.0.0

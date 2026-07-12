@@ -4,6 +4,15 @@
 
 - `README.md` — project description, features, TODOs
 - `docs/webhook.md` — webhook server protocol
+- `CHANGELOG.md` — release history, [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format
+
+## Versioning
+
+Follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html). On every user-facing change:
+
+1. Bump `version` in `package.json` (MAJOR for breaking changes, MINOR for new features/UX, PATCH for fixes)
+2. Add an entry to `CHANGELOG.md` under a new `## [x.y.z] - YYYY-MM-DD` section, grouped by Added/Changed/Fixed/Removed
+3. Update the compare links at the bottom of `CHANGELOG.md`
 
 ## After any codebase change
 
