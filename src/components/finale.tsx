@@ -25,14 +25,14 @@ function burstFinale() {
 export function Finale({ tasks }: { tasks: Task[] }) {
   const [isVisible, setIsVisible] = useState(false)
   const hasCelebratedRef = useRef(false)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const audioRef = useRef<HTMLAudioElement | undefined>(undefined)
+  const isAllDone = tasks.length > 0 && tasks.every(task => !isTaskActive(task))
 
   useEffect(() => {
     audioRef.current = new Audio('/fireworks.mp3')
   }, [])
 
   useEffect(() => {
-    const isAllDone = tasks.length > 0 && tasks.every(task => !isTaskActive(task))
     if (!isAllDone) {
       hasCelebratedRef.current = false
       return undefined
@@ -44,16 +44,17 @@ export function Finale({ tasks }: { tasks: Task[] }) {
     burstFinale()
     const timeout = setTimeout(() => setIsVisible(false), finaleDurationMs)
     return () => clearTimeout(timeout)
-  }, [tasks])
+  }, [isAllDone])
 
   // oxlint-disable-next-line unicorn/no-null
-  if (!isVisible) return null
+  if (!isVisible || !isAllDone) return null
 
   return (
-    <div
+    <button
       className="fixed inset-0 z-30 flex animate-in cursor-pointer flex-col items-center justify-center gap-4 bg-black/80 px-5 text-center text-white backdrop-blur-sm duration-400 ease-out zoom-in-90 fade-in"
       data-testid="finale"
       onClick={() => setIsVisible(false)}
+      type="button"
     >
       <div aria-hidden="true" className="animate-[wn-bloom_0.6s_ease] text-[82px]">
         🎉
@@ -61,6 +62,6 @@ export function Finale({ tasks }: { tasks: Task[] }) {
       <div className="text-3xl font-extrabold">All done!</div>
       <div className="text-base text-white/70 italic">You made it — well done :)</div>
       <div className="mt-1.5 text-xs tracking-widest text-white/40 uppercase">tap to close</div>
-    </div>
+    </button>
   )
 }

@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restyled task list, status text, and floating menu for the dark redesign
 - Simplified progress bar rendering and background handling
 
+### Fixed in 2.1.0
+
+- Finale overlay no longer stays visible if a task becomes active again during the celebration window
+- Finale overlay is now dismissible via keyboard as a focusable button, not just by clicking
+
 ### Removed in 2.1.0
 
 - Emoji-based active task markers and animated gradient background
