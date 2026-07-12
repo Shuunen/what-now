@@ -5,7 +5,7 @@ import { testIdFromProps, type NameProp } from '../../utils/form.utils'
 import { cn } from '../../utils/styles.utils'
 
 const buttonVariants = cva(
-  "inline-flex w-fit shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 disabled:grayscale [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "inline-flex w-fit shrink-0 cursor-pointer items-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 disabled:grayscale [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     defaultVariants: {
       size: 'default',
@@ -13,8 +13,8 @@ const buttonVariants = cva(
     },
     variants: {
       size: {
-        default: 'h-9 px-4 py-[10px] has-[>svg]:px-3',
-        icon: 'h-9 px-[10px] py-[10px] has-[>svg]:px-3',
+        default: 'h-9 px-4 py-2.5 has-[>svg]:px-3',
+        icon: 'h-9 px-2.5 py-2.5 has-[>svg]:px-3',
         lg: 'h-10 rounded-md px-6 has-[>svg]:px-4',
         sm: 'h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5',
       },
