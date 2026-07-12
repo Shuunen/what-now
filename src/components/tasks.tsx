@@ -1,101 +1,12 @@
 import confetti from 'canvas-confetti'
 import { useCallback, useEffect, useRef } from 'react'
-import { nbPercentMax, nbRgbMax, pickOne, sleep } from 'shuutils'
+import { nbPercentMax, nbRgbMax, sleep } from 'shuutils'
 import type { Task } from '../types'
 import { logger } from '../utils/logger.utils'
+import { computeProgressPercent, progressAccentColor } from '../utils/progress.utils'
 import { state } from '../utils/state.utils'
 import { isTaskActive, toggleComplete } from '../utils/tasks.utils'
 import { Button } from './ui/button'
-
-const emojis = [
-  '👨‍🏫',
-  '👩‍🏫',
-  '🐱',
-  '🥃',
-  '🧱',
-  '🌁',
-  '🌃',
-  '🌄',
-  '🌅',
-  '🌆',
-  '🌇',
-  '🌉',
-  '🏧',
-  '🚮',
-  '🚰',
-  '♿',
-  '🚹',
-  '🚺',
-  '🚻',
-  '🚼',
-  '🚾',
-  '🛂',
-  '🛃',
-  '🛄',
-  '🛅',
-  '🔃',
-  '🔄',
-  '🛐',
-  '🕎',
-  '🔯',
-  '♈',
-  '♉',
-  '♊',
-  '♋',
-  '♌',
-  '♍',
-  '♎',
-  '♏',
-  '♐',
-  '♑',
-  '♒',
-  '♓',
-  '⛎',
-  '🔀',
-  '🔁',
-  '🔂',
-  '⏩',
-  '⏪',
-  '🔼',
-  '⏫',
-  '🔽',
-  '⏬',
-  '🎦',
-  '📶',
-  '📳',
-  '📴',
-  '#️⃣',
-  '*️⃣',
-  '🔟',
-  '🔠',
-  '🔡',
-  '🔢',
-  '🔣',
-  '🔤',
-  '🆎',
-  '🆑',
-  '🆒',
-  '🆓',
-  '🆔',
-  '🆕',
-  '🆖',
-  '🆗',
-  '🆘',
-  '🆙',
-  '🆚',
-  '🈁',
-  '🈶',
-  '🉐',
-  '🈹',
-  '🈚',
-  '🈲',
-  '🉑',
-  '🈸',
-  '🈴',
-  '🈳',
-  '🈺',
-  '🈵',
-]
 
 function useConfettiEffects() {
   const fireworksLeftRef = useRef<HTMLAudioElement | null>(null)
@@ -140,8 +51,40 @@ function useConfettiEffects() {
   return { throwConfettiAround }
 }
 
+function renderTask({ accentColor, isActive, onClick, task }: { accentColor: string; isActive: boolean; onClick: (event: React.MouseEvent<HTMLButtonElement>) => void; task: Task }) {
+  return (
+    <Button className={`-ml-2 items-center gap-4 pb-3 pl-2 whitespace-normal transition-transform duration-300 ease-out ${isActive ? '' : 'opacity-60'}`} key={task.id} name={task.name} onClick={onClick} type="button" variant="ghost">
+      <span className={`flex size-6 shrink-0 items-center justify-center rounded-full ${isActive ? 'border-2 border-white/30' : ''}`} style={isActive ? undefined : { background: accentColor }}>
+        {!isActive && (
+          <svg
+            aria-hidden="true"
+            className="animate-[wn-draw_0.4s_cubic-bezier(0.65,0,0.35,1)_0.08s_forwards]"
+            fill="none"
+            height="14"
+            stroke="#4a4a4a"
+            strokeDasharray={100}
+            strokeDashoffset={100}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={3}
+            viewBox="0 0 24 24"
+            width="14"
+          >
+            <polyline pathLength={100} points="5 12.5 10 17.5 19 7" />
+          </svg>
+        )}
+      </span>
+      <span className={`text-lg leading-none font-medium ${isActive ? '' : 'relative inline-block text-white/50'}`}>
+        {task.name}
+        {!isActive && <span aria-hidden="true" className="absolute top-1/2 left-0 h-[2.4px] w-full -translate-y-1/2 animate-[wn-strike_0.4s_ease-out_forwards] rounded-sm" style={{ background: accentColor }} />}
+      </span>
+    </Button>
+  )
+}
+
 export function Tasks({ tasks }: { tasks: Task[] }) {
   const { throwConfettiAround } = useConfettiEffects()
+  const accentColor = progressAccentColor(computeProgressPercent(tasks))
 
   function onTaskClick(task: Task, event: React.MouseEvent<HTMLButtonElement>) {
     const element = event.currentTarget
@@ -154,21 +97,7 @@ export function Tasks({ tasks }: { tasks: Task[] }) {
 
   return (
     <div className="grid gap-2" data-testid="tasks">
-      {tasks.map(task => {
-        const isActive = isTaskActive(task)
-        return (
-          <Button
-            className={`mr-auto -ml-2 pb-3 pl-2 text-start whitespace-normal transition-transform duration-300 ease-out ${isActive ? '' : 'opacity-60'}`}
-            key={task.id}
-            name={task.name}
-            onClick={event => onTaskClick(task, event)}
-            type="button"
-            variant="ghost"
-          >
-            {isActive ? pickOne(emojis) : '✔️'}&nbsp; {task.name}
-          </Button>
-        )
-      })}
+      {tasks.map(task => renderTask({ accentColor, isActive: isTaskActive(task), onClick: event => onTaskClick(task, event), task }))}
     </div>
   )
 }
