@@ -7,3 +7,7 @@
   --color-primary: var(--chart-1);
   --color-secondary: var(--chart-2);
 }
+/* Typography */
+h1 {
+  @apply text-6xl leading-16 font-extrabold tracking-tight;
+}
