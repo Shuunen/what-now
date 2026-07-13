@@ -7,6 +7,21 @@
   --color-primary: var(--chart-1);
   --color-secondary: var(--chart-2);
 }
+
+/* Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+::-webkit-scrollbar {
+  @apply h-2 w-2;
+}
+::-webkit-scrollbar-track {
+  @apply bg-stone-900;
+}
+::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-primary;
+}
+
 /* Typography */
 h1 {
   @apply text-6xl leading-16 font-extrabold tracking-tight;
