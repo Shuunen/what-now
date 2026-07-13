@@ -1,13 +1,13 @@
 import { expect, test } from '@playwright/test'
 import { mockAppwrite, taskRow } from './mock-appwrite'
 
-test('when not setup, the menu only offers Tasks and Settings', async ({ page }) => {
+test('when not setup, the menu offers all pages', async ({ page }) => {
   await page.goto('/')
   await page.getByTestId('floating-menu-trigger').click()
   await expect(page.getByTestId('menu-item-tasks')).toBeVisible()
   await expect(page.getByTestId('menu-item-settings')).toBeVisible()
-  await expect(page.getByTestId('menu-item-planner')).toBeHidden()
-  await expect(page.getByTestId('menu-item-about')).toBeHidden()
+  await expect(page.getByTestId('menu-item-planner')).toBeVisible()
+  await expect(page.getByTestId('menu-item-about')).toBeVisible()
 })
 
 test('once setup, the menu offers all pages and navigates between them', async ({ page }) => {
