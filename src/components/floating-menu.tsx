@@ -21,7 +21,6 @@ export function FloatingMenu({ actions, isLoading = false, isSettingsRequired = 
   const [isOpen, setIsOpen] = useState(false)
   const iconOpen = useMemo(() => (isOpen ? <XIcon /> : <MenuIcon />), [isOpen])
   const icon = useMemo(() => (isLoading ? <LoaderCircleIcon /> : iconOpen), [iconOpen, isLoading])
-  const availableActions = useMemo(() => (isSettingsRequired ? actions.filter(action => ['Tasks', 'Settings'].includes(action.name)) : actions), [actions, isSettingsRequired])
   return (
     <>
       {isOpen && <div className="fixed right-0 bottom-0 z-10 size-full bg-black/20 bg-linear-to-tl" data-component="speed-dial-backdrop" />}
@@ -36,7 +35,7 @@ export function FloatingMenu({ actions, isLoading = false, isSettingsRequired = 
           <Command>
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
-              {availableActions.map(action => (
+              {actions.map(action => (
                 <CommandItem className="cursor-pointer text-lg" data-testid={testIdFromProps('menu-item', action)} disabled={action.disabled} key={action.name} onSelect={action.handleClick}>
                   {createElement(action.icon, { className: 'size-5' })}
                   {action.name}
