@@ -48,14 +48,14 @@ function TaskCardControls({
   onBefore: () => void
   onAfter: () => void
 }) {
-  const btnClasses = 'size-4 py-2'
+  const btnClasses = 'size-4 py-2 justify-center'
   const iconClasses = 'size-3'
   return (
     <div className="absolute top-0.5 right-0.5 grid grid-cols-2 gap-1.5 opacity-10 sepia hover:opacity-100 hover:sepia-0">
-      <Button className={btnClasses} disabled={!canIncrease} name="increase" onClick={onIncrease} variant={canIncrease ? 'destructive' : 'ghost'}>
+      <Button className={btnClasses} disabled={!canIncrease} name="increase" onClick={onIncrease} variant={canIncrease ? 'error' : 'ghost'}>
         <PlusIcon className={iconClasses} />
       </Button>
-      <Button className={btnClasses} disabled={!canDecrease} name="decrease" onClick={onDecrease} variant={canDecrease ? 'secondary' : 'ghost'}>
+      <Button className={btnClasses} disabled={!canDecrease} name="decrease" onClick={onDecrease} variant={canDecrease ? 'success' : 'ghost'}>
         <MinusIcon className={iconClasses} />
       </Button>
       <Button className={btnClasses} disabled={!canMove} name="before" onClick={onBefore} variant={canMove ? 'default' : 'ghost'}>

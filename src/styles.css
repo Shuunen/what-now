@@ -1,11 +1,12 @@
 @import 'tailwindcss';
-@import 'tw-animate-css';
 @import './animations.css';
-@import './theme.css';
 
+/* Colors */
 @theme inline {
-  --color-primary: var(--chart-1);
-  --color-secondary: var(--chart-2);
+  --color-primary: RoyalBlue;
+  --color-success: DarkCyan;
+  --color-error: IndianRed;
+  --color-white: FloralWhite;
 }
 
 /* Scrolling */
@@ -19,7 +20,7 @@ html {
   @apply bg-stone-900;
 }
 ::-webkit-scrollbar-thumb {
-  @apply rounded-full bg-primary;
+  @apply rounded-full bg-primary/50;
 }
 
 /* Typography */
