@@ -146,7 +146,7 @@ function TaskCard({
       data-testid={`task-card-${kebabCase(task.name)}`}
       title={title}
     >
-      <div className="truncate font-medium">{task.name}</div>
+      <div className="max-w-xs font-medium whitespace-break-spaces">{task.name}</div>
       <div className="text-xs opacity-75">{recurrenceLabel}</div>
       <TaskCardControls canDecrease={canDecrease} canIncrease={canIncrease} canMove={canMove} onAfter={handleAfter} onBefore={handleBefore} onDecrease={handleDecrease} onIncrease={handleIncrease} />
     </div>
@@ -183,8 +183,8 @@ function DayColumn({
   isToday?: boolean
 }) {
   return (
-    <div className={`flex min-h-96 w-full flex-col border-r border-gray-600/30 last:border-r-0 ${isToday ? 'bg-yellow-100/10' : ''}`}>
-      <div className="flex flex-col border-b border-gray-600/30 bg-gray-800/40 p-3 text-center leading-6 font-medium text-gray-200">
+    <div className={`flex h-full min-h-96 w-full grow flex-col border-r border-gray-600/30 last:border-r-0 ${isToday ? 'bg-primary/10' : ''}`}>
+      <div className={`flex flex-col border-b border-gray-600/30 bg-gray-800/40 p-3 text-center leading-6 font-medium text-gray-200 ${isToday ? 'bg-primary/10' : ''}`}>
         {dayName}
         <span className="ml-2 opacity-75">{realDate}</span>
       </div>
