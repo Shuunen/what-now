@@ -263,14 +263,19 @@ describe('planner utils', () => {
     })
   })
 
-  it('saveTaskModifications F should save both frequency and date modifications', async () => {
+  it('saveTaskModifications F should save both frequency and date modifications in a single merged update', async () => {
     const modifications = { 'task-1': 7 }
     const dateModifications = { 'task-1': '2023-10-01T00:00:00.000Z' }
     const tasks = [mockTask]
     vi.mocked(databaseUtils.updateTask).mockResolvedValue(Result.ok(mockAppWriteTask))
     const result = await saveTaskModifications(modifications, dateModifications, tasks)
     expect(result.ok).toBe(true)
-    expect(databaseUtils.updateTask).toHaveBeenCalledTimes(2) // Should be called twice: once for frequency, once for date
+    // Should be called once with both fields merged, to avoid one overwriting the other
+    expect(databaseUtils.updateTask).toHaveBeenCalledExactlyOnceWith({
+      ...mockTask,
+      completedOn: '2023-10-01T00:00:00.000Z',
+      once: 'week',
+    })
   })
 
   it('saveTaskModifications G should return error when date modification task not found', async () => {

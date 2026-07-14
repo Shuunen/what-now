@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.2] - 2026-07-14
+
+### Fixed in 2.1.2
+
+- Planner save no longer discards a frequency change when a task's date was also modified in the same session, and vice versa
+
 ## [2.1.1] - 2026-07-14
 
 ### Fixed in 2.1.1
@@ -41,7 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Migrated the project back out of the monorepo into its own repository
 
-[Unreleased]: https://github.com/Shuunen/what-now/compare/v2.1.1...HEAD
+[Unreleased]: https://github.com/Shuunen/what-now/compare/v2.1.2...HEAD
+[2.1.2]: https://github.com/Shuunen/what-now/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/Shuunen/what-now/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/Shuunen/what-now/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/Shuunen/what-now/releases/tag/v2.0.0
