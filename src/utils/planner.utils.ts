@@ -149,33 +149,6 @@ export function createTaskDistribution(tasks: Task[], modifications: Record<stri
 }
 
 /**
- * Creates an update promise for a single task modification
- * @param taskId - ID of the task to update
- * @param newDays - New recurrence in days
- * @param tasks - Array of all tasks
- * @returns Promise for updating the task
- */
-function createTaskUpdatePromise(taskId: string, newDays: number, tasks: Task[]) {
-  const task = tasks.find(currentTask => currentTask.id === taskId)
-  if (!task) return Promise.resolve(Result.error(`failed to find task ${taskId}`))
-  const frequencyString = daysToFrequencyString(newDays)
-  return updateTask({ ...task, once: frequencyString })
-}
-
-/**
- * Creates a date update promise for a task
- * @param taskId - Task ID to update
- * @param newCompletedOn - New completion date
- * @param tasks - Array of all tasks
- * @returns Promise that resolves to update result
- */
-function createTaskDateUpdatePromise(taskId: string, newCompletedOn: string, tasks: Task[]) {
-  const task = tasks.find(currentTask => currentTask.id === taskId)
-  if (!task) return Promise.resolve(Result.error(`task with id ${taskId} not found`))
-  return updateTask({ ...task, completedOn: newCompletedOn })
-}
-
-/**
  * Processes all update promises and checks if they were successful
  * @param updatePromises - Array of update promises
  * @returns Promise that resolves to Result indicating success or failure
@@ -199,17 +172,19 @@ async function processUpdatePromises(updatePromises: Promise<unknown>[]) {
  * @returns Promise that resolves when save is complete
  */
 export function saveTaskModifications(frequencyModifications: Record<string, number>, dateModifications: Record<string, string>, tasks: Task[]) {
-  const updatePromises: Promise<unknown>[] = []
+  const modifiedTaskIds = new Set([...Object.keys(frequencyModifications), ...Object.keys(dateModifications)])
 
-  // Handle frequency modifications
-  const frequencyEntries = Object.entries(frequencyModifications)
-  const frequencyPromises = frequencyEntries.map(([taskId, newDays]) => createTaskUpdatePromise(taskId, newDays, tasks))
-  updatePromises.push(...frequencyPromises)
-
-  // Handle date modifications
-  const dateEntries = Object.entries(dateModifications)
-  const datePromises = dateEntries.map(([taskId, newCompletedOn]) => createTaskDateUpdatePromise(taskId, newCompletedOn, tasks))
-  updatePromises.push(...datePromises)
+  const updatePromises = [...modifiedTaskIds].map(taskId => {
+    const task = tasks.find(currentTask => currentTask.id === taskId)
+    if (!task) return Promise.resolve(Result.error(`failed to find task ${taskId}`))
+    const newDays = frequencyModifications[taskId]
+    const newCompletedOn = dateModifications[taskId]
+    return updateTask({
+      ...task,
+      ...(newDays === undefined ? {} : { once: daysToFrequencyString(newDays) }),
+      ...(newCompletedOn === undefined ? {} : { completedOn: newCompletedOn }),
+    })
+  })
 
   return processUpdatePromises(updatePromises)
 }
