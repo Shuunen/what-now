@@ -1,5 +1,5 @@
 import { LoaderCircleIcon, type LucideProps, MenuIcon, XIcon } from 'lucide-react'
-import { createElement, type ForwardRefExoticComponent, type RefAttributes, useMemo, useRef, useState } from 'react'
+import { createElement, type ForwardRefExoticComponent, type RefAttributes, useEffect, useMemo, useRef, useState } from 'react'
 import { testIdFromProps } from '../utils/form.utils'
 import { cn } from '../utils/styles.utils'
 import { Command } from './ui/command'
@@ -31,6 +31,7 @@ export function FloatingMenu({ actions, isLoading = false, isSettingsRequired = 
   function handleHoverEnd() {
     closeTimeoutRef.current = setTimeout(() => setIsOpen(false), hoverCloseDelayMs)
   }
+  useEffect(() => () => clearTimeout(closeTimeoutRef.current), [])
   return (
     <>
       {isOpen && <div className="fixed right-0 bottom-0 z-10 size-full bg-black/20 bg-linear-to-tl" data-component="speed-dial-backdrop" />}
