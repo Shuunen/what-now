@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-07-14
+
+### Fixed in 2.1.1
+
+- Finale celebration no longer reappears after reloading the app on the same day it was dismissed
+
 ## [2.1.0] - 2026-07-12
 
 ### Added in 2.1.0
@@ -35,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Migrated the project back out of the monorepo into its own repository
 
-[Unreleased]: https://github.com/Shuunen/what-now/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/Shuunen/what-now/compare/v2.1.1...HEAD
+[2.1.1]: https://github.com/Shuunen/what-now/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/Shuunen/what-now/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/Shuunen/what-now/releases/tag/v2.0.0
