@@ -5,7 +5,7 @@ import { testIdFromProps, type NameProp } from '../../utils/form.utils'
 import { cn } from '../../utils/styles.utils'
 
 const buttonVariants = cva(
-  "focus-visible:border-ring focus-visible:ring-ring/50 inline-flex w-fit shrink-0 cursor-pointer items-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 disabled:grayscale [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "inline-flex w-fit shrink-0 cursor-pointer items-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 disabled:grayscale [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     defaultVariants: {
       size: 'default',
@@ -21,8 +21,8 @@ const buttonVariants = cva(
       variant: {
         default: 'bg-primary text-white shadow-xs hover:bg-primary/90',
         error: 'bg-error text-white shadow-xs hover:bg-error/90 focus-visible:ring-error/20',
-        ghost: 'hover:bg-accent hover:text-white',
-        outline: 'hover:bg-accent border shadow-xs hover:text-white',
+        ghost: 'hover:bg-gray-800/50 focus-visible:ring-gray-700/20',
+        outline: 'border border-primary/50 hover:bg-primary/10 focus-visible:ring-primary/20',
         success: 'bg-success text-white shadow-xs hover:bg-success/80',
       },
     },
