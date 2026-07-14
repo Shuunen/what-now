@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { nbPercentMax } from 'shuutils'
+import { FloatingMenu } from '../components/floating-menu'
 import { CheckmarkIcon } from '../components/icons/checkmark-icon'
 import { Status } from '../components/status'
 import { Button } from '../components/ui/button'
@@ -7,6 +8,7 @@ import { Command } from '../components/ui/command'
 import { CommandEmpty } from '../components/ui/command-empty'
 import { CommandItem } from '../components/ui/command-item'
 import { CommandList } from '../components/ui/command-list'
+import { useActions } from '../utils/pages.utils'
 import { progressAccentColor } from '../utils/progress.utils'
 
 const baseColors = [
@@ -149,6 +151,7 @@ function Section({ children, title }: { children: ReactNode; title: string }) {
 
 // oxlint-disable-next-line react/no-multi-comp
 export function PageKitchenSink() {
+  const actions = useActions()
   return (
     <div className="flex grow flex-col gap-8 py-12" data-testid="page-kitchen-sink">
       <h1 className="text-4xl!">Kitchen Sink</h1>
@@ -158,6 +161,7 @@ export function PageKitchenSink() {
       <Section title="Tasks">{tasksSection()}</Section>
       <Section title="Status">{statusSection()}</Section>
       <Section title="Command menu">{commandSection()}</Section>
+      <FloatingMenu actions={actions} />
     </div>
   )
 }
