@@ -22,7 +22,7 @@ export function PageTasks() {
   watchState('statusProgress', () => setProgress(state.statusProgress))
 
   return (
-    <div className={cn('relative flex grow flex-col gap-4 py-24 sm:mx-auto', state.isSetup ? '' : 'text-center')} data-testid="page-tasks">
+    <div className={cn('relative flex grow flex-col justify-center gap-4 py-24 sm:mx-auto', state.isSetup ? '' : 'text-center')} data-testid="page-tasks">
       <div
         className="pointer-events-none absolute top-1/5 left-3/5 size-110 max-w-[80vw] -translate-x-1/2 -translate-y-1/2 animate-[pulse_6s_ease-in-out_infinite] blur-[96px] md:left-full md:size-135"
         style={{ background: `radial-gradient(circle at 50% 42%, ${accentColor}, transparent 50%)` }}
