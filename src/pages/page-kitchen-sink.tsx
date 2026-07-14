@@ -18,6 +18,7 @@ const baseColors = [
   { name: 'warning', token: '--color-warning' },
   { name: 'bad', token: '--color-bad' },
   { name: 'error', token: '--color-error' },
+  { name: 'black', token: '--color-black' },
   { name: 'white', token: '--color-white' },
 ] as const
 

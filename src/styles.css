@@ -9,6 +9,7 @@
   --color-warning: oklch(72% 0.18 86);
   --color-bad: oklch(72% 0.18 54);
   --color-error: oklch(72% 0.18 22);
+  --color-black: var(--color-stone-950);
   --color-white: FloralWhite;
 }
 
