@@ -21,12 +21,24 @@ describe('progress.utils', () => {
     expect(computeProgressPercent(tasks)).toBe(100)
   })
 
-  it('progressAccentColor A should return a low-hue color for 0 percent', () => {
-    expect(progressAccentColor(0)).toMatchInlineSnapshot(`"oklch(72% 0.18 22)"`)
+  it('progressAccentColor A should return the error color for 0 percent', () => {
+    expect(progressAccentColor(0)).toMatchInlineSnapshot(`"var(--color-error)"`)
   })
 
-  it('progressAccentColor B should return a high-hue color for 100 percent', () => {
-    expect(progressAccentColor(100)).toMatchInlineSnapshot(`"oklch(72% 0.18 150)"`)
+  it('progressAccentColor B should return the bad color for 25 percent', () => {
+    expect(progressAccentColor(25)).toMatchInlineSnapshot(`"var(--color-bad)"`)
+  })
+
+  it('progressAccentColor C should return the warning color for 50 percent', () => {
+    expect(progressAccentColor(50)).toMatchInlineSnapshot(`"var(--color-warning)"`)
+  })
+
+  it('progressAccentColor D should return the ok color for 75 percent', () => {
+    expect(progressAccentColor(75)).toMatchInlineSnapshot(`"var(--color-ok)"`)
+  })
+
+  it('progressAccentColor E should return the success color for 100 percent', () => {
+    expect(progressAccentColor(100)).toMatchInlineSnapshot(`"var(--color-success)"`)
   })
 
   it('webhookPayload A should return correct payload with default progress', () => {

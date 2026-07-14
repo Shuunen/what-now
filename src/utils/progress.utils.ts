@@ -1,3 +1,4 @@
+import { invariant } from 'es-toolkit'
 import { nbPercentMax } from 'shuutils'
 import type { Task } from '../types'
 import { state } from './state.utils'
@@ -17,10 +18,13 @@ export function computeProgressPercent(tasks: Task[]) {
   return nbPercentMax - Math.round((remaining / total) * nbPercentMax)
 }
 
-// accent color for a given progress percent, shifting from orange (low) to green (high), matching the "Dark Home" design
+const progressAccentColors = ['var(--color-error)', 'var(--color-bad)', 'var(--color-warning)', 'var(--color-ok)', 'var(--color-success)']
+
+// accent color for a given progress percent, shifting from red (low) to green (high)
 export function progressAccentColor(percent: number) {
-  /* oxlint-disable no-magic-numbers */
-  const hue = 22 + 128 * (percent / nbPercentMax)
-  /* oxlint-enable no-magic-numbers */
-  return `oklch(72% 0.18 ${hue})`
+  const lastIndex = progressAccentColors.length - 1
+  const index = Math.round((percent / nbPercentMax) * lastIndex)
+  const color = progressAccentColors[index]
+  invariant(color, `no accent color found for progress percent ${percent}`)
+  return color
 }
