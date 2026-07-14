@@ -7,6 +7,8 @@ export const { state, watchState } = createState(
   {
     apiCollection: '',
     apiDatabase: '',
+    /** iso10 date the finale celebration screen was last dismissed on, to avoid showing it again the same day */
+    finaleDismissedOn: '',
     isLoading: false,
     /** true if the app is ready to use */
     isSetup: false,
@@ -23,7 +25,7 @@ export const { state, watchState } = createState(
     webhook: '',
   },
   storage,
-  /* v8 ignore next */ ['apiDatabase', 'apiCollection', 'tasks', 'tasksTimestamp', 'webhook'],
+  /* v8 ignore next */ ['apiDatabase', 'apiCollection', 'finaleDismissedOn', 'tasks', 'tasksTimestamp', 'webhook'],
 )
 
 export type CredentialField = keyof Pick<typeof state, 'apiCollection' | 'apiDatabase' | 'webhook'>

@@ -1,7 +1,8 @@
 import confetti from 'canvas-confetti'
 import { useEffect, useRef, useState } from 'react'
-import { nbMsInSecond } from 'shuutils'
+import { dateIso10, nbMsInSecond } from 'shuutils'
 import type { Task } from '../types'
+import { state } from '../utils/state.utils'
 import { isTaskActive } from '../utils/tasks.utils'
 
 const confettiColors = ['#f1c40f', '#2ecc71', '#3498db', '#e74c3c', '#9b59b6', '#1abc9c']
@@ -32,17 +33,22 @@ export function Finale({ tasks }: { tasks: Task[] }) {
     audioRef.current = new Audio('/fireworks.mp3')
   }, [])
 
+  function dismiss() {
+    setIsVisible(false)
+    state.finaleDismissedOn = dateIso10(new Date())
+  }
+
   useEffect(() => {
     if (!isAllDone) {
       hasCelebratedRef.current = false
       return undefined
     }
-    if (hasCelebratedRef.current) return undefined
+    if (hasCelebratedRef.current || state.finaleDismissedOn === dateIso10(new Date())) return undefined
     hasCelebratedRef.current = true
     setIsVisible(true)
     void audioRef.current?.play()
     burstFinale()
-    const timeout = setTimeout(() => setIsVisible(false), finaleDurationMs)
+    const timeout = setTimeout(dismiss, finaleDurationMs)
     return () => clearTimeout(timeout)
   }, [isAllDone])
 
@@ -53,7 +59,7 @@ export function Finale({ tasks }: { tasks: Task[] }) {
     <button
       className="fixed inset-0 z-30 flex animate-in cursor-pointer flex-col items-center justify-center gap-4 bg-black/80 px-5 text-center text-white backdrop-blur-sm duration-400 ease-out zoom-in-90 fade-in"
       data-testid="finale"
-      onClick={() => setIsVisible(false)}
+      onClick={dismiss}
       type="button"
     >
       <div aria-hidden="true" className="animate-[wn-bloom_0.6s_ease] text-[82px]">
