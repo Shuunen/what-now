@@ -72,7 +72,7 @@ function CredentialsForm({ formData, onInputChange, onSubmit }: CredentialsFormP
               </a>
             </label>
             <input
-              className="w-full rounded-md border px-3 py-2 focus:ring-2 focus:outline-none"
+              className="w-full rounded-md border border-white/20 px-3 py-2 focus:ring-2 focus:ring-primary/50 focus:outline-none"
               id={inputId}
               maxLength={field.maxlength}
               name={field.name}
