@@ -81,5 +81,5 @@
     "webhook": "bun src/webhook/server.cli.ts"
   },
   "type": "module",
-  "version": "2.1.2"
+  "version": "2.1.3"
 }
