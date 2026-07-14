@@ -3,6 +3,7 @@
 import { invariant, kebabCase } from 'es-toolkit'
 import { ArrowLeftRightIcon, CalendarIcon, DownloadIcon, MinusIcon, MoveLeftIcon, MoveRightIcon, PlusIcon, SaveIcon, UploadIcon } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { dateIso10, formatDate } from 'shuutils'
 import { FloatingMenu } from '../components/floating-menu'
 import { Button } from '../components/ui/button'
@@ -11,6 +12,7 @@ import { downloadData, getTasks } from '../utils/database.utils'
 import { logger } from '../utils/logger.utils'
 import { useActions } from '../utils/pages.utils'
 import { createTaskDistribution, dailyRecurrence, getHigherFrequency, getLowerFrequency, getTaskColor, saveTaskModifications, weekDays } from '../utils/planner.utils'
+import { state } from '../utils/state.utils'
 import { daysRecurrence, daysSinceCompletion, dispatchTasksAndUpdate, isTaskActive } from '../utils/tasks.utils'
 import { handleTasksUpload } from '../utils/upload.utils'
 
@@ -383,6 +385,7 @@ function usePlannerTasks() {
   const hasModifications = Object.keys(modifications.frequency || {}).length > 0 || Object.keys(modifications.completedOn || {}).length > 0
 
   async function loadTasks() {
+    if (!state.isSetup) return
     const load = await getTasks()
     if (!load.ok) throw new Error('Failed to load tasks')
     setTasks(load.value.filter(task => !task.isDone)) // Filter out completed tasks
@@ -515,6 +518,20 @@ export function PagePlanner() {
   const { handleTasksDispatch, handleTasksUploadAndReload } = usePlannerActions(tasks, setTasks, loadTasks)
   const tasksWithModifications = applyModificationsToTasks(tasks, modifications)
   const tasksByDay = createTaskDistribution(tasksWithModifications, modifications.frequency || {})
+
+  if (!state.isSetup)
+    return (
+      <div className="flex grow flex-col items-center justify-center gap-4 text-center" data-testid="page-planner">
+        <p>
+          The planner needs your Appwrite credentials first. Head over to{' '}
+          <Link className="border-b" to="/settings">
+            settings
+          </Link>{' '}
+          to get started.
+        </p>
+        <FloatingMenu actions={actions} />
+      </div>
+    )
 
   return (
     <div className="flex grow flex-col justify-center" data-testid="page-planner">
