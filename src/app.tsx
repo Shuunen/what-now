@@ -3,6 +3,7 @@ import { debounce, nbHueMax, on, storage, toastError } from 'shuutils'
 import './utils/database.utils'
 import './utils/idle.utils'
 import { PageAbout } from './pages/page-about'
+import { PageKitchenSink } from './pages/page-kitchen-sink'
 import { PagePlanner } from './pages/page-planner'
 import { PageSettings } from './pages/page-settings'
 import { PageTasks } from './pages/page-tasks'
@@ -41,6 +42,7 @@ export function App() {
       <Route element={<PagePlanner />} path="/planner" />
       <Route element={<PageSettings />} path="/settings" />
       <Route element={<PageAbout />} path="/about" />
+      <Route element={<PageKitchenSink />} path="/kitchen-sink" />
     </Routes>
   )
 }

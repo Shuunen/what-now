@@ -4,8 +4,11 @@
 /* Colors */
 @theme inline {
   --color-primary: RoyalBlue;
-  --color-success: DarkCyan;
-  --color-error: IndianRed;
+  --color-success: oklch(72% 0.18 150);
+  --color-ok: oklch(72% 0.18 118);
+  --color-warning: oklch(72% 0.18 86);
+  --color-bad: oklch(72% 0.18 54);
+  --color-error: oklch(72% 0.18 22);
   --color-white: FloralWhite;
 }
 
@@ -26,4 +29,7 @@ html {
 /* Typography */
 h1 {
   @apply text-6xl leading-16 font-extrabold tracking-tight;
+}
+h2 {
+  @apply text-2xl leading-12 font-bold tracking-tight;
 }
