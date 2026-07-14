@@ -10,7 +10,7 @@ export function PageAbout() {
       <p>
         This webapp has been deployed from this open-source code{' '}
         <a className="border-b" data-testid="link-github" href="https://github.com/Shuunen/what-now" rel="noopener noreferrer" target="_blank">
-          on Github
+          on GitHub
         </a>
         .
       </p>
