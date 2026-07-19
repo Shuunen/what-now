@@ -30,6 +30,7 @@ This app :
 - open source and does not use analytics or trackers
 - focus on simplicity
 - works on desktop, tablets, mobile
+- works offline and can be installed as an app (PWA)
 - let you setup recurring tasks to free your head
 
 If you find an other app like this, then it does not differs :D
@@ -47,6 +48,8 @@ From the settings page you can export your whole app state (tasks and settings) 
 Optionally, you can set a webhook URL in the settings to notify an external service with your progress, see [src/webhook/webhook.md](src/webhook/webhook.md) for details.
 
 Your data is yours and never leaves your browser (except to the webhook you explicitly configure), no analytics, trackers or other annoying things. You can have a look at the sources to confirm it.
+
+The app is a Progressive Web App: a service worker caches everything it needs to run, so once you've loaded it once, it keeps working offline, and you can install it on your device like a native app. A small banner appears whenever you lose connection so you always know your changes are only saved on this device until you're back online.
 
 ## TODO
 

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-07-19
+
+### Added in 3.1.0
+
+- The app now works offline: a service worker caches everything it needs to run, so it keeps working after the first load, and it can be installed on your device like a native app
+- A small banner appears whenever you lose connection, so you always know your changes are only saved on this device until you're back online
+
 ## [3.0.0] - 2026-07-18
 
 ### Added in 3.0.0
@@ -84,7 +91,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Migrated the project back out of the monorepo into its own repository
 
-[Unreleased]: https://github.com/Shuunen/what-now/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/Shuunen/what-now/compare/v3.1.0...HEAD
+[3.1.0]: https://github.com/Shuunen/what-now/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/Shuunen/what-now/compare/v2.1.3...v3.0.0
 [2.1.3]: https://github.com/Shuunen/what-now/compare/v2.1.0...v2.1.3
 [2.1.0]: https://github.com/Shuunen/what-now/compare/v2.0.0...v2.1.0
