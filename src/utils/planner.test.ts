@@ -1,49 +1,39 @@
-import { Result } from 'shuutils'
-import type { Task } from '../types'
-import type { AppWriteTaskModel } from './database.utils'
-import * as databaseUtils from './database.utils'
+import type { Task } from '../schemas/task'
 import {
   allDayIndices,
+  anchoredCompletedOn,
+  canMoveTaskEarlier,
+  computeTaskModifications,
   createTaskDistribution,
+  dayNames,
   daysInWeek,
   daysToFrequencyString,
+  frequencyLabel,
   getEffectiveRecurrence,
   getHigherFrequency,
   getLowerFrequency,
+  getQuoteModifiedTaskIds,
   getTaskColor,
   getTaskDaysWithModifications,
-  saveTaskModifications,
+  type TaskModifications,
   validFrequencies,
-  weekDays,
 } from './planner.utils'
 import * as tasksUtils from './tasks.utils'
 
-vi.mock(import('./database.utils'))
 vi.mock(import('./tasks.utils'))
 
 const mockTask: Task = {
   completedOn: '2023-01-01T10:00:00Z',
+  createdOn: '2023-01-01T10:00:00Z',
   id: 'task-1',
   isDone: false,
   minutes: 30,
   name: 'Test Task',
   once: 'week',
+  updatedOn: '',
 }
 
-const mockAppWriteTask: AppWriteTaskModel = {
-  $createdAt: '2023-01-01T10:00:00Z',
-  $databaseId: 'database-id',
-  $id: 'task-1',
-  $permissions: [],
-  $sequence: '1',
-  $tableId: 'collection-id',
-  $updatedAt: '2023-01-01T10:00:00Z',
-  'completed-on': '2023-01-01T10:00:00Z',
-  done: false,
-  minutes: 30,
-  name: 'Test Task',
-  once: '2-weeks',
-}
+const emptyModifications: TaskModifications = { completedOn: {}, fields: {}, frequency: {} }
 
 describe('planner utils', () => {
   beforeEach(() => {
@@ -52,8 +42,8 @@ describe('planner utils', () => {
     vi.setSystemTime(new Date('2023-01-08T10:00:00Z')) // Sunday
   })
 
-  it('weekDays A should contain all fourteen days', () => {
-    expect(weekDays).toMatchSnapshot()
+  it('dayNames A should contain the seven weekday names indexed by getDay', () => {
+    expect(dayNames).toMatchSnapshot()
   })
 
   it('daysInWeek A should equal 14', () => {
@@ -92,6 +82,31 @@ describe('planner utils', () => {
     expect(daysToFrequencyString(5)).toBe('5-days')
   })
 
+  it('frequencyLabel A should label a single day as daily', () => {
+    vi.mocked(tasksUtils.parseOnce).mockReturnValue({ quantity: 1, unit: 'day' })
+    expect(frequencyLabel('day')).toBe('daily')
+  })
+
+  it('frequencyLabel B should label a single week as weekly', () => {
+    vi.mocked(tasksUtils.parseOnce).mockReturnValue({ quantity: 1, unit: 'week' })
+    expect(frequencyLabel('week')).toBe('weekly')
+  })
+
+  it('frequencyLabel C should label a single month as monthly', () => {
+    vi.mocked(tasksUtils.parseOnce).mockReturnValue({ quantity: 1, unit: 'month' })
+    expect(frequencyLabel('month')).toBe('monthly')
+  })
+
+  it('frequencyLabel D should label a single year as yearly', () => {
+    vi.mocked(tasksUtils.parseOnce).mockReturnValue({ quantity: 1, unit: 'year' })
+    expect(frequencyLabel('year')).toBe('yearly')
+  })
+
+  it('frequencyLabel E should pluralize multiple units', () => {
+    vi.mocked(tasksUtils.parseOnce).mockReturnValue({ quantity: 2, unit: 'week' })
+    expect(frequencyLabel('2-weeks')).toBe('2 weeks')
+  })
+
   it('getHigherFrequency A should return lower number for higher frequency', () => {
     expect(getHigherFrequency(7)).toBe(6)
   })
@@ -117,8 +132,8 @@ describe('planner utils', () => {
   })
 
   it('getEffectiveRecurrence A should return modification when present', () => {
-    const modifications = { 'task-1': 14 }
-    vi.mocked(tasksUtils.daysRecurrence).mockReturnValue(7)
+    const modifications = { 'task-1': '2-weeks' }
+    vi.mocked(tasksUtils.daysRecurrence).mockImplementation(once => (once === '2-weeks' ? 14 : 7))
     expect(getEffectiveRecurrence(mockTask, modifications)).toBe(14)
   })
 
@@ -154,7 +169,8 @@ describe('planner utils', () => {
   })
 
   it('getTaskColor F should use modifications when provided', () => {
-    const modifications = { 'task-1': 1 }
+    const modifications = { 'task-1': 'day' }
+    vi.mocked(tasksUtils.daysRecurrence).mockReturnValue(1)
     expect(getTaskColor(mockTask, modifications)).toContain('bg-red-900/10')
   })
 
@@ -179,12 +195,44 @@ describe('planner utils', () => {
     const result = getTaskDaysWithModifications(mockTask, {})
     expect(result).toMatchInlineSnapshot(`
       [
-        6,
-        13,
+        0,
+        7,
       ]
     `)
   })
 
+  it('getTaskDaysWithModifications E should treat a never-completed task as immediately due, without calling daysSinceCompletion', () => {
+    const neverCompletedTask = { ...mockTask, completedOn: '' }
+    vi.mocked(tasksUtils.daysRecurrence).mockReturnValue(7)
+    vi.mocked(tasksUtils.isNeverCompleted).mockReturnValueOnce(true)
+    const result = getTaskDaysWithModifications(neverCompletedTask, {})
+    expect(tasksUtils.daysSinceCompletion).not.toHaveBeenCalled()
+    expect(result).toMatchInlineSnapshot(`
+      [
+        0,
+        7,
+      ]
+    `)
+  })
+
+  it('canMoveTaskEarlier A should be false for daily tasks', () => {
+    const dailyTask: Task = { ...mockTask, once: 'day' }
+    expect(canMoveTaskEarlier(dailyTask, {})).toBe(false)
+  })
+  it('canMoveTaskEarlier B should be false when the earliest occurrence is today', () => {
+    vi.mocked(tasksUtils.daysRecurrence).mockReturnValue(7)
+    vi.mocked(tasksUtils.daysSinceCompletion).mockReturnValue(7)
+    expect(canMoveTaskEarlier(mockTask, {})).toBe(false)
+  })
+  it('canMoveTaskEarlier C should be true when the earliest occurrence is after today', () => {
+    vi.mocked(tasksUtils.daysRecurrence).mockReturnValue(7)
+    vi.mocked(tasksUtils.daysSinceCompletion).mockReturnValue(5)
+    expect(canMoveTaskEarlier(mockTask, {})).toBe(true)
+  })
+  it('canMoveTaskEarlier D should be false when the task never appears in the window', () => {
+    const oneTimeTask: Task = { ...mockTask, once: 'yes' }
+    expect(canMoveTaskEarlier(oneTimeTask, {})).toBe(false)
+  })
   it('createTaskDistribution A should create empty distribution for empty task list', () => {
     const result = createTaskDistribution([])
     expect(result).toMatchSnapshot()
@@ -200,98 +248,100 @@ describe('planner utils', () => {
     vi.mocked(tasksUtils.daysRecurrence).mockReturnValue(7)
     vi.mocked(tasksUtils.daysSinceCompletion).mockReturnValue(7)
     const result = createTaskDistribution([mockTask])
-    expect(result[6]).toHaveLength(1)
-    expect(result[0]).toHaveLength(0)
+    expect(result[0]).toHaveLength(1)
+    expect(result[7]).toHaveLength(1)
+    expect(result[1]).toHaveLength(0)
   })
 
   it('createTaskDistribution D should use modifications when provided', () => {
-    const modifications = { 'task-1': 1 }
+    vi.mocked(tasksUtils.daysRecurrence).mockReturnValue(1)
+    const modifications = { 'task-1': 'day' }
     const result = createTaskDistribution([mockTask], modifications)
     expect(Object.values(result).every(dayTasks => dayTasks.length === 1)).toBe(true)
   })
 
-  it('saveTaskModifications A should save all modifications successfully', async () => {
-    const modifications = { 'task-1': 14 }
-    const dateModifications = {}
-    const tasks = [mockTask]
-    vi.mocked(databaseUtils.updateTask).mockResolvedValue(Result.ok(mockAppWriteTask))
-    const result = await saveTaskModifications(modifications, dateModifications, tasks)
-    expect(result.ok).toBe(true)
-    expect(databaseUtils.updateTask).toHaveBeenCalledWith({
-      ...mockTask,
-      once: '2-weeks',
-    })
+  it('computeTaskModifications A should apply frequency modifications', () => {
+    const updated = computeTaskModifications({ ...emptyModifications, frequency: { 'task-1': '2-weeks' } }, [mockTask])
+    expect(updated).toStrictEqual([{ ...mockTask, once: '2-weeks' }])
   })
 
-  it('saveTaskModifications B should return error when task not found', async () => {
-    const modifications = { 'nonexistent-task': 14 }
-    const dateModifications = {}
-    const tasks = [mockTask]
-    const result = await saveTaskModifications(modifications, dateModifications, tasks)
-    expect(result.ok).toBe(false)
+  it('computeTaskModifications B should skip tasks that are not found', () => {
+    const updated = computeTaskModifications({ ...emptyModifications, frequency: { 'nonexistent-task': '2-weeks' } }, [mockTask])
+    expect(updated).toStrictEqual([])
   })
 
-  it('saveTaskModifications C should return error when update fails', async () => {
-    const modifications = { 'task-1': 14 }
-    const dateModifications = {}
-    const tasks = [mockTask]
-    vi.mocked(databaseUtils.updateTask).mockResolvedValue(Result.error('update failed'))
-    const result = await saveTaskModifications(modifications, dateModifications, tasks)
-    expect(result.ok).toBe(false)
+  it('computeTaskModifications C should apply date modifications', () => {
+    const updated = computeTaskModifications({ ...emptyModifications, completedOn: { 'task-1': '2023-10-01T00:00:00.000Z' } }, [mockTask])
+    expect(updated).toStrictEqual([{ ...mockTask, completedOn: '2023-10-01T00:00:00.000Z' }])
   })
 
-  it('saveTaskModifications D should handle mixed success and failure', async () => {
-    const modifications = { 'task-1': 14, 'task-2': 7 }
-    const dateModifications = {}
+  it('computeTaskModifications D should merge frequency and date modifications into a single task', () => {
+    const updated = computeTaskModifications({ ...emptyModifications, completedOn: { 'task-1': '2023-10-01T00:00:00.000Z' }, frequency: { 'task-1': 'week' } }, [mockTask])
+    expect(updated).toStrictEqual([{ ...mockTask, completedOn: '2023-10-01T00:00:00.000Z', once: 'week' }])
+  })
+
+  it('computeTaskModifications E should handle multiple tasks', () => {
     const task2 = { ...mockTask, id: 'task-2' }
-    const tasks = [mockTask, task2]
-    vi.mocked(databaseUtils.updateTask).mockResolvedValueOnce(Result.ok(mockAppWriteTask)).mockResolvedValueOnce(Result.error('failure'))
-    const result = await saveTaskModifications(modifications, dateModifications, tasks)
-    expect(result.ok).toBe(false)
+    const updated = computeTaskModifications({ ...emptyModifications, frequency: { 'task-1': '2-weeks', 'task-2': 'week' } }, [mockTask, task2])
+    expect(updated).toStrictEqual([
+      { ...mockTask, once: '2-weeks' },
+      { ...task2, once: 'week' },
+    ])
   })
 
-  it('saveTaskModifications E should save date modifications successfully', async () => {
-    const modifications = {}
-    const dateModifications = { 'task-1': '2023-10-01T00:00:00.000Z' }
-    const tasks = [mockTask]
-    vi.mocked(databaseUtils.updateTask).mockResolvedValue(Result.ok(mockAppWriteTask))
-    const result = await saveTaskModifications(modifications, dateModifications, tasks)
-    expect(result.ok).toBe(true)
-    expect(databaseUtils.updateTask).toHaveBeenCalledWith({
-      ...mockTask,
-      completedOn: '2023-10-01T00:00:00.000Z',
-    })
+  it('computeTaskModifications F should skip a not-found task referenced only by a date modification', () => {
+    const updated = computeTaskModifications({ ...emptyModifications, completedOn: { 'nonexistent-task': '2023-10-01T00:00:00.000Z' } }, [mockTask])
+    expect(updated).toStrictEqual([])
   })
 
-  it('saveTaskModifications F should save both frequency and date modifications in a single merged update', async () => {
-    const modifications = { 'task-1': 7 }
-    const dateModifications = { 'task-1': '2023-10-01T00:00:00.000Z' }
-    const tasks = [mockTask]
-    vi.mocked(databaseUtils.updateTask).mockResolvedValue(Result.ok(mockAppWriteTask))
-    const result = await saveTaskModifications(modifications, dateModifications, tasks)
-    expect(result.ok).toBe(true)
-    // Should be called once with both fields merged, to avoid one overwriting the other
-    expect(databaseUtils.updateTask).toHaveBeenCalledExactlyOnceWith({
-      ...mockTask,
-      completedOn: '2023-10-01T00:00:00.000Z',
-      once: 'week',
-    })
+  it('computeTaskModifications G should apply inline field modifications', () => {
+    const updated = computeTaskModifications({ ...emptyModifications, fields: { 'task-1': { minutes: 45, name: 'Renamed', reason: 'because' } } }, [mockTask])
+    expect(updated).toStrictEqual([{ ...mockTask, minutes: 45, name: 'Renamed', reason: 'because' }])
   })
 
-  it('saveTaskModifications G should return error when date modification task not found', async () => {
-    const modifications = {}
-    const dateModifications = { 'nonexistent-task': '2023-10-01T00:00:00.000Z' }
-    const tasks = [mockTask]
-    const result = await saveTaskModifications(modifications, dateModifications, tasks)
-    expect(result.ok).toBe(false)
+  it('computeTaskModifications H should drop a blank name and empty a blank reason', () => {
+    const updated = computeTaskModifications({ ...emptyModifications, fields: { 'task-1': { name: '   ', reason: '  ' } } }, [mockTask])
+    expect(updated).toStrictEqual([{ ...mockTask, reason: undefined }])
   })
 
-  it('saveTaskModifications H should handle promise rejection', async () => {
-    const modifications = { 'task-1': 7 }
-    const dateModifications = {}
-    const tasks = [mockTask]
-    vi.mocked(databaseUtils.updateTask).mockRejectedValue(new Error('network error'))
-    const result = await saveTaskModifications(modifications, dateModifications, tasks)
-    expect(result.ok).toBe(false)
+  it('computeTaskModifications I should include a task modified only through its fields', () => {
+    const updated = computeTaskModifications({ ...emptyModifications, fields: { 'task-1': { minutes: 10 } } }, [mockTask])
+    expect(updated).toStrictEqual([{ ...mockTask, minutes: 10 }])
+  })
+
+  it('getQuoteModifiedTaskIds A should include a task with a frequency modification', () => {
+    expect(getQuoteModifiedTaskIds({ ...emptyModifications, frequency: { 'task-1': 'week' } })).toStrictEqual(new Set(['task-1']))
+  })
+
+  it('getQuoteModifiedTaskIds B should include a task with a name field modification', () => {
+    expect(getQuoteModifiedTaskIds({ ...emptyModifications, fields: { 'task-1': { name: 'Renamed' } } })).toStrictEqual(new Set(['task-1']))
+  })
+
+  it('getQuoteModifiedTaskIds C should include a task with a reason field modification', () => {
+    expect(getQuoteModifiedTaskIds({ ...emptyModifications, fields: { 'task-1': { reason: 'because' } } })).toStrictEqual(new Set(['task-1']))
+  })
+
+  it('getQuoteModifiedTaskIds D should exclude a task modified only through its completedOn date', () => {
+    expect(getQuoteModifiedTaskIds({ ...emptyModifications, completedOn: { 'task-1': '2023-10-01T00:00:00.000Z' } })).toStrictEqual(new Set())
+  })
+
+  it('getQuoteModifiedTaskIds E should include a task modified only through its minutes field', () => {
+    expect(getQuoteModifiedTaskIds({ ...emptyModifications, fields: { 'task-1': { minutes: 10 } } })).toStrictEqual(new Set(['task-1']))
+  })
+
+  it('anchoredCompletedOn A should anchor completion one recurrence before the first shown instance', () => {
+    vi.mocked(tasksUtils.daysRecurrence).mockReturnValue(7)
+    vi.mocked(tasksUtils.daysSinceCompletion).mockReturnValue(7)
+    // first instance is on today (Sunday), so a 3-day recurrence anchors completion to 3 days before today
+    expect(anchoredCompletedOn(mockTask, 3)).toBe('2023-01-05')
+  })
+
+  it('anchoredCompletedOn B should return undefined for a non-positive recurrence', () => {
+    expect(anchoredCompletedOn(mockTask, 0)).toBeUndefined()
+  })
+
+  it('anchoredCompletedOn C should return undefined when the task is not shown in the planner', () => {
+    vi.mocked(tasksUtils.daysRecurrence).mockReturnValue(0)
+    expect(anchoredCompletedOn(mockTask, 3)).toBeUndefined()
   })
 })
