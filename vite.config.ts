@@ -18,7 +18,7 @@ export default defineConfig({
   server: { port: 4200 },
   test: {
     coverage: {
-      include: ['src/utils'],
+      include: ['src/utils', 'src/schemas', 'src/store'],
       provider: 'v8' as const,
       reporter: [['text', { maxCols: 120 }], 'lcov'],
       reportsDirectory: './test-output/vitest/coverage',
@@ -29,6 +29,7 @@ export default defineConfig({
     include: ['src/**/*.test.{ts,tsx}'],
     pool: 'threads',
     reporters: ['dot'],
+    setupFiles: ['./src/test/setup.ts'],
     silent: true,
     watch: false,
   },
