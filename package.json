@@ -44,7 +44,9 @@
     "turbo": "^2.10.5",
     "typescript": "~7.0.2",
     "vite": "^8.1.4",
-    "vitest": "^4.1.10"
+    "vite-plugin-pwa": "^1.3.0",
+    "vitest": "^4.1.10",
+    "workbox-window": "^7.4.1"
   },
   "homepage": "https://github.com/Shuunen/what-now",
   "keywords": [
