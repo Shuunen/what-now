@@ -3,7 +3,7 @@
 ## Project docs
 
 - `README.md` — project description, features, TODOs
-- `docs/webhook.md` — webhook server protocol
+- `src/webhook/webhook.md` — webhook server protocol
 - `CHANGELOG.md` — release history, [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format
 
 ## Versioning

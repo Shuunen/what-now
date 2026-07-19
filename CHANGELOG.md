@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-07-18
+
+### Added in 3.0.0
+
+- Export and import your data as a JSON file from Settings, to back it up or move it to another device
+- Set your name in Settings so completed-task quotes are attributed to you
+- Edit a task's name, minutes, and reason inline from the planner, right where you select it
+- Add a task from a dedicated page or from a quick modal on the planner
+- A "Save modifications" / "Discard" flow on the planner batches frequency, date, and inline field edits together
+
+### Changed in 3.0.0
+
+- **Breaking:** all cloud sync via Appwrite is removed. Tasks and settings now live only in this browser's local storage — there is no automatic migration from previously cloud-synced data, so export anything you need to keep from the old version before updating
+- Task frequency is now edited as a free-text quantity + unit instead of only the previous fixed increase/decrease steps
+
+### Fixed in 3.0.0
+
+- A single malformed task (e.g. from manual data tampering) can no longer wipe your entire local task list on reload — only the invalid task is dropped
+- Interacting with the add-task form or Settings while the app is still loading your saved data no longer risks silently losing that edit
+- A closed tab or page refresh no longer risks losing an edit made in the last fraction of a second before the save was due to fire
+- Frequency quantities are capped so an unusually large typed number can no longer corrupt a task's recurrence
+
+### Removed in 3.0.0
+
+- The Appwrite credentials setup screen and all Appwrite-backed sync, upload, and idle-refresh code
+
 ## [2.1.3] - 2026-07-14
 
 ### Added in 2.1.3
@@ -58,7 +84,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Migrated the project back out of the monorepo into its own repository
 
-[Unreleased]: https://github.com/Shuunen/what-now/compare/v2.1.3...HEAD
+[Unreleased]: https://github.com/Shuunen/what-now/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/Shuunen/what-now/compare/v2.1.3...v3.0.0
 [2.1.3]: https://github.com/Shuunen/what-now/compare/v2.1.0...v2.1.3
 [2.1.0]: https://github.com/Shuunen/what-now/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/Shuunen/what-now/releases/tag/v2.0.0

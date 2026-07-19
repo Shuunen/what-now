@@ -3,7 +3,7 @@
 
 /* Colors */
 @theme inline {
-  --color-primary: DodgerBlue;
+  --color-primary: RoyalBlue;
   --color-success: oklch(72% 0.18 150);
   --color-ok: oklch(72% 0.18 118);
   --color-warning: oklch(72% 0.18 86);

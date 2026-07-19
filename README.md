@@ -38,19 +38,15 @@ Else enjoy it, you can even contribute to make it better !
 
 ## How does it work ?
 
-The tasks are stored on [AppWrite](appwrite.io), it's a great db provider with a nice free tier.
+The app is a single page app and it stores everything locally in your browser (via IndexedDB). There is no backend and no account to create.
 
-The app is a single page app, your credentials are stored in the local storage of your browser to let you close the tab and re-open it later without the need to fill your credentials again.
+Your tasks are loaded from local storage, then processed to display them in the right order. When you mark a task as done, the new status is saved back locally.
 
-The data is fetched from AppWrite, then processed to display the tasks in the right order.
+From the settings page you can export your whole app state (tasks and settings) to a JSON file to back it up or move it to another device, and import a file to restore it.
 
-When you mark a task as done, the app sends the new status to AppWrite.
+Optionally, you can set a webhook URL in the settings to notify an external service with your progress, see [src/webhook/webhook.md](src/webhook/webhook.md) for details.
 
-Your data is stored on AppWrite, your credentials are stored in your browser, the app does not store anything else.
-
-Your data is yours, you can delete it anytime on AppWrite, you can also delete the credentials in your browser.
-
-You can have a look at the sources to see that this app is not sharing your data with anyone, no analytics, trackers or other annoying things.
+Your data is yours and never leaves your browser (except to the webhook you explicitly configure), no analytics, trackers or other annoying things. You can have a look at the sources to confirm it.
 
 ## TODO
 
@@ -84,7 +80,6 @@ in terms of ui/ux :
 
 ## Thanks
 
-- [AppWrite](https://appwrite.io) : great db provider with a nice free tier <3
 - [Boxy Svg](https://boxy-svg.com) : simple & effective svg editor
 - [Canvas-Confetti](https://github.com/catdad/canvas-confetti) : superb fireworks/confetti effets
 - [Dependency-cruiser](https://github.com/sverweij/dependency-cruiser) : handy tool to validate and visualize dependencies
