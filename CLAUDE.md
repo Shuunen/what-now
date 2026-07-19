@@ -26,6 +26,7 @@ Never disable a lint rule without asking the user. Try to fix the code first the
 
 - **Constants**: camelCase only, never UPPER_SNAKE_CASE
 - **Absent values**: `undefined`, never `null`; use `isNil` from es-toolkit to check
+  - **Exception**: React components rendering nothing (early/empty return) use `return null`, per React convention — pair with `// oxlint-disable-next-line unicorn/no-null`
 - **Narrowing**: use `invariant(x, "msg")` from es-toolkit — never `x!` or silent `if (!x) return`
 
 ## Testing practices
