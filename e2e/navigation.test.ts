@@ -1,7 +1,6 @@
 import { expect, test } from '@playwright/test'
-import { mockAppwrite, taskRow } from './mock-appwrite'
 
-test('when not setup, the menu offers all pages', async ({ page }) => {
+test('the menu offers all pages', async ({ page }) => {
   await page.goto('/')
   await page.getByTestId('floating-menu-trigger').click()
   await expect(page.getByTestId('menu-item-tasks')).toBeVisible()
@@ -10,9 +9,8 @@ test('when not setup, the menu offers all pages', async ({ page }) => {
   await expect(page.getByTestId('menu-item-about')).toBeVisible()
 })
 
-test('once setup, the menu offers all pages and navigates between them', async ({ page }) => {
-  await mockAppwrite(page, [taskRow({ name: 'water plants' })])
-  await page.goto('/#e2e-database&e2e-collection')
+test('the menu navigates between pages', async ({ page }) => {
+  await page.goto('/')
   await expect(page.getByTestId('page-tasks')).toBeVisible()
 
   await page.getByTestId('floating-menu-trigger').click()
@@ -34,8 +32,7 @@ test('once setup, the menu offers all pages and navigates between them', async (
 })
 
 test('the current page action is disabled in the menu', async ({ page }) => {
-  await mockAppwrite(page, [taskRow({ name: 'water plants' })])
-  await page.goto('/#e2e-database&e2e-collection')
+  await page.goto('/')
   await page.getByTestId('floating-menu-trigger').click()
   await expect(page.getByTestId('menu-item-tasks')).toHaveAttribute('data-disabled', 'true')
   await expect(page.getByTestId('menu-item-planner')).toHaveAttribute('data-disabled', 'false')

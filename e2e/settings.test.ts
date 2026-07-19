@@ -1,31 +1,45 @@
 import { expect, test } from '@playwright/test'
+import { persistenceDebounceMs, seedTasks } from './seed'
 
-test('settings page shows the credentials form', async ({ page }) => {
+test('settings page shows import/export and webhook controls', async ({ page }) => {
   await page.goto('/settings')
   await expect(page.getByTestId('page-settings')).toBeVisible()
-  await expect(page.getByTestId('credentials')).toBeVisible()
-  await expect(page.locator('#input-appwrite-database-id')).toBeVisible()
-  await expect(page.locator('#input-appwrite-collection-id')).toBeVisible()
+  await expect(page.getByTestId('import-export')).toBeVisible()
+  await expect(page.getByTestId('button-import')).toBeVisible()
   await expect(page.locator('#input-webhook')).toBeVisible()
 })
 
-test('submitting an over-long database id shows an error and keeps the user on settings', async ({ page }) => {
+test('the export button is disabled until there is data to export', async ({ page }) => {
   await page.goto('/settings')
-  const tooLongId = 'a'.repeat(40) // valid characters, but exceeds validateCredentials' 36-char limit
-  await page.locator('#input-appwrite-database-id').fill(tooLongId)
-  await page.locator('#input-appwrite-collection-id').fill(tooLongId)
-  await page.getByTestId('button-save-credentials').click()
-  await expect(page.getByTestId('status')).toContainText('Invalid credentials')
-  await expect(page).toHaveURL(/\/settings/u)
+  await expect(page.getByTestId('button-export')).toBeDisabled()
 })
 
-test('submitting valid credentials redirects to the tasks page', async ({ page }) => {
-  await page.route('**/v1/tablesdb/**/rows*', async route => {
-    await route.fulfill({ body: JSON.stringify({ rows: [], total: 0 }), contentType: 'application/json' })
-  })
+test('importing a data file loads the tasks and enables export', async ({ page }) => {
+  await seedTasks(page, [{ name: 'water plants' }], '/settings')
+  await expect(page.getByTestId('button-export')).toBeEnabled()
+  await page.goto('/')
+  await expect(page.getByTestId('button-water-plants')).toBeVisible()
+})
+
+test('the webhook field accepts a value', async ({ page }) => {
   await page.goto('/settings')
-  await page.locator('#input-appwrite-database-id').fill('e2e-database')
-  await page.locator('#input-appwrite-collection-id').fill('e2e-collection')
-  await page.getByTestId('button-save-credentials').click()
-  await expect(page.getByTestId('page-tasks')).toBeVisible()
+  await page.locator('#input-webhook').fill('https://example.com/hook')
+  await expect(page.locator('#input-webhook')).toHaveValue('https://example.com/hook')
+})
+
+test('setting the user name updates the quote form attribution on the planner', async ({ page }) => {
+  await seedTasks(page, [{ name: 'water plants' }], '/settings')
+  await page.locator('#input-name').fill('Alice')
+  await expect(page.locator('#input-name')).toHaveValue('Alice')
+  await page.waitForTimeout(persistenceDebounceMs)
+  await page.goto('/planner')
+  await expect(page.getByTestId('quote-author')).toContainText('Alice')
+})
+
+test('importing an invalid file shows an error toast and keeps existing data', async ({ page }) => {
+  await seedTasks(page, [{ name: 'water plants' }], '/settings')
+  await page.getByTestId('file-input').setInputFiles({ buffer: globalThis.Buffer.from('not json'), mimeType: 'application/json', name: 'broken.json' })
+  await page.locator('.shu-toast', { hasText: 'Invalid JSON' }).waitFor()
+  await page.goto('/')
+  await expect(page.getByTestId('button-water-plants')).toBeVisible()
 })
