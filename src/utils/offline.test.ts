@@ -2,6 +2,10 @@ import { act, renderHook } from '@testing-library/react'
 import { useOfflineStatus } from './offline.utils'
 
 describe('useOfflineStatus', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   it('A reflects navigator.onLine on mount', () => {
     vi.spyOn(globalThis.navigator, 'onLine', 'get').mockReturnValue(false)
     const { result } = renderHook(() => useOfflineStatus())

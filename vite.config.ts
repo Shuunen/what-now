@@ -1,6 +1,6 @@
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import { VitePWA } from 'vite-plugin-pwa'
+import { VitePWA as vitePwa } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
 import { cspNonce } from './src/plugins/csp-nonce.ts'
 import { uniqueMark } from './src/plugins/unique-mark.ts'
@@ -19,8 +19,7 @@ export default defineConfig({
     tailwindcss(),
     uniqueMark(),
     cspNonce(),
-    // oxlint-disable-next-line new-cap
-    VitePWA({
+    vitePwa({
       // manifest is already hand-authored and linked from index.html as /app.webmanifest
       manifest: false,
       registerType: 'autoUpdate',
