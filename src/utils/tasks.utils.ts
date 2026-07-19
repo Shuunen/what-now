@@ -1,13 +1,38 @@
-import { dateIso10, daysAgoIso10, nbBefore, nbDaysInMonth, nbDaysInWeek, nbDaysInYear, nbMsInDay, nbMsInMinute, readableTimeAgo, Result } from 'shuutils'
-import type { Task } from '../types'
-import { getTasks, updateTask } from './database.utils'
-import { logger } from './logger.utils'
-import { state } from './state.utils'
+import { dateIso10, daysAgoIso10, nbDaysInMonth, nbDaysInWeek, nbDaysInYear, nbMsInDay } from 'shuutils'
+import type { Task } from '../schemas/task'
 
 const recurrenceRegex = /(?<quantity>\d{1,3})?-?(?<unit>day|month|week|year)/u
 
-export function daysRecurrence(task: Task) {
-  const matches = recurrenceRegex.exec(task.once)
+/** upper bound on a task's recurrence quantity, matching recurrenceRegex's 3-digit capture so buildOnce can never emit a value parseOnce/daysRecurrence would misread */
+const maxRecurrenceQuantity = 999
+
+/**
+ * Build a task `once` value from a quantity and unit, matching the recurrenceRegex format.
+ * @param quantity - how many units between occurrences, defaults to 1 when empty, invalid, or out of the regex's 1-999 range
+ * @param unit - one of day, week, month, year
+ * @returns the `once` string, e.g. "day" for a single unit or "2-weeks" for many
+ */
+export function buildOnce(quantity: number, unit: string) {
+  const amount = Math.trunc(quantity) || 1
+  if (amount <= 1) return unit
+  return `${Math.min(amount, maxRecurrenceQuantity)}-${unit}s`
+}
+
+/**
+ * Parse a task `once` value back into a quantity and singular unit, the inverse of buildOnce.
+ * @param once - the `once` string, e.g. "day" or "2-weeks"
+ * @returns the quantity and singular unit, defaulting to 1 day when unparseable
+ */
+export function parseOnce(once: string): { quantity: number; unit: string } {
+  const matches = recurrenceRegex.exec(once)
+  if (matches === null) return { quantity: 1, unit: 'day' }
+  const quantity = Math.trunc(Number(matches.groups?.quantity ?? '1'))
+  const unit = matches.groups?.unit as 'day' | 'month' | 'week' | 'year'
+  return { quantity, unit }
+}
+
+export function daysRecurrence(once: string) {
+  const matches = recurrenceRegex.exec(once)
   if (matches === null) return 0
   const quantity = matches.groups?.quantity ?? '1'
   const unit = matches.groups?.unit as 'day' | 'month' | 'week' | 'year'
@@ -16,6 +41,15 @@ export function daysRecurrence(task: Task) {
   if (unit === 'week') return number * nbDaysInWeek
   if (unit === 'month') return number * nbDaysInMonth
   return number * nbDaysInYear
+}
+
+/**
+ * Whether a task has never been completed, meaning its `completedOn` can't be parsed as a date.
+ * @param task - the task to check
+ * @returns true when the task has no completion date yet
+ */
+export function isNeverCompleted(task: Task) {
+  return task.completedOn === ''
 }
 
 export function daysSinceCompletion(task: Task) {
@@ -27,8 +61,8 @@ export function daysSinceCompletion(task: Task) {
 
 export function isTaskActive(task: Task, shouldIncludeCompletedToday = false) {
   if (task.isDone) return false
-  if (task.completedOn === '' || task.once === 'yes') return true
-  const recurrence = daysRecurrence(task)
+  if (isNeverCompleted(task) || task.once === 'yes') return true
+  const recurrence = daysRecurrence(task.once)
   const days = daysSinceCompletion(task)
   const isActive = (shouldIncludeCompletedToday && days === 0) || days >= recurrence
   return isActive
@@ -45,17 +79,26 @@ export function minutesRemaining(tasks: Task[]) {
   return minutes
 }
 
-export function completeTask(task: Task) {
-  task.completedOn = dateIso10(new Date()) // task is complete for today
-  task.isDone = task.once === 'yes' // but it also can be done totally if it was a one time job
-  return updateTask(task)
+/**
+ * Mark a task as completed for today, returning a new task (does not mutate the input).
+ * @param task - the task to complete
+ * @returns the updated task
+ */
+export function completeTask(task: Task): Task {
+  return {
+    ...task,
+    completedOn: dateIso10(new Date()), // task is complete for today
+    isDone: task.once === 'yes', // but it also can be done totally if it was a one time job
+  }
 }
 
-export function unCompleteTask(task: Task) {
-  // to un-complete, need to put the last completed on just before the required number of days
-  task.completedOn = daysAgoIso10(daysRecurrence(task))
-  task.isDone = false
-  return updateTask(task)
+/**
+ * Un-complete a task by pushing its completion date just before the required number of days.
+ * @param task - the task to un-complete
+ * @returns the updated task
+ */
+export function unCompleteTask(task: Task): Task {
+  return { ...task, completedOn: daysAgoIso10(daysRecurrence(task.once)), isDone: false }
 }
 
 export function byActive(taskA: Task, taskB: Task) {
@@ -66,64 +109,26 @@ export function byActive(taskA: Task, taskB: Task) {
   return 0
 }
 
-export async function fetchList(reason: string) {
-  logger.info('fetch list, reason :', reason)
-  state.statusInfo = 'Loading tasks, please wait...'
-  const result = await getTasks()
-  if (!result.ok) return result
-  state.statusInfo = ''
-  state.tasksTimestamp = Date.now()
-  const list = result.value.filter(task => isTaskActive(task, true)).toSorted(byActive)
-  return Result.ok(list)
-}
-
-export function isDataOlderThan(milliseconds: number) {
-  if (!state.tasksTimestamp) return true
-  const age = Date.now() - state.tasksTimestamp
-  const minutes = Math.round(age / nbMsInMinute)
-  /* v8 ignore next */
-  if (minutes > 0) logger.info('last activity', minutes, 'minute(s) ago')
-  return age >= milliseconds
-}
-
-export async function loadTasks(reason: string) {
-  if (!state.isSetup) return Result.error('not setup, cannot load tasks')
-  if (state.tasks.length > 0 && !isDataOlderThan(nbMsInMinute)) return Result.ok(`tasks are fresh (${readableTimeAgo(Date.now() - state.tasksTimestamp)})`)
-  const result = await fetchList(reason)
-  if (!result.ok) return result
-  logger.info('found', result.value.length, 'task(s)')
-  state.isLoading = false
-  state.tasks = result.value
-  return Result.ok('tasks loaded')
-}
-
-export function dispatchTask(task: Task, index = 0) {
-  if (['day', 'yes'].includes(task.once)) return Result.error(task.once === 'yes' ? 'one-time task, cannot dispatch' : 'daily task, nothing to dispatch')
-  const delay = daysRecurrence(task)
-  const position = index % delay
-  const completionDate = daysAgoIso10(nbBefore * position + delay)
-  if (completionDate === task.completedOn) return Result.error('task already dispatched')
-  task.completedOn = completionDate
-  return Result.ok(task) // task dispatched
-}
-
-export function dispatchTasks(tasks: Task[]) {
-  logger.info('dispatch tasks...')
-  return tasks.map((task, index) => dispatchTask(task, index))
-}
-
-export async function dispatchTasksAndUpdate(tasks: Task[]) {
-  logger.info('dispatch tasks and update...')
-  const taskUpdates = dispatchTasks(tasks).map(result => {
-    if (result.ok) return updateTask(result.value)
-    return Promise.resolve()
-  })
-  await Promise.all(taskUpdates)
-}
-
-export function toggleComplete(task: Task) {
+/**
+ * Toggle a task's completion state, returning a new task.
+ * @param task - the task to toggle
+ * @returns the updated task
+ */
+export function toggleComplete(task: Task): Task {
   if (isTaskActive(task)) return completeTask(task)
   return unCompleteTask(task)
+}
+
+/** the fields a user provides when creating a brand-new task */
+export type NewTaskFields = Pick<Task, 'name'> & Partial<Omit<Task, 'id'>>
+
+/**
+ * Create a brand-new task with a freshly generated id and sensible defaults.
+ * @param fields - the task fields, name is required
+ * @returns the new task, never completed and not done
+ */
+export function createTask(fields: NewTaskFields): Task {
+  return { completedOn: '', createdOn: new Date().toISOString(), isDone: false, minutes: 0, once: 'day', updatedOn: '', ...fields, id: crypto.randomUUID() }
 }
 
 /**
@@ -132,6 +137,6 @@ export function toggleComplete(task: Task) {
  * @returns a task mock
  */
 export function taskMock(fields: Partial<Task> = {}): Task {
-  const { completedOn = daysAgoIso10(0), id = 'id-123', isDone = false, minutes = 20, name = 'a super task', once = 'day', reason } = { ...fields }
-  return { completedOn, id, isDone, minutes, name, once, reason } satisfies Task
+  const { completedOn = daysAgoIso10(0), createdOn = daysAgoIso10(0), id = 'id-123', isDone = false, minutes = 20, name = 'a super task', once = 'day', reason, updatedOn = '' } = { ...fields }
+  return { completedOn, createdOn, id, isDone, minutes, name, once, reason, updatedOn } satisfies Task
 }

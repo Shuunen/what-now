@@ -38,6 +38,18 @@ exports[`planner utils > createTaskDistribution A should create empty distributi
 }
 `;
 
+exports[`planner utils > dayNames A should contain the seven weekday names indexed by getDay 1`] = `
+[
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+]
+`;
+
 exports[`planner utils > validFrequencies A should be in ascending order 1`] = `
 [
   1,
@@ -50,24 +62,5 @@ exports[`planner utils > validFrequencies A should be in ascending order 1`] = `
   14,
   21,
   28,
-]
-`;
-
-exports[`planner utils > weekDays A should contain all fourteen days 1`] = `
-[
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
 ]
 `;
