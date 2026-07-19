@@ -1,32 +1,45 @@
 // oxlint-disable react/no-multi-comp
 // oxlint-disable max-lines
 import { invariant, kebabCase } from 'es-toolkit'
-import { ArrowLeftRightIcon, CalendarIcon, DownloadIcon, MinusIcon, MoveLeftIcon, MoveRightIcon, PlusIcon, SaveIcon, UploadIcon } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { CalendarIcon, MinusIcon, MoveLeftIcon, MoveRightIcon, PlusIcon, RotateCcwIcon, SaveIcon } from 'lucide-react'
+import { useCallback, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { dateIso10, formatDate } from 'shuutils'
+import { dateIso10, formatDate, toastSuccess } from 'shuutils'
+import { AddTaskModal } from '../components/add-task-modal'
 import { FloatingMenu } from '../components/floating-menu'
+import { TaskQuoteForm } from '../components/task-quote-form'
+import type { Update } from '../components/task-sentence'
 import { Button } from '../components/ui/button'
-import type { Task } from '../types'
-import { downloadData, getTasks } from '../utils/database.utils'
+import type { Task } from '../schemas/task'
+import { useAppStore } from '../store/use-app-store'
 import { logger } from '../utils/logger.utils'
 import { useActions } from '../utils/pages.utils'
-import { createTaskDistribution, dailyRecurrence, getHigherFrequency, getLowerFrequency, getTaskColor, saveTaskModifications, weekDays } from '../utils/planner.utils'
-import { state } from '../utils/state.utils'
-import { daysRecurrence, daysSinceCompletion, dispatchTasksAndUpdate, isTaskActive } from '../utils/tasks.utils'
-import { handleTasksUpload } from '../utils/upload.utils'
-
-type TaskModifications = {
-  frequency?: Record<string, number>
-  completedOn?: Record<string, string>
-}
+import {
+  allDayIndices,
+  anchoredCompletedOn,
+  canMoveTaskEarlier,
+  computeTaskModifications,
+  createTaskDistribution,
+  dayNames,
+  daysToFrequencyString,
+  frequencyLabel,
+  getHigherFrequency,
+  getLowerFrequency,
+  getQuoteModifiedTaskIds,
+  getTaskColor,
+  type TaskFieldModifications,
+  type TaskModifications,
+} from '../utils/planner.utils'
+import { emptyForm, type FormState, taskToForm } from '../utils/task-form.utils'
+import { buildOnce, daysRecurrence, daysSinceCompletion, isNeverCompleted } from '../utils/tasks.utils'
 
 /**
  * Control buttons component for task card hover actions
  * @param properties - Component properties
  * @param properties.canIncrease - Whether frequency can be increased
  * @param properties.canDecrease - Whether frequency can be decreased
- * @param properties.canMove - Whether task date can be moved
+ * @param properties.canMoveBefore - Whether task date can be moved to an earlier day
+ * @param properties.canMoveAfter - Whether task date can be moved to a later day
  * @param properties.onIncrease - Handler for frequency increase
  * @param properties.onDecrease - Handler for frequency decrease
  * @param properties.onBefore - Handler for moving date before
@@ -36,7 +49,8 @@ type TaskModifications = {
 function TaskCardControls({
   canIncrease,
   canDecrease,
-  canMove,
+  canMoveBefore,
+  canMoveAfter,
   onIncrease,
   onDecrease,
   onBefore,
@@ -44,7 +58,8 @@ function TaskCardControls({
 }: {
   canIncrease: boolean
   canDecrease: boolean
-  canMove: boolean
+  canMoveBefore: boolean
+  canMoveAfter: boolean
   onIncrease: () => void
   onDecrease: () => void
   onBefore: () => void
@@ -53,17 +68,17 @@ function TaskCardControls({
   const btnClasses = 'size-4 py-2 justify-center'
   const iconClasses = 'size-3'
   return (
-    <div className="absolute top-0.5 right-0.5 grid grid-cols-2 gap-1.5 opacity-10 sepia hover:opacity-100 hover:sepia-0">
+    <div className="absolute top-0.5 right-0.5 grid grid-cols-2 gap-1.5 opacity-10 sepia hover:opacity-100 hover:sepia-0" onClick={event => event.stopPropagation()}>
       <Button className={btnClasses} disabled={!canIncrease} name="increase" onClick={onIncrease} variant={canIncrease ? 'error' : 'ghost'}>
         <PlusIcon className={iconClasses} />
       </Button>
       <Button className={btnClasses} disabled={!canDecrease} name="decrease" onClick={onDecrease} variant={canDecrease ? 'success' : 'ghost'}>
         <MinusIcon className={iconClasses} />
       </Button>
-      <Button className={btnClasses} disabled={!canMove} name="before" onClick={onBefore} variant={canMove ? 'default' : 'ghost'}>
+      <Button className={btnClasses} disabled={!canMoveBefore} name="before" onClick={onBefore} variant={canMoveBefore ? 'default' : 'ghost'}>
         <MoveLeftIcon className={iconClasses} />
       </Button>
-      <Button className={btnClasses} disabled={!canMove} name="after" onClick={onAfter} variant={canMove ? 'default' : 'ghost'}>
+      <Button className={btnClasses} disabled={!canMoveAfter} name="after" onClick={onAfter} variant={canMoveAfter ? 'default' : 'ghost'}>
         <MoveRightIcon className={iconClasses} />
       </Button>
     </div>
@@ -73,7 +88,7 @@ function TaskCardControls({
 type TaskCardHandlersOptions = {
   task: Task
   currentRecurrence: number
-  onFrequencyChange: (taskId: string, newDays: number) => void
+  onFrequencyChange: (taskId: string, newOnce: string) => void
   onDateChange: (taskId: string, direction: 'before' | 'after') => void
 }
 
@@ -89,12 +104,12 @@ type TaskCardHandlersOptions = {
 function useTaskCardHandlers({ task, currentRecurrence, onFrequencyChange, onDateChange }: TaskCardHandlersOptions) {
   const handleIncrease = useCallback(() => {
     const higherFrequency = getHigherFrequency(currentRecurrence)
-    if (higherFrequency !== undefined) onFrequencyChange(task.id, higherFrequency)
+    if (higherFrequency !== undefined) onFrequencyChange(task.id, daysToFrequencyString(higherFrequency))
   }, [currentRecurrence, onFrequencyChange, task.id])
 
   const handleDecrease = useCallback(() => {
     const lowerFrequency = getLowerFrequency(currentRecurrence)
-    if (lowerFrequency !== undefined) onFrequencyChange(task.id, lowerFrequency)
+    if (lowerFrequency !== undefined) onFrequencyChange(task.id, daysToFrequencyString(lowerFrequency))
   }, [currentRecurrence, onFrequencyChange, task.id])
 
   const handleBefore = useCallback(() => {
@@ -115,6 +130,8 @@ function useTaskCardHandlers({ task, currentRecurrence, onFrequencyChange, onDat
  * @param properties.modifications - Current modifications to tasks
  * @param properties.onFrequencyChange - Handler for frequency changes
  * @param properties.onDateChange - Handler for date changes
+ * @param properties.isSelected - Whether this task is currently selected
+ * @param properties.onSelect - Handler for selecting the task
  * @returns JSX element for the task card
  */
 function TaskCard({
@@ -122,35 +139,46 @@ function TaskCard({
   modifications,
   onFrequencyChange,
   onDateChange,
+  isSelected,
+  onSelect,
 }: {
   task: Task
-  modifications: Record<string, number>
-  onFrequencyChange: (taskId: string, newDays: number) => void
+  modifications: Record<string, string>
+  onFrequencyChange: (taskId: string, newOnce: string) => void
   onDateChange: (taskId: string, direction: 'before' | 'after') => void
+  isSelected: boolean
+  onSelect: (taskId: string) => void
 }) {
   const colorClass = getTaskColor(task, modifications)
-  const originalRecurrence = daysRecurrence(task)
-  const currentRecurrence = modifications[task.id] ?? originalRecurrence
-  const recurrenceLabel = currentRecurrence === dailyRecurrence ? 'daily' : `${currentRecurrence}-days`
+  const currentOnce = modifications[task.id] ?? task.once
+  const currentRecurrence = daysRecurrence(currentOnce)
+  const recurrenceLabel = frequencyLabel(currentOnce)
   const isModified = modifications[task.id] !== undefined
   const { handleAfter, handleBefore, handleDecrease, handleIncrease } = useTaskCardHandlers({ currentRecurrence, onDateChange, onFrequencyChange, task })
 
   const canIncrease = getHigherFrequency(currentRecurrence) !== undefined
   const canDecrease = getLowerFrequency(currentRecurrence) !== undefined
-  const canMove = task.once !== 'day'
-  const title = `${task.name} (${task.minutes} min, completed ${daysSinceCompletion(task)} days ago)`
+  const canMoveBefore = canMoveTaskEarlier(task, modifications)
+  const canMoveAfter = task.once !== 'day'
+  const completionLabel = isNeverCompleted(task) ? 'never completed' : `completed ${daysSinceCompletion(task)} days ago`
+  const title = `${task.name} (${task.minutes} min, ${completionLabel})`
+  let ringClass = ''
+  if (isSelected) ringClass = 'ring-2 ring-primary'
+  else if (isModified) ringClass = 'ring-2 ring-yellow-400/50'
 
   return (
     <div
-      className={`rounded border-2 px-2 py-1 text-xs ${colorClass} ${isModified ? 'ring-2 ring-yellow-400/50' : ''} group relative w-full truncate text-left`}
+      className={`rounded border-2 px-2 py-1 text-xs ${colorClass} ${ringClass} group relative w-full cursor-pointer truncate text-left`}
       data-completed-on={task.completedOn}
       data-once={task.once}
+      data-selected={isSelected}
       data-testid={`task-card-${kebabCase(task.name)}`}
+      onClick={() => onSelect(task.id)}
       title={title}
     >
       <div className="max-w-xs font-medium whitespace-break-spaces">{task.name}</div>
       <div className="text-xs opacity-75">{recurrenceLabel}</div>
-      <TaskCardControls canDecrease={canDecrease} canIncrease={canIncrease} canMove={canMove} onAfter={handleAfter} onBefore={handleBefore} onDecrease={handleDecrease} onIncrease={handleIncrease} />
+      <TaskCardControls canDecrease={canDecrease} canIncrease={canIncrease} canMoveAfter={canMoveAfter} canMoveBefore={canMoveBefore} onAfter={handleAfter} onBefore={handleBefore} onDecrease={handleDecrease} onIncrease={handleIncrease} />
     </div>
   )
 }
@@ -165,6 +193,8 @@ function TaskCard({
  * @param properties.onDateChange - Handler for date changes
  * @param properties.realDate - Real date string for the day
  * @param properties.isToday - Whether this day is today
+ * @param properties.selectedTaskId - The id of the currently selected task
+ * @param properties.onSelect - Handler for selecting a task
  * @returns JSX element for the day column
  */
 function DayColumn({
@@ -175,24 +205,28 @@ function DayColumn({
   onDateChange,
   realDate,
   isToday,
+  selectedTaskId,
+  onSelect,
 }: {
   dayName: string
   tasks: Task[]
-  modifications: Record<string, number>
-  onFrequencyChange: (taskId: string, newDays: number) => void
+  modifications: Record<string, string>
+  onFrequencyChange: (taskId: string, newOnce: string) => void
   onDateChange: (taskId: string, direction: 'before' | 'after') => void
   realDate: string
   isToday?: boolean
+  selectedTaskId?: string
+  onSelect: (taskId: string) => void
 }) {
   return (
-    <div className={`flex h-full min-h-96 w-full grow flex-col border-r border-gray-600/30 last:border-r-0 ${isToday ? 'bg-primary/10' : ''}`}>
+    <div className={`flex h-full min-h-96 w-full grow flex-col border-r border-gray-600/30 last:border-r-0 ${isToday ? 'bg-primary/10' : ''}`} data-testid={isToday ? 'planner-today' : undefined}>
       <div className={`flex flex-col border-b border-gray-600/30 bg-gray-800/40 p-3 text-center leading-6 font-medium text-gray-200 ${isToday ? 'bg-primary/10' : ''}`}>
         {dayName}
         <span className="ml-2 opacity-75">{realDate}</span>
       </div>
       <div className="flex grow flex-col gap-2 p-3">
         {tasks.map(task => (
-          <TaskCard key={`${task.id}-${realDate}`} modifications={modifications} onDateChange={onDateChange} onFrequencyChange={onFrequencyChange} task={task} />
+          <TaskCard isSelected={task.id === selectedTaskId} key={`${task.id}-${realDate}`} modifications={modifications} onDateChange={onDateChange} onFrequencyChange={onFrequencyChange} onSelect={onSelect} task={task} />
         ))}
       </div>
     </div>
@@ -206,6 +240,8 @@ function DayColumn({
  * @param properties.modifications - Current modifications to tasks
  * @param properties.onFrequencyChange - Handler for frequency changes
  * @param properties.onDateChange - Handler for date changes
+ * @param properties.selectedTaskId - The id of the currently selected task
+ * @param properties.onSelect - Handler for selecting a task
  * @returns JSX element for the planner content
  */
 function PlannerContent({
@@ -213,28 +249,41 @@ function PlannerContent({
   modifications,
   onFrequencyChange,
   onDateChange,
+  selectedTaskId,
+  onSelect,
 }: {
   tasksByDay: Record<number, Task[]>
-  modifications: Record<string, number>
-  onFrequencyChange: (taskId: string, newDays: number) => void
+  modifications: Record<string, string>
+  onFrequencyChange: (taskId: string, newOnce: string) => void
   onDateChange: (taskId: string, direction: 'before' | 'after') => void
+  selectedTaskId?: string
+  onSelect: (taskId: string) => void
 }) {
   const today = new Date()
-  const monday = new Date(today)
-  monday.setDate(today.getDate() - today.getDay() + 1)
   return (
     <div className="overflow-hidden rounded-lg border border-gray-600/30 bg-gray-800/30 shadow-sm">
       <div className="flex min-h-96 overflow-x-auto">
-        {weekDays.map((dayName, index) => {
-          const columnDate = new Date(monday)
-          columnDate.setDate(monday.getDate() + index)
+        {allDayIndices.map(index => {
+          const columnDate = new Date(today)
+          columnDate.setDate(today.getDate() + index)
+          const dayName = dayNames[columnDate.getDay()]
           const realDate = formatDate(columnDate, 'dd MMMM')
-          const isToday = columnDate.toDateString() === today.toDateString()
+          const isToday = index === 0
           const tasks = tasksByDay[index]
           invariant(tasks, `Tasks for day index ${index} not found`)
           return (
             <div className="min-w-48 shrink-0" key={realDate}>
-              <DayColumn dayName={dayName} isToday={isToday} modifications={modifications} onDateChange={onDateChange} onFrequencyChange={onFrequencyChange} realDate={realDate} tasks={tasks} />
+              <DayColumn
+                dayName={dayName}
+                isToday={isToday}
+                modifications={modifications}
+                onDateChange={onDateChange}
+                onFrequencyChange={onFrequencyChange}
+                onSelect={onSelect}
+                realDate={realDate}
+                selectedTaskId={selectedTaskId}
+                tasks={tasks}
+              />
             </div>
           )
         })}
@@ -249,7 +298,7 @@ function PlannerContent({
  * @param modifications - Task modifications record
  * @returns Calculated metrics object
  */
-function calculatePlannerMetrics(tasks: Task[], modifications: Record<string, number>) {
+function calculatePlannerMetrics(tasks: Task[], modifications: Record<string, string>) {
   const activeTasksCount = tasks.length
   const daysPerWeek = 7
   const decimalPrecision = 10
@@ -258,9 +307,8 @@ function calculatePlannerMetrics(tasks: Task[], modifications: Record<string, nu
   let totalWeeklyMinutes = 0
   let totalWeeklyTasks = 0
   for (const task of tasks) {
-    const originalRecurrence = daysRecurrence(task)
-    const currentRecurrence = modifications[task.id] ?? originalRecurrence
-    const weeklyOccurrences = daysPerWeek / currentRecurrence
+    const currentRecurrence = daysRecurrence(modifications[task.id] ?? task.once)
+    const weeklyOccurrences = currentRecurrence > 0 ? daysPerWeek / currentRecurrence : 0
     totalWeeklyMinutes += task.minutes * weeklyOccurrences
     totalWeeklyTasks += weeklyOccurrences
   }
@@ -270,11 +318,7 @@ function calculatePlannerMetrics(tasks: Task[], modifications: Record<string, nu
 
   // Calculate average frequency (in days) using current modifications
   let totalFrequency = 0
-  for (const task of tasks) {
-    const originalRecurrence = daysRecurrence(task)
-    const currentRecurrence = modifications[task.id] ?? originalRecurrence
-    totalFrequency += currentRecurrence
-  }
+  for (const task of tasks) totalFrequency += daysRecurrence(modifications[task.id] ?? task.once)
 
   const averageFrequency = activeTasksCount > 0 ? Math.round((totalFrequency / activeTasksCount) * decimalPrecision) / decimalPrecision : 0
 
@@ -288,7 +332,7 @@ function calculatePlannerMetrics(tasks: Task[], modifications: Record<string, nu
  * @param properties.modifications - Current modifications to tasks
  * @returns JSX element for the metrics display
  */
-function PlannerMetrics({ tasks, modifications }: { tasks: Task[]; modifications: Record<string, number> }) {
+function PlannerMetrics({ tasks, modifications }: { tasks: Task[]; modifications: Record<string, string> }) {
   const metrics = useMemo(() => calculatePlannerMetrics(tasks, modifications), [tasks, modifications])
 
   return (
@@ -323,26 +367,38 @@ function PlannerMetrics({ tasks, modifications }: { tasks: Task[]; modifications
  */
 function applyModificationsToTasks(tasks: Task[], modifications: TaskModifications): Task[] {
   return tasks.map(task => {
-    const modifiedCompletedOn = modifications.completedOn?.[task.id]
-    if (modifiedCompletedOn) return { ...task, completedOn: modifiedCompletedOn }
-    return task
+    const modifiedCompletedOn = modifications.completedOn[task.id]
+    const modifiedFields = modifications.fields[task.id]
+    if (modifiedCompletedOn === undefined && modifiedFields === undefined) return task
+    return { ...task, ...(modifiedCompletedOn === undefined ? {} : { completedOn: modifiedCompletedOn }), ...modifiedFields }
   })
 }
 
 /**
  * Hook for handling frequency modifications
+ * @param tasks - Current tasks
  * @param setModifications - Setter for modifications
  * @returns Frequency change handler
  */
-function useFrequencyChange(setModifications: React.Dispatch<React.SetStateAction<TaskModifications>>) {
+function useFrequencyChange(tasks: Task[], setModifications: React.Dispatch<React.SetStateAction<TaskModifications>>) {
   return useCallback(
-    (taskId: string, newDays: number) => {
-      setModifications(previous => ({
-        ...previous,
-        frequency: { ...previous.frequency, [taskId]: newDays },
-      }))
+    (taskId: string, newOnce: string) => {
+      setModifications(previous => {
+        const task = tasks.find(currentTask => currentTask.id === taskId)
+        if (!task) return previous
+        // Anchor the completion date so the first instance the control is used against stays in place.
+        const currentOnce = previous.frequency?.[taskId] ?? task.once
+        const currentCompletedOn = previous.completedOn?.[taskId] ?? task.completedOn
+        const effectiveTask = { ...task, completedOn: currentCompletedOn, once: currentOnce }
+        const anchored = anchoredCompletedOn(effectiveTask, daysRecurrence(newOnce))
+        return {
+          ...previous,
+          completedOn: anchored === undefined ? previous.completedOn : { ...previous.completedOn, [taskId]: anchored },
+          frequency: { ...previous.frequency, [taskId]: newOnce },
+        }
+      })
     },
-    [setModifications],
+    [tasks, setModifications],
   )
 }
 
@@ -359,7 +415,7 @@ function useDateChange(tasks: Task[], modifications: TaskModifications, setModif
       const task = tasks.find(currentTask => currentTask.id === taskId)
       if (!task) return
       // Use the modified date if it exists, otherwise use the original task date
-      const currentDateString = modifications.completedOn?.[taskId] || task.completedOn
+      const currentDateString = modifications.completedOn[taskId] || task.completedOn
       const currentDate = new Date(currentDateString)
       const newDate = new Date(currentDate)
       if (direction === 'before') newDate.setDate(currentDate.getDate() - 1)
@@ -375,77 +431,77 @@ function useDateChange(tasks: Task[], modifications: TaskModifications, setModif
 }
 
 /**
+ * Hook for handling inline field edits (name, minutes, reason) coming from the quote form
+ * @param setModifications - Setter for modifications
+ * @returns Field change handler
+ */
+function useFieldChange(setModifications: React.Dispatch<React.SetStateAction<TaskModifications>>) {
+  return useCallback(
+    (taskId: string, key: 'minutes' | 'name' | 'reason', value: string) => {
+      const change: TaskFieldModifications = key === 'minutes' ? { minutes: Math.max(0, Number(value) || 0) } : { [key]: value }
+      setModifications(previous => ({
+        ...previous,
+        fields: { ...previous.fields, [taskId]: { ...previous.fields?.[taskId], ...change } },
+      }))
+    },
+    [setModifications],
+  )
+}
+
+const emptyModifications: TaskModifications = { completedOn: {}, fields: {}, frequency: {} }
+
+/**
  * Custom hook to handle task loading and modifications
  * @returns Object containing tasks, modifications state and handlers
  */
 function usePlannerTasks() {
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [modifications, setModifications] = useState<TaskModifications>({ completedOn: {}, frequency: {} })
-  const [saving, setSaving] = useState(false)
-  const hasModifications = Object.keys(modifications.frequency || {}).length > 0 || Object.keys(modifications.completedOn || {}).length > 0
+  const storeTasks = useAppStore(state => state.data.tasks)
+  const updateTasks = useAppStore(state => state.updateTasks)
+  const [modifications, setModifications] = useState<TaskModifications>(emptyModifications)
+  const tasks = useMemo(() => storeTasks.filter(task => !task.isDone), [storeTasks]) // Filter out completed tasks
+  const hasModifications = Object.keys(modifications.frequency).length > 0 || Object.keys(modifications.completedOn).length > 0 || Object.keys(modifications.fields).length > 0
 
-  async function loadTasks() {
-    if (!state.isSetup) return
-    const load = await getTasks()
-    if (!load.ok) throw new Error('Failed to load tasks')
-    setTasks(load.value.filter(task => !task.isDone)) // Filter out completed tasks
-  }
-
-  // oxlint-disable-next-line react/react-compiler -- fetch-on-mount effect, loadTasks is stable in intent
-  useEffect(() => void loadTasks(), [])
-
-  const handleFrequencyChange = useFrequencyChange(setModifications)
+  const handleFrequencyChange = useFrequencyChange(tasks, setModifications)
   const handleDateChange = useDateChange(tasks, modifications, setModifications)
+  const handleFieldChange = useFieldChange(setModifications)
 
-  const handleSaveModifications = useCallback(async () => {
+  const handleSaveModifications = useCallback(() => {
     if (!hasModifications) return
-    setSaving(true)
-    const result = await saveTaskModifications(modifications.frequency || {}, modifications.completedOn || {}, tasks)
-    if (result.ok) {
-      setModifications({ completedOn: {}, frequency: {} })
-      // oxlint-disable-next-line react/react-compiler -- loadTasks is intentionally omitted, it's redefined each render but stable in intent
-      await loadTasks() // Reload tasks to reflect changes
-    }
-    setSaving(false)
-  }, [modifications, hasModifications, tasks])
+    logger.info('saving planner modifications...')
+    const updated = computeTaskModifications(modifications, tasks)
+    const stampedOn = new Date().toISOString()
+    const quoteModifiedIds = getQuoteModifiedTaskIds(modifications)
+    updateTasks(updated.map(task => (quoteModifiedIds.has(task.id) ? { ...task, updatedOn: stampedOn } : task)))
+    setModifications(emptyModifications)
+    toastSuccess('Modifications saved')
+  }, [modifications, hasModifications, tasks, updateTasks])
+
+  const handleDiscardModifications = useCallback(() => {
+    setModifications(emptyModifications)
+  }, [])
 
   return {
     handleDateChange,
+    handleDiscardModifications,
+    handleFieldChange,
     handleFrequencyChange,
     handleSaveModifications,
     hasModifications,
-    loadTasks,
     modifications,
-    saving,
-    setTasks,
     tasks,
   }
 }
 
 /**
- * Component for the planner header with title and action buttons
+ * Component for the planner header with title and the save/discard actions
  * @param properties - Component properties
- * @param properties.onTasksUpload - Handler for tasks upload
- * @param properties.onTasksDispatch - Handler for tasks dispatch
  * @param properties.onSaveModifications - Handler for saving modifications
+ * @param properties.onDiscardModifications - Handler for discarding modifications
  * @param properties.hasModifications - Whether there are unsaved modifications
- * @param properties.saving - Whether save operation is in progress
+ * @param properties.onAdd - Handler for opening the add task modal
  * @returns JSX element for the planner header
  */
-function PlannerHeader({
-  onTasksUpload,
-  onTasksDispatch,
-  onSaveModifications,
-  hasModifications,
-  saving,
-}: {
-  onTasksUpload: () => void
-  onTasksDispatch: () => void
-  onSaveModifications: () => void
-  hasModifications: boolean
-  saving: boolean
-}) {
-  const showDispatch = false
+function PlannerHeader({ onSaveModifications, onDiscardModifications, hasModifications, onAdd }: { onSaveModifications: () => void; onDiscardModifications: () => void; hasModifications: boolean; onAdd: () => void }) {
   return (
     <header className="sticky top-0 z-10 rounded-lg border-b border-gray-600/30 backdrop-blur-sm">
       <div className="flex flex-col items-center gap-6 py-4 md:flex-row">
@@ -454,24 +510,20 @@ function PlannerHeader({
           <h3 className="mt-0 mb-0">Planner</h3>
         </div>
         <div className="flex gap-3">
-          <Button name="upload" onClick={onTasksUpload} variant="outline">
-            <UploadIcon className="size-4" />
-            Upload tasks
+          <Button name="add-task" onClick={onAdd} variant="outline">
+            <PlusIcon className="size-4" />
+            Add task
           </Button>
-          <Button name="download" onClick={downloadData} variant="outline">
-            <DownloadIcon className="size-4" />
-            Download tasks
-          </Button>
-          {showDispatch && (
-            <Button name="dispatch" onClick={onTasksDispatch} variant="outline">
-              <ArrowLeftRightIcon className="size-4" />
-              Dispatch tasks
+          {hasModifications && (
+            <Button name="discard" onClick={onDiscardModifications} variant="ghost">
+              <RotateCcwIcon className="size-4" />
+              Discard
             </Button>
           )}
           {hasModifications && (
-            <Button disabled={saving} name="save" onClick={onSaveModifications}>
+            <Button name="save" onClick={onSaveModifications}>
               <SaveIcon className="size-4" />
-              {saving ? 'Saving...' : 'Save modifications'}
+              Save modifications
             </Button>
           )}
         </div>
@@ -480,33 +532,45 @@ function PlannerHeader({
   )
 }
 
-/**
- * Hook to handle planner actions
- * @param tasks - Current tasks
- * @param setTasks - Setter for tasks
- * @param loadTasks - Function to reload tasks
- * @returns Object containing action handlers
- */
-function usePlannerActions(tasks: Task[], setTasks: React.Dispatch<React.SetStateAction<Task[]>>, loadTasks: () => Promise<void>) {
-  const handleTasksDispatch = useCallback(async () => {
-    const active = tasks.filter(task => isTaskActive(task))
-    logger.info('dispatching active tasks...', { active })
-    await dispatchTasksAndUpdate(active)
-    setTasks([...tasks])
-  }, [tasks, setTasks])
-
-  const handleTasksUploadAndReload = useCallback(async () => {
-    await handleTasksUpload()
-    await loadTasks()
-  }, [loadTasks])
-
-  return {
-    handleTasksDispatch,
-    handleTasksUploadAndReload,
-  }
+type QuoteFormOptions = {
+  formTask?: Task
+  modifications: TaskModifications
+  onSelect: (taskId: string) => void
+  onFrequencyChange: (taskId: string, newOnce: string) => void
+  onFieldChange: (taskId: string, key: 'minutes' | 'name' | 'reason', value: string) => void
 }
 
-const emptyFrequency: Record<string, number> = {}
+/**
+ * Derives the controlled quote-form state for the task backing the form, and the handler routing every edit
+ * into the planner's shared pending modifications (frequency edits through the anchoring frequency handler,
+ * the rest through the field handler). The form target is pinned on edit so a recurrence change that moves
+ * the task across days keeps it in view.
+ * @param options - the current form task, pending modifications and the change handlers
+ * @param options.formTask - the task backing the form, or undefined when there is none
+ * @param options.modifications - the current pending modifications
+ * @param options.onSelect - selects (pins) a task as the form target
+ * @param options.onFrequencyChange - handler for recurrence edits
+ * @param options.onFieldChange - handler for name/minutes/reason edits
+ * @returns the form state and the single-field update handler for the quote form
+ */
+function useQuoteForm({ formTask, modifications, onSelect, onFrequencyChange, onFieldChange }: QuoteFormOptions) {
+  // The quote form is a live view of the task, including its pending frequency edit, so its recurrence blank
+  // reflects the same value the +/- controls change, and editing it feeds the same modifications.
+  const formOnce = formTask ? modifications.frequency[formTask.id] : undefined
+  const formTaskWithFrequency = formTask && formOnce !== undefined ? { ...formTask, once: formOnce } : formTask
+  const form: FormState = formTaskWithFrequency ? taskToForm(formTaskWithFrequency) : emptyForm
+  const handleFormUpdate: Update = (key, value) => {
+    invariant(formTask, 'a task must back the form before it can be edited')
+    onSelect(formTask.id) // pin the form to this task so a recurrence edit that moves it keeps it in view
+    if (key !== 'quantity' && key !== 'unit') {
+      onFieldChange(formTask.id, key, value)
+      return
+    }
+    const next = { ...form, [key]: value }
+    onFrequencyChange(formTask.id, buildOnce(Number(next.quantity), next.unit))
+  }
+  return { form, handleFormUpdate }
+}
 
 /**
  * The main planner page component
@@ -514,20 +578,30 @@ const emptyFrequency: Record<string, number> = {}
  */
 export function PagePlanner() {
   const actions = useActions()
-  const { handleDateChange, handleFrequencyChange, handleSaveModifications, setTasks, hasModifications, modifications, saving, tasks, loadTasks } = usePlannerTasks()
-  const { handleTasksDispatch, handleTasksUploadAndReload } = usePlannerActions(tasks, setTasks, loadTasks)
-  const tasksWithModifications = applyModificationsToTasks(tasks, modifications)
-  const tasksByDay = createTaskDistribution(tasksWithModifications, modifications.frequency || {})
+  const { handleDateChange, handleDiscardModifications, handleFieldChange, handleFrequencyChange, handleSaveModifications, hasModifications, modifications, tasks } = usePlannerTasks()
+  const [selectedTaskId, setSelectedTaskId] = useState<string | undefined>(undefined)
+  const [isAdding, setIsAdding] = useState(false)
+  const handleSelect = useCallback((taskId: string) => {
+    setSelectedTaskId(previous => (previous === taskId ? undefined : taskId))
+  }, [])
+  const tasksWithModifications = useMemo(() => applyModificationsToTasks(tasks, modifications), [tasks, modifications])
+  const tasksByDay = useMemo(() => createTaskDistribution(tasksWithModifications, modifications.frequency), [tasksWithModifications, modifications.frequency])
+  // Keep the form always mounted so selecting a task swaps its content instead of pushing the layout down.
+  // When nothing is selected, fall back to the first task shown on the planner (earliest day, top of the column).
+  const firstPlannerTask = allDayIndices.map(index => tasksByDay[index]?.[0]).find(task => task !== undefined)
+  const selectedTask = tasksWithModifications.find(task => task.id === selectedTaskId)
+  const formTask = selectedTask ?? firstPlannerTask
+  const { form, handleFormUpdate } = useQuoteForm({ formTask, modifications, onFieldChange: handleFieldChange, onFrequencyChange: handleFrequencyChange, onSelect: setSelectedTaskId })
 
-  if (!state.isSetup)
+  if (tasks.length === 0)
     return (
       <div className="flex grow flex-col items-center justify-center gap-4 text-center" data-testid="page-planner">
         <p>
-          The planner needs your Appwrite credentials first. Head over to{' '}
+          No tasks yet. Head over to{' '}
           <Link className="border-b" to="/settings">
             settings
           </Link>{' '}
-          to get started.
+          to import your tasks.
         </p>
         <FloatingMenu actions={actions} />
       </div>
@@ -535,9 +609,11 @@ export function PagePlanner() {
 
   return (
     <div className="flex grow flex-col justify-center" data-testid="page-planner">
-      <PlannerHeader hasModifications={hasModifications} onSaveModifications={handleSaveModifications} onTasksDispatch={handleTasksDispatch} onTasksUpload={handleTasksUploadAndReload} saving={saving} />
-      <PlannerContent modifications={modifications.frequency || emptyFrequency} onDateChange={handleDateChange} onFrequencyChange={handleFrequencyChange} tasksByDay={tasksByDay} />
-      <PlannerMetrics modifications={modifications.frequency || emptyFrequency} tasks={tasks} />
+      <PlannerHeader hasModifications={hasModifications} onAdd={() => setIsAdding(true)} onDiscardModifications={handleDiscardModifications} onSaveModifications={handleSaveModifications} />
+      <PlannerContent modifications={modifications.frequency} onDateChange={handleDateChange} onFrequencyChange={handleFrequencyChange} onSelect={handleSelect} selectedTaskId={selectedTaskId} tasksByDay={tasksByDay} />
+      {formTask !== undefined && <TaskQuoteForm form={form} key={formTask.id} onUpdate={handleFormUpdate} task={formTask} />}
+      <PlannerMetrics modifications={modifications.frequency} tasks={tasks} />
+      {isAdding && <AddTaskModal onClose={() => setIsAdding(false)} />}
       <FloatingMenu actions={actions} />
     </div>
   )
