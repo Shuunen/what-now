@@ -1,8 +1,8 @@
 import confetti from 'canvas-confetti'
 import { useEffect, useRef, useState } from 'react'
 import { dateIso10, nbMsInSecond } from 'shuutils'
-import type { Task } from '../types'
-import { state } from '../utils/state.utils'
+import type { Task } from '../schemas/task'
+import { useAppStore } from '../store/use-app-store'
 import { isTaskActive } from '../utils/tasks.utils'
 
 const confettiColors = ['#f1c40f', '#2ecc71', '#3498db', '#e74c3c', '#9b59b6', '#1abc9c']
@@ -35,7 +35,7 @@ export function Finale({ tasks }: { tasks: Task[] }) {
 
   function dismiss() {
     setIsVisible(false)
-    state.finaleDismissedOn = dateIso10(new Date())
+    useAppStore.getState().setFinaleDismissedOn(dateIso10(new Date()))
   }
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export function Finale({ tasks }: { tasks: Task[] }) {
       hasCelebratedRef.current = false
       return undefined
     }
-    if (hasCelebratedRef.current || state.finaleDismissedOn === dateIso10(new Date())) return undefined
+    if (hasCelebratedRef.current || useAppStore.getState().data.settings.finaleDismissedOn === dateIso10(new Date())) return undefined
     hasCelebratedRef.current = true
     setIsVisible(true)
     void audioRef.current?.play()

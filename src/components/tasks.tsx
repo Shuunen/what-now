@@ -1,18 +1,12 @@
-import type { Task } from '../types'
-import { logger } from '../utils/logger.utils'
+import type { Task } from '../schemas/task'
+import { useAppStore } from '../store/use-app-store'
 import { computeProgressPercent, progressAccentColor } from '../utils/progress.utils'
-import { state } from '../utils/state.utils'
-import { isTaskActive, toggleComplete } from '../utils/tasks.utils'
+import { isTaskActive } from '../utils/tasks.utils'
 import { CheckmarkIcon } from './icons/checkmark-icon'
 import { Button } from './ui/button'
 
-function onTaskClick(task: Task) {
-  void toggleComplete(task)
-  logger.info('task will be updated in state', task)
-  state.tasks = state.tasks.map(item => (item.id === task.id ? task : item))
-}
-
 export function Tasks({ tasks }: { tasks: Task[] }) {
+  const toggleTask = useAppStore(state => state.toggleTask)
   const accentColor = progressAccentColor(computeProgressPercent(tasks))
 
   return (
@@ -24,7 +18,7 @@ export function Tasks({ tasks }: { tasks: Task[] }) {
             className={`-ml-2 items-center gap-4 pb-3 pl-2 text-start whitespace-nowrap transition-transform duration-300 ease-out ${isActive ? '' : 'opacity-60'}`}
             key={task.id}
             name={task.name}
-            onClick={() => onTaskClick(task)}
+            onClick={() => toggleTask(task.id)}
             type="button"
             variant="ghost"
           >
