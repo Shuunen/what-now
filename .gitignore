@@ -1,9 +1,11 @@
 .cache
 .DS_Store
 .env
+.env.local
+.gstack/
+.turbo
 *.log
 *.tgz
-.turbo
 coverage
 dist
 node_modules

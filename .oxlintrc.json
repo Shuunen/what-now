@@ -45,7 +45,7 @@
     "URL": "readonly",
     "window": "readonly"
   },
-  "ignorePatterns": [".git", "*.d.ts", "coverage", "dist", "node_modules", "out-tsc", "test-output"],
+  "ignorePatterns": [".git", "*.d.ts", "convex/_generated", "coverage", "dist", "node_modules", "out-tsc", "test-output"],
   "overrides": [
     {
       "files": ["src/bin/**/*.ts", "src/webhook/**/*.ts"],
