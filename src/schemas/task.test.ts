@@ -3,7 +3,7 @@ import { maxTasks, TaskSchema } from './task'
 describe('TaskSchema', () => {
   it('A applies defaults for a minimal task', () => {
     const task = TaskSchema.parse({ id: 'id-1', name: 'do something' })
-    expect(task).toStrictEqual({ completedOn: '', createdOn: '', id: 'id-1', isDone: false, minutes: 0, name: 'do something', once: 'day', updatedOn: '' })
+    expect(task).toStrictEqual({ completedOn: '', createdOn: '', deletedOn: '', id: 'id-1', isDone: false, minutes: 0, name: 'do something', once: 'day', syncedAt: '', updatedOn: '' })
   })
 
   it('B keeps provided values including reason', () => {

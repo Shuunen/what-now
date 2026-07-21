@@ -48,6 +48,19 @@ describe('useAppStore', () => {
     useAppStore.getState().setUserName('Alice')
     expect(useAppStore.getState().data.settings.userName).toBe('Alice')
   })
+
+  it('H removeTask soft-deletes the matching task in place', () => {
+    useAppStore.getState().loadData({ ...defaultAppData, tasks: [taskMock({ id: 'a' })] })
+    useAppStore.getState().removeTask('a')
+    expect(useAppStore.getState().data.tasks[0]?.deletedOn).not.toBe('')
+  })
+
+  it('I removeTask leaves other tasks untouched', () => {
+    useAppStore.getState().loadData({ ...defaultAppData, tasks: [taskMock({ id: 'a' }), taskMock({ id: 'b' })] })
+    useAppStore.getState().removeTask('a')
+    expect(useAppStore.getState().data.tasks[1]?.deletedOn).toBe('')
+  })
+
   it('G addTask prepends a new active task', () => {
     useAppStore.getState().loadData({ ...defaultAppData, tasks: [taskMock({ id: 'a' })] })
     useAppStore.getState().addTask({ name: 'brand new task', once: 'week' })

@@ -25,11 +25,13 @@ vi.mock(import('./tasks.utils'))
 const mockTask: Task = {
   completedOn: '2023-01-01T10:00:00Z',
   createdOn: '2023-01-01T10:00:00Z',
+  deletedOn: '',
   id: 'task-1',
   isDone: false,
   minutes: 30,
   name: 'Test Task',
   once: 'week',
+  syncedAt: '',
   updatedOn: '',
 }
 

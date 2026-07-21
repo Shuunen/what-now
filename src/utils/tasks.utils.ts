@@ -1,3 +1,4 @@
+import { invariant } from 'es-toolkit'
 import { dateIso10, daysAgoIso10, nbDaysInMonth, nbDaysInWeek, nbDaysInYear, nbMsInDay } from 'shuutils'
 import type { Task } from '../schemas/task'
 
@@ -60,6 +61,7 @@ export function daysSinceCompletion(task: Task) {
 }
 
 export function isTaskActive(task: Task, shouldIncludeCompletedToday = false) {
+  if (task.deletedOn !== '') return false
   if (task.isDone) return false
   if (isNeverCompleted(task) || task.once === 'yes') return true
   const recurrence = daysRecurrence(task.once)
@@ -89,6 +91,7 @@ export function completeTask(task: Task): Task {
     ...task,
     completedOn: dateIso10(new Date()), // task is complete for today
     isDone: task.once === 'yes', // but it also can be done totally if it was a one time job
+    syncedAt: new Date().toISOString(), // bump the sync clock on every write, including toggles ; updatedOn is untouched, it only tracks quote edits
   }
 }
 
@@ -98,7 +101,38 @@ export function completeTask(task: Task): Task {
  * @returns the updated task
  */
 export function unCompleteTask(task: Task): Task {
-  return { ...task, completedOn: daysAgoIso10(daysRecurrence(task.once)), isDone: false }
+  return { ...task, completedOn: daysAgoIso10(daysRecurrence(task.once)), isDone: false, syncedAt: new Date().toISOString() }
+}
+
+/**
+ * Soft-delete a task: stamps `deletedOn` so the task is hidden everywhere and the deletion can
+ * propagate through sync as a tombstone, without ever hard-removing the row (a hard removal would
+ * give sync nothing to compare timestamps against, and a stale remote copy could resurrect it).
+ * @param task - the task to delete
+ * @returns the updated task
+ */
+export function deleteTask(task: Task): Task {
+  const now = new Date().toISOString()
+  return { ...task, deletedOn: now, syncedAt: now }
+}
+
+/**
+ * Merge two versions of the same task (e.g. local vs. remote during sync), picking the winner by
+ * last-write-wins on `syncedAt` — the single clock bumped by every mutation, including `deleteTask`,
+ * so no separate tombstone tie-break is needed: a delete is just another write and wins exactly when
+ * it's the most recent one. On an exact tie (e.g. neither side has ever synced), prefer whichever
+ * side is not deleted, so an ambiguous tie never silently drops data.
+ * @param taskA - one version of the task (e.g. local)
+ * @param taskB - the other version of the task (e.g. remote), must share the same id as `taskA`
+ * @returns the winning version
+ */
+export function mergeTask(taskA: Task, taskB: Task): Task {
+  invariant(taskA.id === taskB.id, `mergeTask called with mismatched task ids "${taskA.id}" vs "${taskB.id}"`)
+  if (taskA.syncedAt > taskB.syncedAt) return taskA
+  if (taskB.syncedAt > taskA.syncedAt) return taskB
+  if (taskA.deletedOn === '' && taskB.deletedOn !== '') return taskA
+  if (taskB.deletedOn === '' && taskA.deletedOn !== '') return taskB
+  return taskA
 }
 
 export function byActive(taskA: Task, taskB: Task) {
@@ -128,7 +162,7 @@ export type NewTaskFields = Pick<Task, 'name'> & Partial<Omit<Task, 'id'>>
  * @returns the new task, never completed and not done
  */
 export function createTask(fields: NewTaskFields): Task {
-  return { completedOn: '', createdOn: new Date().toISOString(), isDone: false, minutes: 0, once: 'day', updatedOn: '', ...fields, id: crypto.randomUUID() }
+  return { completedOn: '', createdOn: new Date().toISOString(), deletedOn: '', isDone: false, minutes: 0, once: 'day', syncedAt: '', updatedOn: '', ...fields, id: crypto.randomUUID() }
 }
 
 /**
@@ -137,6 +171,6 @@ export function createTask(fields: NewTaskFields): Task {
  * @returns a task mock
  */
 export function taskMock(fields: Partial<Task> = {}): Task {
-  const { completedOn = daysAgoIso10(0), createdOn = daysAgoIso10(0), id = 'id-123', isDone = false, minutes = 20, name = 'a super task', once = 'day', reason, updatedOn = '' } = { ...fields }
-  return { completedOn, createdOn, id, isDone, minutes, name, once, reason, updatedOn } satisfies Task
+  const { completedOn = daysAgoIso10(0), createdOn = daysAgoIso10(0), deletedOn = '', id = 'id-123', isDone = false, minutes = 20, name = 'a super task', once = 'day', reason, syncedAt = '', updatedOn = '' } = { ...fields }
+  return { completedOn, createdOn, deletedOn, id, isDone, minutes, name, once, reason, syncedAt, updatedOn } satisfies Task
 }

@@ -2,13 +2,14 @@ import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 import { type AppData, defaultAppData } from '../schemas/app-data'
 import type { Task } from '../schemas/task'
-import { createTask, type NewTaskFields, toggleComplete } from '../utils/tasks.utils'
+import { createTask, deleteTask, type NewTaskFields, toggleComplete } from '../utils/tasks.utils'
 
 type AppStore = {
   addTask: (fields: NewTaskFields) => void
   data: AppData
   isLoading: boolean
   loadData: (data: AppData) => void
+  removeTask: (id: string) => void
   setFinaleDismissedOn: (finaleDismissedOn: string) => void
   setUserName: (userName: string) => void
   setWebhook: (webhook: string) => void
@@ -25,6 +26,10 @@ export const useAppStore = create<AppStore>()(
     data: defaultAppData,
     isLoading: true,
     loadData: data => set({ data, isLoading: false }),
+    removeTask: id =>
+      set(state => ({
+        data: { ...state.data, tasks: state.data.tasks.map(task => (task.id === id ? deleteTask(task) : task)) },
+      })),
     setFinaleDismissedOn: finaleDismissedOn =>
       set(state => ({
         data: { ...state.data, settings: { ...state.data.settings, finaleDismissedOn } },

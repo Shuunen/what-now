@@ -4,7 +4,7 @@ import { invariant, kebabCase } from 'es-toolkit'
 import { CalendarIcon, MinusIcon, MoveLeftIcon, MoveRightIcon, PlusIcon, RotateCcwIcon, SaveIcon } from 'lucide-react'
 import { useCallback, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { dateIso10, formatDate, toastSuccess } from 'shuutils'
+import { dateIso10, formatDate } from 'shuutils'
 import { AddTaskModal } from '../components/add-task-modal'
 import { FloatingMenu } from '../components/floating-menu'
 import { TaskQuoteForm } from '../components/task-quote-form'
@@ -12,6 +12,7 @@ import type { Update } from '../components/task-sentence'
 import { Button } from '../components/ui/button'
 import type { Task } from '../schemas/task'
 import { useAppStore } from '../store/use-app-store'
+import { toastAction, toastSuccess } from '../store/use-toast-store'
 import { logger } from '../utils/logger.utils'
 import { useActions } from '../utils/pages.utils'
 import {
@@ -451,6 +452,34 @@ function useFieldChange(setModifications: React.Dispatch<React.SetStateAction<Ta
 const emptyModifications: TaskModifications = { completedOn: {}, fields: {}, frequency: {} }
 
 /**
+ * Hook for deleting a task, offering an undo action through a toast
+ * @param storeTasks - All tasks in the store, used to snapshot the task before deletion
+ * @returns The delete handler
+ */
+function useDeleteTask(storeTasks: Task[]) {
+  const updateTasks = useAppStore(state => state.updateTasks)
+  const removeTask = useAppStore(state => state.removeTask)
+
+  const handleDeleteTask = useCallback(
+    (taskId: string) => {
+      const task = storeTasks.find(current => current.id === taskId)
+      invariant(task, `task ${taskId} not found`)
+      removeTask(taskId)
+      toastAction(`"${task.name}" deleted`, {
+        label: 'Undo',
+        onClick: () => {
+          updateTasks([task])
+          toastSuccess('Task restored')
+        },
+      })
+    },
+    [removeTask, storeTasks, updateTasks],
+  )
+
+  return { handleDeleteTask }
+}
+
+/**
  * Custom hook to handle task loading and modifications
  * @returns Object containing tasks, modifications state and handlers
  */
@@ -458,12 +487,13 @@ function usePlannerTasks() {
   const storeTasks = useAppStore(state => state.data.tasks)
   const updateTasks = useAppStore(state => state.updateTasks)
   const [modifications, setModifications] = useState<TaskModifications>(emptyModifications)
-  const tasks = useMemo(() => storeTasks.filter(task => !task.isDone), [storeTasks]) // Filter out completed tasks
+  const tasks = useMemo(() => storeTasks.filter(task => !task.isDone && task.deletedOn === ''), [storeTasks]) // Filter out completed and deleted tasks
   const hasModifications = Object.keys(modifications.frequency).length > 0 || Object.keys(modifications.completedOn).length > 0 || Object.keys(modifications.fields).length > 0
 
   const handleFrequencyChange = useFrequencyChange(tasks, setModifications)
   const handleDateChange = useDateChange(tasks, modifications, setModifications)
   const handleFieldChange = useFieldChange(setModifications)
+  const { handleDeleteTask } = useDeleteTask(storeTasks)
 
   const handleSaveModifications = useCallback(() => {
     if (!hasModifications) return
@@ -471,7 +501,8 @@ function usePlannerTasks() {
     const updated = computeTaskModifications(modifications, tasks)
     const stampedOn = new Date().toISOString()
     const quoteModifiedIds = getQuoteModifiedTaskIds(modifications)
-    updateTasks(updated.map(task => (quoteModifiedIds.has(task.id) ? { ...task, updatedOn: stampedOn } : task)))
+    // every saved task bumps syncedAt (the sync clock) ; only genuine quote edits also bump updatedOn (the quote-attribution display field)
+    updateTasks(updated.map(task => ({ ...task, syncedAt: stampedOn, ...(quoteModifiedIds.has(task.id) ? { updatedOn: stampedOn } : {}) })))
     setModifications(emptyModifications)
     toastSuccess('Modifications saved')
   }, [modifications, hasModifications, tasks, updateTasks])
@@ -482,6 +513,7 @@ function usePlannerTasks() {
 
   return {
     handleDateChange,
+    handleDeleteTask,
     handleDiscardModifications,
     handleFieldChange,
     handleFrequencyChange,
@@ -573,17 +605,13 @@ function useQuoteForm({ formTask, modifications, onSelect, onFrequencyChange, on
 }
 
 /**
- * The main planner page component
- * @returns JSX element for the planner page
+ * Derives the per-day task distribution and the task currently backing the quote form
+ * @param tasks - the planner's active tasks
+ * @param modifications - the current pending modifications
+ * @param selectedTaskId - the explicitly selected task id, if any
+ * @returns the tasks grouped by day, and the task backing the quote form
  */
-export function PagePlanner() {
-  const actions = useActions()
-  const { handleDateChange, handleDiscardModifications, handleFieldChange, handleFrequencyChange, handleSaveModifications, hasModifications, modifications, tasks } = usePlannerTasks()
-  const [selectedTaskId, setSelectedTaskId] = useState<string | undefined>(undefined)
-  const [isAdding, setIsAdding] = useState(false)
-  const handleSelect = useCallback((taskId: string) => {
-    setSelectedTaskId(previous => (previous === taskId ? undefined : taskId))
-  }, [])
+function usePlannerLayout(tasks: Task[], modifications: TaskModifications, selectedTaskId: string | undefined) {
   const tasksWithModifications = useMemo(() => applyModificationsToTasks(tasks, modifications), [tasks, modifications])
   const tasksByDay = useMemo(() => createTaskDistribution(tasksWithModifications, modifications.frequency), [tasksWithModifications, modifications.frequency])
   // Keep the form always mounted so selecting a task swaps its content instead of pushing the layout down.
@@ -591,6 +619,29 @@ export function PagePlanner() {
   const firstPlannerTask = allDayIndices.map(index => tasksByDay[index]?.[0]).find(task => task !== undefined)
   const selectedTask = tasksWithModifications.find(task => task.id === selectedTaskId)
   const formTask = selectedTask ?? firstPlannerTask
+  return { formTask, tasksByDay }
+}
+
+/**
+ * The main planner page component
+ * @returns JSX element for the planner page
+ */
+export function PagePlanner() {
+  const actions = useActions()
+  const { handleDateChange, handleDeleteTask, handleDiscardModifications, handleFieldChange, handleFrequencyChange, handleSaveModifications, hasModifications, modifications, tasks } = usePlannerTasks()
+  const [selectedTaskId, setSelectedTaskId] = useState<string | undefined>(undefined)
+  const [isAdding, setIsAdding] = useState(false)
+  const handleSelect = useCallback((taskId: string) => {
+    setSelectedTaskId(previous => (previous === taskId ? undefined : taskId))
+  }, [])
+  const handleDelete = useCallback(
+    (taskId: string) => {
+      handleDeleteTask(taskId)
+      setSelectedTaskId(previous => (previous === taskId ? undefined : previous))
+    },
+    [handleDeleteTask],
+  )
+  const { formTask, tasksByDay } = usePlannerLayout(tasks, modifications, selectedTaskId)
   const { form, handleFormUpdate } = useQuoteForm({ formTask, modifications, onFieldChange: handleFieldChange, onFrequencyChange: handleFrequencyChange, onSelect: setSelectedTaskId })
 
   if (tasks.length === 0)
@@ -611,7 +662,7 @@ export function PagePlanner() {
     <div className="flex grow flex-col justify-center" data-testid="page-planner">
       <PlannerHeader hasModifications={hasModifications} onAdd={() => setIsAdding(true)} onDiscardModifications={handleDiscardModifications} onSaveModifications={handleSaveModifications} />
       <PlannerContent modifications={modifications.frequency} onDateChange={handleDateChange} onFrequencyChange={handleFrequencyChange} onSelect={handleSelect} selectedTaskId={selectedTaskId} tasksByDay={tasksByDay} />
-      {formTask !== undefined && <TaskQuoteForm form={form} key={formTask.id} onUpdate={handleFormUpdate} task={formTask} />}
+      {formTask !== undefined && <TaskQuoteForm form={form} key={formTask.id} onDelete={handleDelete} onUpdate={handleFormUpdate} task={formTask} />}
       <PlannerMetrics modifications={modifications.frequency} tasks={tasks} />
       {isAdding && <AddTaskModal onClose={() => setIsAdding(false)} />}
       <FloatingMenu actions={actions} />
