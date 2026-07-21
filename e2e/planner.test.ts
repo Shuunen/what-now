@@ -119,3 +119,12 @@ test('discarding reverts both the buttons edits and the form edits', async ({ pa
   await expect(page.getByTestId('button-discard')).toBeHidden()
   await expect(page.getByTestId('button-save')).toBeHidden()
 })
+
+test('deleting a task from the inline quote form shows an undo toast that restores it', async ({ page }) => {
+  await seedTasks(page, [{ name: 'water plants', once: '2-days' }], '/planner')
+  await page.getByTestId('task-card-water-plants').first().click()
+  await page.getByTestId('task-quote-delete').click()
+  await expect(page.getByTestId('task-card-water-plants')).toHaveCount(0)
+  await page.getByTestId('toast').filter({ hasText: 'deleted' }).getByTestId('button-toast-action').click()
+  await expect(page.getByTestId('task-card-water-plants').first()).toBeVisible()
+})

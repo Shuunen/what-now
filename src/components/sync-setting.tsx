@@ -130,8 +130,10 @@ function SyncConnectedStatus({ isLoading, onDisconnect, syncStatus, syncUrl }: {
 
 /**
  * Settings section for connecting to (or disconnecting from) an optional, self-hosted Convex sync
- * deployment. The URL is validated against the deployment's health check before being persisted, so
- * a stored, non-empty `syncUrl` always means a previously-confirmed-valid deployment.
+ * deployment. This UI health-checks the URL before saving it, but that's not a hard guarantee a
+ * stored, non-empty `syncUrl` is still valid — imported app data can set it without a check, and a
+ * previously-valid deployment can later become unreachable (see the `syncUrl` field's own doc
+ * comment in `src/schemas/settings.ts`).
  * @returns the sync setting section element
  */
 export function SyncSetting() {
