@@ -10,7 +10,7 @@ describe('useAppStore', () => {
   })
 
   it('A loadData replaces data and clears loading', () => {
-    const data = { settings: { finaleDismissedOn: '', userName: 'Me', webhook: '' }, tasks: [taskMock({ id: 'a' })] }
+    const data = { settings: { finaleDismissedOn: '', syncUrl: '', userName: 'Me', webhook: '' }, tasks: [taskMock({ id: 'a' })] }
     useAppStore.getState().loadData(data)
     expect(useAppStore.getState().data).toStrictEqual(data)
     expect(useAppStore.getState().isLoading).toBe(false)
@@ -47,6 +47,27 @@ describe('useAppStore', () => {
   it('F2 setUserName updates the setting', () => {
     useAppStore.getState().setUserName('Alice')
     expect(useAppStore.getState().data.settings.userName).toBe('Alice')
+  })
+  it('F3 setSyncUrl updates the setting', () => {
+    useAppStore.getState().setSyncUrl('https://example.convex.cloud')
+    expect(useAppStore.getState().data.settings.syncUrl).toBe('https://example.convex.cloud')
+  })
+  it('F4 setSyncStatus updates the live sync status', () => {
+    useAppStore.getState().setSyncStatus('syncing')
+    expect(useAppStore.getState().syncStatus).toBe('syncing')
+  })
+  it('G2 mergeTasks patches an existing task by id and leaves others untouched', () => {
+    useAppStore.getState().loadData({ ...defaultAppData, tasks: [taskMock({ id: 'a', once: 'day' }), taskMock({ id: 'b', once: 'day' })] })
+    useAppStore.getState().mergeTasks([taskMock({ id: 'b', once: 'week' })])
+    expect(useAppStore.getState().data.tasks[0]?.once).toBe('day')
+    expect(useAppStore.getState().data.tasks[1]?.once).toBe('week')
+  })
+
+  it('G3 mergeTasks appends a task with no existing local match', () => {
+    useAppStore.getState().loadData({ ...defaultAppData, tasks: [taskMock({ id: 'a' })] })
+    useAppStore.getState().mergeTasks([taskMock({ id: 'brand-new' })])
+    expect(useAppStore.getState().data.tasks).toHaveLength(2)
+    expect(useAppStore.getState().data.tasks[1]?.id).toBe('brand-new')
   })
 
   it('H removeTask soft-deletes the matching task in place', () => {

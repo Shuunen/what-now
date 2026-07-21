@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-07-21
+
+### Added in 3.2.0
+
+- Cross-device sync: connect a Settings page to your own self-hosted Convex deployment to keep tasks and settings in sync across devices, with a live status indicator and the option to disconnect and wipe the synced data
+- Toast notifications with optional action buttons (e.g. undo) surface sync connection results and other background events
+- Deleted tasks are now soft-deleted so a deletion made on one device is correctly propagated instead of resurrecting on the next sync
+
 ## [3.1.0] - 2026-07-19
 
 ### Added in 3.1.0
@@ -91,7 +99,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Migrated the project back out of the monorepo into its own repository
 
-[Unreleased]: https://github.com/Shuunen/what-now/compare/v3.1.0...HEAD
+[Unreleased]: https://github.com/Shuunen/what-now/compare/v3.2.0...HEAD
+[3.2.0]: https://github.com/Shuunen/what-now/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/Shuunen/what-now/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/Shuunen/what-now/compare/v2.1.3...v3.0.0
 [2.1.3]: https://github.com/Shuunen/what-now/compare/v2.1.0...v2.1.3

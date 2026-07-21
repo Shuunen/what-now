@@ -1,5 +1,6 @@
 import { FloatingMenu } from '../components/floating-menu'
 import { ImportExportButtons } from '../components/import-export-buttons'
+import { SyncSetting } from '../components/sync-setting'
 import { TextSetting } from '../components/text-setting'
 import { useAppStore } from '../store/use-app-store'
 import { useActions } from '../utils/pages.utils'
@@ -33,6 +34,7 @@ export function PageSettings() {
         placeholder="https://example.com/hook"
         value={webhook}
       />
+      <SyncSetting />
       <FloatingMenu actions={actions} />
     </div>
   )
