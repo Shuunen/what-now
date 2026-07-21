@@ -55,7 +55,7 @@ export async function seedTasks(page: Page, tasks: SeedTask[], path = '/') {
   const appData = { settings: { finaleDismissedOn: '', webhook: '' }, tasks: tasks.map(fields => task(fields)) }
   await page.goto('/settings')
   await page.getByTestId('file-input').setInputFiles({ buffer: globalThis.Buffer.from(JSON.stringify(appData)), mimeType: 'application/json', name: 'seed.json' })
-  await page.locator('.shu-toast', { hasText: 'Data imported' }).waitFor()
+  await page.getByTestId('toast').filter({ hasText: 'Data imported' }).waitFor()
   // let the persistence debounce flush the imported data to IndexedDB before we reload onto the target page
   await page.waitForTimeout(persistenceDebounceMs)
   await page.goto(path)

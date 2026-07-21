@@ -34,7 +34,7 @@ export function progressText(percent = 0) {
   /* oxlint-enable no-magic-numbers */
 }
 
-const progressAccentColors = ['var(--color-error)', 'var(--color-bad)', 'var(--color-warning)', 'var(--color-ok)', 'var(--color-success)']
+const progressAccentColors = ['var(--color-error-accent)', 'var(--color-bad-accent)', 'var(--color-warning-accent)', 'var(--color-ok-accent)', 'var(--color-success-accent)']
 
 // accent color for a given progress percent, shifting from red (low) to green (high)
 export function progressAccentColor(percent: number) {

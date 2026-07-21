@@ -1,6 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react'
 import { defaultAppData } from '../schemas/app-data'
 import { useAppStore } from '../store/use-app-store'
+import { useToastStore } from '../store/use-toast-store'
 import { logger } from '../utils/logger.utils'
 import { appDataId, db } from './db'
 import { useHydration, usePersistence } from './use-persistence'
@@ -8,6 +9,7 @@ import { useHydration, usePersistence } from './use-persistence'
 describe('useHydration & usePersistence', () => {
   beforeEach(() => {
     useAppStore.setState({ data: defaultAppData, isLoading: true })
+    useToastStore.setState({ toasts: [] })
   })
 
   it('A useHydration loads existing data from IndexedDB', async () => {
@@ -40,7 +42,7 @@ describe('useHydration & usePersistence', () => {
     await waitFor(() => expect(useAppStore.getState().isLoading).toBe(false))
     expect(useAppStore.getState().data).toStrictEqual(defaultAppData)
     expect(errorSpy).toHaveBeenCalledWith('failed to hydrate from IndexedDB', expect.any(Error))
-    await waitFor(() => expect(document.querySelector('.shu-toast')).not.toBeNull())
+    await waitFor(() => expect(useToastStore.getState().toasts).toHaveLength(1))
   })
 
   it('C usePersistence writes store changes to IndexedDB', async () => {
@@ -64,6 +66,6 @@ describe('useHydration & usePersistence', () => {
     await vi.runAllTimersAsync()
     expect(errorSpy).toHaveBeenCalledWith('failed to persist to IndexedDB', expect.any(Error))
     vi.useRealTimers()
-    await waitFor(() => expect(document.querySelectorAll('.shu-toast')).toHaveLength(1))
+    await waitFor(() => expect(useToastStore.getState().toasts).toHaveLength(1))
   })
 })

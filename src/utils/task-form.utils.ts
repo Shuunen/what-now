@@ -1,5 +1,5 @@
-import { toastSuccess } from 'shuutils'
 import type { Task } from '../schemas/task'
+import { toastSuccess } from '../store/use-toast-store'
 import { buildOnce, type NewTaskFields, parseOnce } from './tasks.utils'
 
 export type FormState = { minutes: string; name: string; quantity: string; reason: string; unit: string }
