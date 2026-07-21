@@ -1,8 +1,8 @@
 /* v8 ignore start -- browser-only IndexedDB side-effects, covered by e2e */
 import { useEffect } from 'react'
-import { toastError } from 'shuutils'
 import { type AppData, AppDataSchema, recoverAppData } from '../schemas/app-data'
 import { useAppStore } from '../store/use-app-store'
+import { toastError } from '../store/use-toast-store'
 import { logger } from '../utils/logger.utils'
 import { appDataId, db } from './db'
 import { debounceMs } from './persistence-debounce'

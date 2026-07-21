@@ -17,23 +17,23 @@ describe('progress.utils', () => {
   })
 
   it('progressAccentColor A should return the error color for 0 percent', () => {
-    expect(progressAccentColor(0)).toMatchInlineSnapshot(`"var(--color-error)"`)
+    expect(progressAccentColor(0)).toMatchInlineSnapshot(`"var(--color-error-accent)"`)
   })
 
   it('progressAccentColor B should return the bad color for 25 percent', () => {
-    expect(progressAccentColor(25)).toMatchInlineSnapshot(`"var(--color-bad)"`)
+    expect(progressAccentColor(25)).toMatchInlineSnapshot(`"var(--color-bad-accent)"`)
   })
 
   it('progressAccentColor C should return the warning color for 50 percent', () => {
-    expect(progressAccentColor(50)).toMatchInlineSnapshot(`"var(--color-warning)"`)
+    expect(progressAccentColor(50)).toMatchInlineSnapshot(`"var(--color-warning-accent)"`)
   })
 
   it('progressAccentColor D should return the ok color for 75 percent', () => {
-    expect(progressAccentColor(75)).toMatchInlineSnapshot(`"var(--color-ok)"`)
+    expect(progressAccentColor(75)).toMatchInlineSnapshot(`"var(--color-ok-accent)"`)
   })
 
   it('progressAccentColor E should return the success color for 100 percent', () => {
-    expect(progressAccentColor(100)).toMatchInlineSnapshot(`"var(--color-success)"`)
+    expect(progressAccentColor(100)).toMatchInlineSnapshot(`"var(--color-success-accent)"`)
   })
 
   it('progressText A nothing done', () => {

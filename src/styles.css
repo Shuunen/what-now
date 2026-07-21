@@ -3,12 +3,18 @@
 
 /* Colors */
 @theme inline {
-  --color-primary: RoyalBlue;
-  --color-success: oklch(72% 0.18 150);
-  --color-ok: oklch(72% 0.18 118);
-  --color-warning: oklch(72% 0.18 86);
-  --color-bad: oklch(72% 0.18 54);
-  --color-error: oklch(72% 0.18 22);
+  --color-bad-accent: oklch(72% 0.18 54);
+  --color-bad: oklch(42% 0.14 54);
+  --color-error-accent: oklch(72% 0.18 22);
+  --color-error: oklch(42% 0.14 22);
+  --color-ok-accent: oklch(72% 0.18 118);
+  --color-ok: oklch(42% 0.14 118);
+  --color-primary-accent: oklch(72% 0.18 266);
+  --color-primary: oklch(42% 0.14 266);
+  --color-success-accent: oklch(72% 0.18 150);
+  --color-success: oklch(42% 0.14 150);
+  --color-warning-accent: oklch(72% 0.18 86);
+  --color-warning: oklch(42% 0.14 86);
   --color-black: var(--color-stone-950);
   --color-white: FloralWhite;
 }
@@ -24,7 +30,7 @@ html {
   @apply bg-stone-900;
 }
 ::-webkit-scrollbar-thumb {
-  @apply rounded-full bg-primary/50;
+  @apply rounded-full bg-primary;
 }
 
 /* Typography */
@@ -35,5 +41,5 @@ h2 {
   @apply text-2xl leading-12 font-bold tracking-tight;
 }
 a {
-  @apply text-primary underline underline-offset-2 hover:text-primary/80;
+  @apply text-primary-accent underline underline-offset-2 hover:text-primary;
 }

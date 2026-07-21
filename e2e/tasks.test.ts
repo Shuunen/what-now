@@ -34,6 +34,6 @@ test('adding a task from the empty state redirects home with a success toast', a
   await page.getByTestId('input-task-minutes').fill('15')
   await page.getByTestId('button-add-task').click()
   await expect(page.getByTestId('page-tasks')).toBeVisible()
-  await expect(page.locator('.shu-toast', { hasText: 'Task added' })).toBeVisible()
+  await expect(page.getByTestId('toast').filter({ hasText: 'Task added' })).toBeVisible()
   await expect(page.getByTestId('button-water-plants')).toBeVisible()
 })
