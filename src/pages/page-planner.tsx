@@ -468,7 +468,9 @@ function useDeleteTask(storeTasks: Task[]) {
       toastAction(`"${task.name}" deleted`, {
         label: 'Undo',
         onClick: () => {
-          updateTasks([task])
+          // bump syncedAt to now (rather than restoring the stale pre-delete value) so the restore
+          // is treated as the latest write and wins over a newer remote tombstone during sync
+          updateTasks([{ ...task, syncedAt: new Date().toISOString() }])
           toastSuccess('Task restored')
         },
       })

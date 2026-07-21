@@ -20,7 +20,7 @@ type TaskQuoteFormProps = {
  * sync and the shared "Save modifications" / "Discard" actions decide whether the edits are persisted.
  * @param props - the component props
  * @param props.form - the current form state, derived from the task plus pending modifications
- * @param props.onDelete - called with the task id when the user confirms deletion
+ * @param props.onDelete - called with the task id when the user clicks delete (deletes immediately, undoable via a toast)
  * @param props.onUpdate - called with a single field change, feeding the planner's pending modifications
  * @param props.task - the underlying task, used for the attribution timestamp
  * @returns the inline quote form element
@@ -34,7 +34,15 @@ export function TaskQuoteForm({ form, onDelete, onUpdate, task }: TaskQuoteFormP
       <span aria-hidden className="pointer-events-none absolute -top-2 left-1 font-serif text-9xl leading-none text-primary-accent select-none">
         “
       </span>
-      <Button className="absolute top-2 right-2 z-10 size-8 opacity-40 hover:opacity-100" data-testid="task-quote-delete" name="delete-task" onClick={() => onDelete(task.id)} title="Delete this task" variant="ghost">
+      <Button
+        aria-label="Delete this task"
+        className="absolute top-2 right-2 z-10 size-8 opacity-40 hover:opacity-100"
+        data-testid="task-quote-delete"
+        name="delete-task"
+        onClick={() => onDelete(task.id)}
+        title="Delete this task"
+        variant="ghost"
+      >
         <TrashIcon className="size-4" />
       </Button>
       <blockquote className="relative z-10 px-4">{taskSentence(form, onUpdate)}</blockquote>
