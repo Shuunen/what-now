@@ -1,5 +1,5 @@
 import { daysAgoIso10 } from 'shuutils'
-import { buildOnce, byActive, completeTask, createTask, daysRecurrence, daysSinceCompletion, isTaskActive, minutesRemaining, parseOnce, taskMock, toggleComplete, unCompleteTask } from './tasks.utils'
+import { buildOnce, byActive, completeTask, createTask, daysRecurrence, daysSinceCompletion, deleteTask, isTaskActive, mergeTask, minutesRemaining, parseOnce, taskMock, toggleComplete, unCompleteTask } from './tasks.utils'
 
 const today = daysAgoIso10(0)
 const yesterday = daysAgoIso10(1)
@@ -85,6 +85,13 @@ describe('completeTask', () => {
     completeTask(task)
     expect(task.completedOn).toBe(yesterday)
   })
+
+  it('D bumps syncedAt but leaves updatedOn untouched (CRITICAL regression : quote attribution reads updatedOn, not syncedAt)', () => {
+    const task = taskMock({ completedOn: yesterday, once: 'day', updatedOn: 'never-touch-me' })
+    const updated = completeTask(task)
+    expect(updated.updatedOn).toBe('never-touch-me')
+    expect(updated.syncedAt).not.toBe('')
+  })
 })
 
 describe('unCompleteTask', () => {
@@ -92,6 +99,70 @@ describe('unCompleteTask', () => {
     const updated = unCompleteTask(taskMock({ completedOn: today, once: 'week' }))
     expect(updated.isDone).toBe(false)
     expect(isTaskActive(updated)).toBe(true)
+  })
+
+  it('B bumps syncedAt but leaves updatedOn untouched (CRITICAL regression : same as completeTask)', () => {
+    const task = taskMock({ completedOn: today, once: 'week', updatedOn: 'never-touch-me' })
+    const updated = unCompleteTask(task)
+    expect(updated.updatedOn).toBe('never-touch-me')
+    expect(updated.syncedAt).not.toBe('')
+  })
+})
+
+describe('deleteTask', () => {
+  it('A stamps deletedOn and syncedAt without mutating the input', () => {
+    const task = taskMock()
+    const updated = deleteTask(task)
+    expect(updated.deletedOn).not.toBe('')
+    expect(updated.syncedAt).not.toBe('')
+    expect(task.deletedOn).toBe('')
+  })
+
+  it('B a deleted task is never active, regardless of completion state', () => {
+    const task = taskMock({ completedOn: '', deletedOn: new Date().toISOString(), once: 'day' })
+    expect(isTaskActive(task)).toBe(false)
+  })
+})
+
+describe('mergeTask', () => {
+  it('A the task with the later syncedAt wins', () => {
+    const older = taskMock({ name: 'older', syncedAt: '2026-01-01T00:00:00.000Z' })
+    const newer = taskMock({ name: 'newer', syncedAt: '2026-01-02T00:00:00.000Z' })
+    expect(mergeTask(older, newer).name).toBe('newer')
+    expect(mergeTask(newer, older).name).toBe('newer')
+  })
+
+  it('B a later delete wins over an earlier update (delete propagates)', () => {
+    const updated = taskMock({ deletedOn: '', name: 'updated', syncedAt: '2026-01-01T00:00:00.000Z' })
+    const deleted = taskMock({ deletedOn: '2026-01-02T00:00:00.000Z', name: 'deleted', syncedAt: '2026-01-02T00:00:00.000Z' })
+    const winner = mergeTask(updated, deleted)
+    expect(winner.deletedOn).not.toBe('')
+  })
+
+  it('C a later update wins over an earlier delete (update resurrects)', () => {
+    const deleted = taskMock({ deletedOn: '2026-01-01T00:00:00.000Z', name: 'deleted', syncedAt: '2026-01-01T00:00:00.000Z' })
+    const updated = taskMock({ deletedOn: '', name: 'updated', syncedAt: '2026-01-02T00:00:00.000Z' })
+    const winner = mergeTask(deleted, updated)
+    expect(winner.deletedOn).toBe('')
+  })
+
+  it('D on an exact tie, prefers the non-deleted side so data is never silently dropped', () => {
+    const alive = taskMock({ deletedOn: '', name: 'alive', syncedAt: '2026-01-01T00:00:00.000Z' })
+    const dead = taskMock({ deletedOn: '2026-01-01T00:00:00.000Z', name: 'dead', syncedAt: '2026-01-01T00:00:00.000Z' })
+    expect(mergeTask(alive, dead).deletedOn).toBe('')
+    expect(mergeTask(dead, alive).deletedOn).toBe('')
+  })
+
+  it('D2 on an exact tie with matching deletion state, falls back to the first argument deterministically', () => {
+    const first = taskMock({ deletedOn: '', name: 'first', syncedAt: '2026-01-01T00:00:00.000Z' })
+    const second = taskMock({ deletedOn: '', name: 'second', syncedAt: '2026-01-01T00:00:00.000Z' })
+    expect(mergeTask(first, second).name).toBe('first')
+  })
+
+  it('E throws on mismatched task ids', () => {
+    const a = taskMock({ id: 'a' })
+    const b = taskMock({ id: 'b' })
+    expect(() => mergeTask(a, b)).toThrow('mergeTask called with mismatched task ids "a" vs "b"')
   })
 })
 
