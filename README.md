@@ -39,7 +39,7 @@ Else enjoy it, you can even contribute to make it better !
 
 ## How does it work ?
 
-The app is a single page app and it stores everything locally in your browser (via IndexedDB). There is no backend and no account to create.
+The app is a single page app and it stores everything locally in your browser (via IndexedDB). There is no backend and no account to create — everything below is opt-in.
 
 Your tasks are loaded from local storage, then processed to display them in the right order. When you mark a task as done, the new status is saved back locally.
 
@@ -47,9 +47,27 @@ From the settings page you can export your whole app state (tasks and settings) 
 
 Optionally, you can set a webhook URL in the settings to notify an external service with your progress, see [src/webhook/webhook.md](src/webhook/webhook.md) for details.
 
-Your data is yours and never leaves your browser (except to the webhook you explicitly configure), no analytics, trackers or other annoying things. You can have a look at the sources to confirm it.
+Your data is yours and never leaves your browser (except to a sync deployment or webhook you explicitly configure), no analytics, trackers or other annoying things. You can have a look at the sources to confirm it.
 
 The app is a Progressive Web App: a service worker caches everything it needs to run, so once you've loaded it once, it keeps working offline, and you can install it on your device like a native app. A small banner appears whenever you lose connection so you always know your changes are only saved on this device until you're back online.
+
+### Cross-device sync (optional, self-hosted)
+
+By default your tasks stay on one device — no accounts, no shared backend, no one but you has access to anything. If you want your tasks to follow you across your own devices, you can opt into sync by deploying your own free [Convex](https://convex.dev) backend from this same repository:
+
+1. Clone this repo: `git clone https://github.com/Shuunen/what-now.git && cd what-now`
+2. Install dependencies: `pnpm install`
+3. Create a free Convex account and deploy this repo's `convex/` template to your own project: `npx convex login` (say yes to link your account).
+4. Then `npx convex dev`. Convex prints your deployment's URL, something like `https://happy-otter-123.convex.cloud`.
+5. Open What Now → Settings → paste that URL into "Cross-device sync" → Connect.
+6. On your other devices, open Settings and paste the _same_ URL. Every device pointed at the same deployment stays in sync.
+
+A few things worth knowing:
+
+- Each Convex deployment is single-tenant — it's yours alone, nobody else's data can end up there, and you don't share it with any other What Now user. This is why there's no login: whoever has the URL has access, so treat it like a password and don't share it publicly.
+- Sync is strictly additive: with no URL configured, the app behaves exactly as it always has — fully offline, zero network calls related to sync.
+- If a device says "this doesn't look like a WhatNow sync deployment" or mentions a stale schema, redeploy the latest `convex/` template (step 3) — this app's own schema may have changed since you last deployed.
+- "Delete my synced data" in Settings wipes everything on that Convex deployment (not your local tasks) — useful if you want to start over or stop using that deployment.
 
 ## TODO
 

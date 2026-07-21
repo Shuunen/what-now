@@ -1,18 +1,22 @@
 # TODOS
 
+## Quality
+
+Use Fallow
+
 ## Persistence
 
-### Cross-tab sync for local IndexedDB store
+### Verify "delete my synced data" fully completes on partial failure
 
-**What:** Two tabs open at once each hydrate independently and debounce-write the whole `AppData` document to IndexedDB; simultaneous edits in two tabs silently clobber each other (last write wins, no warning).
+**What:** The "delete my synced data" Settings action removes all rows from the user's own Convex deployment in one operation; if it fails partway through (unlikely but possible), the user has no way to know some rows survived the delete.
 
-**Why:** Flagged by the /ship red-team review when migrating from Appwrite cloud sync to local-only persistence. Building real cross-tab awareness (BroadcastChannel + conflict handling or at least a "data changed in another tab" warning) is a meaningfully sized feature, deferred out of the migration PR to keep it reviewable.
+**Why:** Flagged during /plan-ceo-review Section 2 (Error & Rescue Map). Low likelihood given personal-scale task counts (tens, not thousands) and Convex's per-mutation reliability — deferred rather than blocking the sync feature's initial ship.
 
-**Context:** `src/db/use-persistence.ts` — `useHydration`/`usePersistence`.
+**Context:** Convex `deleteAll`-style mutation (once built, per design doc Next Steps). Note: under the bring-your-own-Convex-URL model (design doc Approach D), this deletes everything in that deployment since it's single-tenant — no `userId` filter needed.
 
-**Effort:** M
-**Priority:** P1
-**Depends on:** None
+**Effort:** S
+**Priority:** P3
+**Depends on:** Convex sync feature shipping
 
 ## Design
 

@@ -3,7 +3,7 @@ import { AppDataSchema, defaultAppData, recoverAppData, safeImportJson } from '.
 describe('AppDataSchema', () => {
   it('A applies defaults for an empty object', () => {
     const data = AppDataSchema.parse({})
-    expect(data).toStrictEqual({ settings: { finaleDismissedOn: '', userName: 'Me', webhook: '' }, tasks: [] })
+    expect(data).toStrictEqual({ settings: { finaleDismissedOn: '', syncUrl: '', userName: 'Me', webhook: '' }, tasks: [] })
   })
 
   it('B rejects duplicate task ids', () => {
@@ -38,7 +38,7 @@ describe('AppDataSchema', () => {
 
 describe('defaultAppData', () => {
   it('A is an empty state', () => {
-    expect(defaultAppData).toStrictEqual({ settings: { finaleDismissedOn: '', userName: 'Me', webhook: '' }, tasks: [] })
+    expect(defaultAppData).toStrictEqual({ settings: { finaleDismissedOn: '', syncUrl: '', userName: 'Me', webhook: '' }, tasks: [] })
   })
 })
 
@@ -56,12 +56,12 @@ describe('recoverAppData', () => {
 
   it('B falls back to default settings when settings are invalid', () => {
     const data = recoverAppData({ settings: { userName: 42 }, tasks: [] })
-    expect(data.settings).toStrictEqual({ finaleDismissedOn: '', userName: 'Me', webhook: '' })
+    expect(data.settings).toStrictEqual({ finaleDismissedOn: '', syncUrl: '', userName: 'Me', webhook: '' })
   })
 
   it('C handles a completely malformed document', () => {
     const data = recoverAppData('not an object')
-    expect(data).toStrictEqual({ settings: { finaleDismissedOn: '', userName: 'Me', webhook: '' }, tasks: [] })
+    expect(data).toStrictEqual({ settings: { finaleDismissedOn: '', syncUrl: '', userName: 'Me', webhook: '' }, tasks: [] })
   })
 
   it('D drops duplicate task ids, keeping the first occurrence', () => {
