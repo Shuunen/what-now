@@ -36,7 +36,7 @@ weights on first run — expect a pause the first time you run the spike.
   is speaking, plus a 0.5s cooldown after. This was the fallback after two
   real attempts at proper echo cancellation failed on this hardware:
   speaker output caused a self-interrupt loop (VAD heard the coach through
-  the mic), and headphone output *also* leaked enough into the room for
+  the mic), and headphone output _also_ leaked enough into the room for
   the webcam mic to pick it up. A PipeWire WebRTC echo-cancel module
   (`libpipewire-module-echo-cancel`) loaded without error but produced a
   silent virtual mic in testing — not reliable enough to chase further
@@ -52,7 +52,7 @@ weights on first run — expect a pause the first time you run the spike.
 Measured on this machine (RTX 4070 SUPER, 12GB VRAM): a larger model
 (29.9B params) didn't fit in VRAM and ran at 13.5s/call — a non-starter for
 a 4-call-per-turn, ~2s-budget design. `llama3.2` (3.2B) fits fully in VRAM
-and hits ~130ms/call warm, but *only* after capping `num_ctx` — the
+and hits ~130ms/call warm, but _only_ after capping `num_ctx` — the
 default 64k context window alone eats enough VRAM to force partial CPU
 offload even on this small model. See the design doc's "Measured Results"
 section for the full numbers.

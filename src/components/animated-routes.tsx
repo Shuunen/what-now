@@ -1,6 +1,7 @@
 import { Route, Routes, useLocation } from 'react-router-dom'
 import { PageAbout } from '../pages/page-about'
 import { PageAddTask } from '../pages/page-add-task'
+import { PageCoachBrowser } from '../pages/page-coach-browser'
 import { PageKitchenSink } from '../pages/page-kitchen-sink'
 import { PagePlanner } from '../pages/page-planner'
 import { PageSettings } from '../pages/page-settings'
@@ -18,6 +19,7 @@ export function AnimatedRoutes() {
         <Route element={<PageSettings />} path="/settings" />
         <Route element={<PageAbout />} path="/about" />
         <Route element={<PageKitchenSink />} path="/kitchen-sink" />
+        <Route element={<PageCoachBrowser />} path="/coach-browser" />
       </Routes>
     </div>
   )
