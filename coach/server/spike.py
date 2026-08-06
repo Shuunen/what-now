@@ -5,10 +5,14 @@ Ollama through Pipecat, with local STT (faster-whisper) and local TTS
 (Kokoro), feel pleasant to use at all -- before investing in the hardened
 4-call Ollama pipeline, VAD-verified barge-in, or Convex task data.
 
-No barge-in tuning: Pipecat's default Silero VAD handles turn-taking (when
-you stop talking), but interruptions are disabled (allow_interruptions=False)
-so the coach always finishes speaking. Verifying barge-in on real hardware is
-a later step (design doc Next Steps step 5), not this spike's job.
+No barge-in: a software mute gate (MuteWhileBotSpeaking) drops mic input
+while the bot is speaking, since real echo cancellation proved unreliable
+on real hardware during testing (see the design doc's Measured Results).
+The coach always finishes speaking; you cannot interrupt it.
+
+Auto-stops itself after STOP_AFTER_TURNS full exchanges (see main()) and
+prints a full timestamped timeline plus a "longest steps" breakdown --
+no need to Ctrl+C.
 
 Run (on your actual machine, not a sandboxed dev container -- this needs a
 real microphone/speaker and `portaudio19-dev` installed for `pyaudio`):
@@ -22,6 +26,13 @@ real microphone/speaker and `portaudio19-dev` installed for `pyaudio`):
 """
 
 import asyncio
+import atexit
+import time
+
+# Captured as close to the actual process launch as this code can reach --
+# before any pipecat imports run, so "t=0" in the timeline genuinely means
+# "bare script start," per the request to time every step from there.
+_SCRIPT_START = time.time()
 
 from pipecat.audio.vad.silero import SileroVADAnalyzer
 from pipecat.processors.audio.vad_processor import VADProcessor
@@ -30,14 +41,7 @@ from pipecat.frames.frames import (
     BotStoppedSpeakingFrame,
     Frame,
     InputAudioRawFrame,
-    LLMTextFrame,
-    TranscriptionFrame,
-    UserStartedSpeakingFrame,
-    UserStoppedSpeakingFrame,
-    VADUserStartedSpeakingFrame,
-    VADUserStoppedSpeakingFrame,
 )
-from pipecat.observers.loggers.debug_log_observer import DebugLogObserver
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
@@ -48,6 +52,8 @@ from pipecat.services.kokoro.tts import KokoroTTSService
 from pipecat.services.ollama.llm import OllamaLLMSettings, OLLamaLLMService
 from pipecat.services.whisper.stt import Model, WhisperSTTService
 from pipecat.transports.local.audio import LocalAudioTransport, LocalAudioTransportParams
+
+from timing import TimingLog, TimingObserver
 
 
 class RawAudioFrameCounter(FrameProcessor):
@@ -116,22 +122,6 @@ class MuteWhileBotSpeaking(FrameProcessor):
 
         await self.push_frame(frame, direction)
 
-
-# Visible feedback: the spike is otherwise a black box (no console output
-# tells you whether the mic is being heard at all). This logs the exact
-# moments that matter for debugging "is it hearing/responding to me":
-# VAD detecting speech start/stop, what Whisper transcribed, and when the
-# LLM/TTS actually produce something.
-DEBUG_FRAME_TYPES = (
-    VADUserStartedSpeakingFrame,
-    VADUserStoppedSpeakingFrame,
-    UserStartedSpeakingFrame,
-    UserStoppedSpeakingFrame,
-    TranscriptionFrame,
-    LLMTextFrame,
-    BotStartedSpeakingFrame,
-    BotStoppedSpeakingFrame,
-)
 
 # Hardcoded single task for the spike -- real task selection against Convex's
 # active-task list is design doc Next Steps step 4, not this throwaway step.
@@ -258,14 +248,35 @@ async def main() -> None:
         ]
     )
 
+    # Auto-stop after STOP_AFTER_TURNS full exchanges instead of relying on
+    # Ctrl+C -- live testing showed the graceful-shutdown path (both
+    # Pipecat's own SIGINT handler and our own finally block) occasionally
+    # never completes after an interrupt, for reasons not fully root-caused.
+    # Stopping ourselves from inside the running pipeline sidesteps signal
+    # handling entirely.
+    STOP_AFTER_TURNS = 3
+    timing_log = TimingLog(script_start=_SCRIPT_START, stop_after_turns=STOP_AFTER_TURNS)
+
+    # atexit as a second safety net regardless: fires on any normal
+    # interpreter shutdown (including an unhandled KeyboardInterrupt
+    # reaching the top level, if the user does Ctrl+C anyway).
+    # print_summary() is idempotent, so this never double-prints.
+    atexit.register(timing_log.print_summary)
+
     task = PipelineTask(
         pipeline,
         params=PipelineParams(allow_interruptions=False),
-        observers=[DebugLogObserver(frame_types=DEBUG_FRAME_TYPES)],
+        observers=[TimingObserver(timing_log)],
+    )
+    timing_log.on_stop_condition_met = lambda: asyncio.create_task(
+        task.cancel(reason=f"auto-stop after {STOP_AFTER_TURNS} exchanges")
     )
 
     runner = PipelineRunner()
-    await runner.run(task)
+    try:
+        await runner.run(task)
+    finally:
+        timing_log.print_summary()
 
 
 if __name__ == "__main__":

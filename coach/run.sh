@@ -26,6 +26,7 @@ if ! ollama list | grep -q "^llama3.2"; then
   ollama pull llama3.2
 fi
 
-echo "Starting the coach. Talk into your mic once you see 'pipeline is now ready'. Ctrl+C to stop."
+echo "Starting the coach. Talk into your mic once you see 'pipeline is now ready'."
+echo "It auto-stops after 3 full exchanges and prints a timing summary. Ctrl+C also works if needed."
 echo "Full output also being written to: $(pwd)/run.log"
 python3 -u server/spike.py 2>&1 | tee run.log
