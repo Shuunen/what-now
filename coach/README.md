@@ -1,8 +1,8 @@
 # What Now — Voice Coach (spike)
 
 Personal, local-only voice coach companion for What Now. Not part of the
-core app's build/deploy pipeline. See the design doc for full context:
-`~/.gstack/projects/Shuunen-what-now/rominou-master-design-20260806-195556.md`
+core app's build/deploy pipeline. See the design doc for full context,
+including the browser-experiment comparison: [`docs/voice-coach-design.md`](../docs/voice-coach-design.md)
 
 Current status: **T1, crude validation spike — SUCCESS, live-verified.**
 One hardcoded task, one Ollama call (`llama3.2`), no Convex integration
