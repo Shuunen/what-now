@@ -51,6 +51,7 @@ from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
 from pipecat.services.kokoro.tts import KokoroTTSService
 from pipecat.services.ollama.llm import OllamaLLMSettings, OLLamaLLMService
 from pipecat.services.whisper.stt import Model, WhisperSTTService
+from pipecat.transcriptions.language import Language
 from pipecat.transports.local.audio import LocalAudioTransport, LocalAudioTransportParams
 
 from timing import TimingLog, TimingObserver
@@ -127,11 +128,17 @@ class MuteWhileBotSpeaking(FrameProcessor):
 # active-task list is design doc Next Steps step 4, not this throwaway step.
 SPIKE_TASK = {"name": "call your best friend", "reason": "you haven't talked in a week"}
 
-SYSTEM_PROMPT = f"""You are a warm, brief voice coach for the What Now task app.
-You have one task to offer: "{SPIKE_TASK['name']}" (reason: {SPIKE_TASK['reason']}).
-Announce it in one short sentence and ask if the user is ready to do it now,
-wants to delay it, wants another task, or is done with it already.
-Keep every response under 2 sentences -- this is spoken aloud."""
+SYSTEM_PROMPT = f"""Tu es un coach vocal chaleureux et concis pour l'application de tâches What Now.
+Tu dois TOUJOURS répondre en français, quelle que soit la langue de l'utilisateur ou des données de tâche.
+
+Voici la tâche à proposer (les détails ci-dessous sont en anglais -- traduis-les
+en français avant de les prononcer, ne les répète jamais en anglais) :
+name: "{SPIKE_TASK['name']}"
+reason: "{SPIKE_TASK['reason']}"
+
+Annonce cette tâche en une phrase courte et demande si la personne est prête à
+la faire maintenant, veut la reporter, veut une autre tâche, ou l'a déjà faite.
+Chaque réponse doit tenir en 2 phrases maximum -- c'est prononcé à voix haute."""
 
 
 def _find_pipewire_device_index() -> int | None:
@@ -205,7 +212,13 @@ async def main() -> None:
     # raising at startup, so every utterance just vanishes with no
     # transcription. CPU is plenty fast for the "base" model on short
     # utterances; revisit if a bigger local STT model is ever needed.
-    stt = WhisperSTTService(device="cpu", settings=WhisperSTTService.Settings(model=Model.BASE))
+    # language=Language.FR: the coach speaks French now, so the user's
+    # replies are expected to be French too -- without this, Whisper
+    # auto-detects language per utterance, which is unreliable on short
+    # phrases and can misfire into English or another language mid-session.
+    stt = WhisperSTTService(
+        device="cpu", settings=WhisperSTTService.Settings(model=Model.BASE, language=Language.FR)
+    )
     # num_ctx capped at 2048: the model's 64k default context window doesn't
     # fit alongside the model weights in a 12GB card, forcing partial CPU
     # offload and ~5-6s latency per call. These coach prompts are short and
@@ -226,9 +239,21 @@ async def main() -> None:
     # voice is required -- KokoroTTSService() with no voice throws
     # "Kokoro TTS voice must be specified" as a runtime ErrorFrame (not a
     # constructor error), so this failed silently deep in the pipeline
-    # rather than at startup. af_heart is a commonly-recommended warm
-    # American English voice; full list via kokoro_onnx.Kokoro.get_voices().
-    tts = KokoroTTSService(settings=KokoroTTSService.Settings(voice="af_heart"))
+    # rather than at startup. ff_siwis is Kokoro's only French voice
+    # (female); full list via kokoro_onnx.Kokoro.get_voices(). language
+    # must also be set explicitly -- same "required or it errors at
+    # runtime, not construction" gotcha as voice.
+    #
+    # language="fr-fr" as a raw string, NOT Language.FR: Pipecat's own
+    # language_to_kokoro_language() maps Language.FR (and Language.FR_FR)
+    # to the bare code "fr", but this machine's espeak-ng/phonemizer
+    # backend only recognizes region-qualified codes ("fr-fr", "fr-be",
+    # "fr-ch") -- "fr" alone raises "language fr is not supported by the
+    # espeak backend". KokoroTTSService's actual synthesis call passes
+    # `self._settings.language` straight through to kokoro_onnx without
+    # going through that mapping function, so a raw string bypasses the
+    # bug entirely. Confirmed directly against kokoro_onnx.Kokoro.create().
+    tts = KokoroTTSService(settings=KokoroTTSService.Settings(voice="ff_siwis", language="fr-fr"))
 
     context = LLMContext([{"role": "system", "content": SYSTEM_PROMPT}])
     context_aggregator = LLMContextAggregatorPair(context)
