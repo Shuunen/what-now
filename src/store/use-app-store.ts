@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 import type { SyncStatus } from '../db/sync-status'
 import { type AppData, defaultAppData } from '../schemas/app-data'
+import type { Settings } from '../schemas/settings'
 import type { Task } from '../schemas/task'
 import { createTask, deleteTask, type NewTaskFields, toggleComplete } from '../utils/tasks.utils'
 
@@ -12,6 +13,7 @@ type AppStore = {
   loadData: (data: AppData) => void
   mergeTasks: (tasks: Task[]) => void
   removeTask: (id: string) => void
+  setCoachLanguage: (coachLanguage: Settings['coachLanguage']) => void
   setFinaleDismissedOn: (finaleDismissedOn: string) => void
   setSyncStatus: (syncStatus: SyncStatus) => void
   setSyncUrl: (syncUrl: string) => void
@@ -25,10 +27,7 @@ type AppStore = {
 
 export const useAppStore = create<AppStore>()(
   subscribeWithSelector(set => ({
-    addTask: fields =>
-      set(state => ({
-        data: { ...state.data, tasks: [createTask(fields), ...state.data.tasks] },
-      })),
+    addTask: fields => set(state => ({ data: { ...state.data, tasks: [createTask(fields), ...state.data.tasks] } })),
     data: defaultAppData,
     isLoading: true,
     loadData: data => set({ data, isLoading: false }),
@@ -42,32 +41,15 @@ export const useAppStore = create<AppStore>()(
         const newlyAdopted = tasks.filter(task => !existingIds.has(task.id))
         return { data: { ...state.data, tasks: [...patchedExisting, ...newlyAdopted] } }
       }),
-    removeTask: id =>
-      set(state => ({
-        data: { ...state.data, tasks: state.data.tasks.map(task => (task.id === id ? deleteTask(task) : task)) },
-      })),
-    setFinaleDismissedOn: finaleDismissedOn =>
-      set(state => ({
-        data: { ...state.data, settings: { ...state.data.settings, finaleDismissedOn } },
-      })),
+    removeTask: id => set(state => ({ data: { ...state.data, tasks: state.data.tasks.map(task => (task.id === id ? deleteTask(task) : task)) } })),
+    setCoachLanguage: coachLanguage => set(state => ({ data: { ...state.data, settings: { ...state.data.settings, coachLanguage } } })),
+    setFinaleDismissedOn: finaleDismissedOn => set(state => ({ data: { ...state.data, settings: { ...state.data.settings, finaleDismissedOn } } })),
     setSyncStatus: syncStatus => set({ syncStatus }),
-    setSyncUrl: syncUrl =>
-      set(state => ({
-        data: { ...state.data, settings: { ...state.data.settings, syncUrl } },
-      })),
-    setUserName: userName =>
-      set(state => ({
-        data: { ...state.data, settings: { ...state.data.settings, userName } },
-      })),
-    setWebhook: webhook =>
-      set(state => ({
-        data: { ...state.data, settings: { ...state.data.settings, webhook } },
-      })),
+    setSyncUrl: syncUrl => set(state => ({ data: { ...state.data, settings: { ...state.data.settings, syncUrl } } })),
+    setUserName: userName => set(state => ({ data: { ...state.data, settings: { ...state.data.settings, userName } } })),
+    setWebhook: webhook => set(state => ({ data: { ...state.data, settings: { ...state.data.settings, webhook } } })),
     syncStatus: 'off',
-    toggleTask: id =>
-      set(state => ({
-        data: { ...state.data, tasks: state.data.tasks.map(task => (task.id === id ? toggleComplete(task) : task)) },
-      })),
+    toggleTask: id => set(state => ({ data: { ...state.data, tasks: state.data.tasks.map(task => (task.id === id ? toggleComplete(task) : task)) } })),
     updateTasks: tasks =>
       set(state => {
         const patchById = new Map(tasks.map(task => [task.id, task]))

@@ -4,7 +4,7 @@ import { z } from 'zod/v4'
 export const maxTasks = 10_000
 
 /** Upper bound on task text fields, mirroring the UI inputs' maxLength so imports can't bypass it. */
-const maxTaskTextLength = 150
+export const maxTaskTextLength = 150
 
 export const TaskSchema = z.object({
   /** iso10 date the task was last completed on, empty string if never completed @example "2025-01-26" */

@@ -2,7 +2,7 @@
  * Ambient types for browser APIs not yet in TypeScript's DOM lib: Chrome's
  * on-device Prompt API (`LanguageModel`, origin-trial-era, no official
  * types yet) and the vendor-prefixed Web Speech API (`webkitSpeechRecognition`).
- * Deliberately minimal -- only what src/pages/page-coach-browser.tsx uses.
+ * Deliberately minimal -- only what src/utils/coach-session.utils.ts uses.
  */
 
 type LanguageModelAvailability = 'available' | 'downloadable' | 'downloading' | 'unavailable'
@@ -34,7 +34,10 @@ interface LanguageModelCreateOptions {
 
 interface LanguageModelSession {
   destroy: () => void
-  promptStreaming: (input: string) => ReadableStream<string>
+  // Real Chrome returns ReadableStream<string>; typed as the broader (Async)Iterable<string> since
+  // that's all promptToText() actually consumes (a `for await` loop, which iterates sync or async
+  // iterables alike), letting test doubles use a plain generator instead of a full ReadableStream.
+  promptStreaming: (input: string) => AsyncIterable<string> | Iterable<string>
 }
 
 interface LanguageModelAvailabilityOptions {

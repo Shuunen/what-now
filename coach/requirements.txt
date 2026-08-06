@@ -1,1 +1,0 @@
-pipecat-ai[openai,whisper,kokoro,silero,webrtc,local]

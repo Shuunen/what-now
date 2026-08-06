@@ -10,7 +10,7 @@ describe('useAppStore', () => {
   })
 
   it('A loadData replaces data and clears loading', () => {
-    const data = { settings: { finaleDismissedOn: '', syncUrl: '', userName: 'Me', webhook: '' }, tasks: [taskMock({ id: 'a' })] }
+    const data = { settings: { coachLanguage: 'en' as const, finaleDismissedOn: '', syncUrl: '', userName: 'Me', webhook: '' }, tasks: [taskMock({ id: 'a' })] }
     useAppStore.getState().loadData(data)
     expect(useAppStore.getState().data).toStrictEqual(data)
     expect(useAppStore.getState().isLoading).toBe(false)
@@ -43,6 +43,10 @@ describe('useAppStore', () => {
   it('F setFinaleDismissedOn updates the setting', () => {
     useAppStore.getState().setFinaleDismissedOn('2025-01-01')
     expect(useAppStore.getState().data.settings.finaleDismissedOn).toBe('2025-01-01')
+  })
+  it('F1b setCoachLanguage updates the setting', () => {
+    useAppStore.getState().setCoachLanguage('fr')
+    expect(useAppStore.getState().data.settings.coachLanguage).toBe('fr')
   })
   it('F2 setUserName updates the setting', () => {
     useAppStore.getState().setUserName('Alice')
