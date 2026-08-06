@@ -113,6 +113,21 @@ async function promptStreamingToText(session: LanguageModelSession, input: strin
 }
 
 /**
+ * Requests microphone permission up front, before anything else. Browsers
+ * grant only one "fresh user activation" per gesture, and the LLM model
+ * download below can take long enough to consume it -- if the mic
+ * permission request happens after that, it silently fails with
+ * `not-allowed` instead of prompting, even on a real click. Once granted,
+ * the permission itself persists for the page's lifetime; it's only the
+ * activation window for the *prompt* that's scarce, so requesting first
+ * (immediately on click, before any async model work) sidesteps this.
+ */
+async function primeMicrophonePermission(): Promise<void> {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+  for (const track of stream.getTracks()) track.stop()
+}
+
+/**
  * Checks model availability and creates a LanguageModel session, reporting
  * download progress via `callbacks` if the model needs downloading first.
  * @param callbacks - status/progress callbacks driving the page's UI
@@ -168,6 +183,7 @@ async function runTurn(session: LanguageModelSession, timingLog: BrowserTimingLo
  * @returns the timing summary lines, ready to render/log
  */
 async function runCoachSession(callbacks: CoachCallbacks): Promise<string[]> {
+  await primeMicrophonePermission()
   const session = await createCoachSession(callbacks)
   const timingLog = new BrowserTimingLog(performance.now())
   timingLog.record('model_ready')
