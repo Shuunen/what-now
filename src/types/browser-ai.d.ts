@@ -52,7 +52,7 @@ interface SpeechRecognitionLike extends EventTarget {
   continuous: boolean
   interimResults: boolean
   lang: string
-  addEventListener(type: 'end' | 'start', listener: () => void): void
+  addEventListener(type: 'end' | 'speechend' | 'speechstart' | 'start', listener: () => void): void
   addEventListener(type: 'error', listener: (event: SpeechRecognitionErrorEventLike) => void): void
   addEventListener(type: 'result', listener: (event: SpeechRecognitionEventLike) => void): void
   start: () => void

@@ -49,9 +49,18 @@ function isBrowserSupported(): boolean {
 
 /**
  * Waits for a single utterance from the user via the Web Speech API.
+ *
+ * Records listening_start/listening_stop at the API's own `speechstart`/
+ * `speechend` events -- the true moments speech begins/ends -- rather than
+ * at recognition-start/result. The previous version recorded listening_start
+ * the instant we began waiting for speech, which silently included the
+ * user's reaction/thinking time before they started talking at all; that's
+ * not what Pipecat's VAD-driven listening_start measures (VAD only fires
+ * once real speech is actually detected), so the two were not comparable.
+ * @param timingLog - records listening_start/listening_stop/stt_stop at their real moments
  * @returns the recognized transcript
  */
-function listenOnce(): Promise<string> {
+function listenOnce(timingLog: BrowserTimingLog): Promise<string> {
   // oxlint-disable-next-line promise/avoid-new -- wraps a callback-based Web API (SpeechRecognition), no promise-returning equivalent exists
   return new Promise((resolve, reject) => {
     const Recognition = getSpeechRecognition()
@@ -60,7 +69,14 @@ function listenOnce(): Promise<string> {
     recognition.lang = 'en-US'
     recognition.continuous = false
     recognition.interimResults = false
+    recognition.addEventListener('speechstart', () => {
+      timingLog.record('listening_start')
+    })
+    recognition.addEventListener('speechend', () => {
+      timingLog.record('listening_stop')
+    })
     recognition.addEventListener('result', event => {
+      timingLog.record('stt_stop')
       resolve(event.results[0]?.[0]?.transcript ?? '')
     })
     recognition.addEventListener('error', event => {
@@ -79,6 +95,12 @@ function speak(text: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const utterance = new SpeechSynthesisUtterance(text)
     utterance.lang = 'en-US'
+    // Diagnostic only, no behavior change: TTS duration is meaningless without
+    // knowing the response length and which voice actually spoke it (a more
+    // natural-sounding voice legitimately taking longer isn't the same thing
+    // as a slow voice).
+    const defaultVoice = speechSynthesis.getVoices().find(voice => voice.lang.startsWith('en'))
+    console.log(`[coach-browser] speaking ${text.length} chars with voice "${defaultVoice?.name ?? 'unknown'}" (localService: ${defaultVoice?.localService ?? 'unknown'})`)
     utterance.addEventListener('end', () => {
       resolve()
     })
@@ -154,10 +176,9 @@ async function createCoachSession(callbacks: CoachCallbacks): Promise<LanguageMo
 
 async function runTurn(session: LanguageModelSession, timingLog: BrowserTimingLog, callbacks: CoachCallbacks): Promise<void> {
   callbacks.onStatusChange('listening')
-  timingLog.record('listening_start')
-  const transcript = await listenOnce()
-  timingLog.record('listening_stop')
-  timingLog.record('stt_stop') // Web Speech API has no separate STT-finalization step -- coincides with listening_stop
+  // listening_start/listening_stop/stt_stop are recorded inside listenOnce(),
+  // at the API's real speechstart/speechend/result events -- not here.
+  const transcript = await listenOnce(timingLog)
   callbacks.onTranscript(transcript)
 
   callbacks.onStatusChange('thinking')
