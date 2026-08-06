@@ -20,7 +20,14 @@ interface LanguageModelCreateMonitor extends EventTarget {
   addEventListener(type: 'downloadprogress', listener: (event: LanguageModelDownloadProgressEvent) => void): void
 }
 
+interface LanguageModelExpectedContent {
+  languages: string[]
+  type: 'text'
+}
+
 interface LanguageModelCreateOptions {
+  expectedInputs?: LanguageModelExpectedContent[]
+  expectedOutputs?: LanguageModelExpectedContent[]
   initialPrompts?: LanguageModelMessage[]
   monitor?: (monitor: LanguageModelCreateMonitor) => void
 }
@@ -30,8 +37,13 @@ interface LanguageModelSession {
   promptStreaming: (input: string) => ReadableStream<string>
 }
 
+interface LanguageModelAvailabilityOptions {
+  expectedInputs?: LanguageModelExpectedContent[]
+  expectedOutputs?: LanguageModelExpectedContent[]
+}
+
 interface LanguageModelStatic {
-  availability: () => Promise<LanguageModelAvailability>
+  availability: (options?: LanguageModelAvailabilityOptions) => Promise<LanguageModelAvailability>
   create: (options?: LanguageModelCreateOptions) => Promise<LanguageModelSession>
 }
 
