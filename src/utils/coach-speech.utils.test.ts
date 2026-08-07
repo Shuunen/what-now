@@ -89,6 +89,27 @@ describe('coach-speech.utils', () => {
     await expect(listenOnce('en-US')).resolves.toBe('')
   })
 
+  it('D4 listenOnce resolves with an empty transcript when recognition ends on silence without a result or error', async () => {
+    const SilentRecognition = class extends makeFakeRecognition('result') {
+      public override start() {
+        for (const listener of this.listeners.get('end') ?? []) listener({})
+      }
+    }
+    globalThis.window.SpeechRecognition = SilentRecognition as unknown as new () => SpeechRecognitionLike
+    await expect(listenOnce('en-US')).resolves.toBe('')
+  })
+
+  it('D5 listenOnce ignores a trailing end event once already settled by a result', async () => {
+    const TrailingEndRecognition = class extends makeFakeRecognition('result') {
+      public override start() {
+        for (const listener of this.listeners.get('result') ?? []) listener({ results: [[{ transcript: 'done' }]] })
+        for (const listener of this.listeners.get('end') ?? []) listener({})
+      }
+    }
+    globalThis.window.SpeechRecognition = TrailingEndRecognition as unknown as new () => SpeechRecognitionLike
+    await expect(listenOnce('en-US')).resolves.toBe('done')
+  })
+
   it('E speak resolves once the utterance ends', async () => {
     const spokenTexts: string[] = []
     // oxlint-disable-next-line prefer-arrow-callback -- speak() calls `new SpeechSynthesisUtterance(...)`, which arrow functions can't serve as

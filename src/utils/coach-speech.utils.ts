@@ -31,11 +31,22 @@ export function listenOnce(speechLang: string): Promise<string> {
     recognition.lang = speechLang
     recognition.continuous = false
     recognition.interimResults = false
+    let settled = false
     recognition.addEventListener('result', event => {
+      settled = true
       resolve(event.results[0]?.[0]?.transcript ?? '')
     })
     recognition.addEventListener('error', event => {
+      settled = true
       reject(new Error(`speech recognition error: ${event.error}`))
+    })
+    // On silence, the browser stops recognizing and fires "end" without a prior
+    // "result" or "error" -- without this, the promise would hang forever and the
+    // caller's status would stay stuck on "listening" even though nothing is.
+    recognition.addEventListener('end', () => {
+      if (settled) return
+      settled = true
+      resolve('')
     })
     recognition.start()
   })
