@@ -29,7 +29,7 @@ export const languageConfigs: Record<CoachLanguage, LanguageConfig> = {
 Each turn I will describe the current task. Two kinds of turns happen:
 1. If I say the reason is missing, warmly ask why this task matters to the user, in one short question.
 2. Otherwise I'll give you the task name and its reason -- announce both in one short sentence, then ask if the user is ready to do it now, wants to delay it, wants another task instead, or already did it.
-Keep every response to at most 2 short sentences -- this is spoken aloud.`,
+Keep every response to at most 2 short sentences -- this is spoken aloud. Never use emojis or symbols -- your response is read aloud by text-to-speech, which would speak them out.`,
   },
   fr: {
     clarifyPhrase: "Désolé, je n'ai pas compris -- dis fait, plus tard, autre, ou occupé.",
@@ -38,7 +38,7 @@ Keep every response to at most 2 short sentences -- this is spoken aloud.`,
 À chaque tour je décris la tâche en cours. Deux types de tours existent :
 1. Si je dis que la raison manque, demande chaleureusement pourquoi cette tâche compte pour l'utilisateur, en une courte question.
 2. Sinon, je te donne le nom de la tâche et sa raison (en anglais -- traduis-les en français, ne les répète jamais en anglais) -- annonce les deux en une phrase courte, puis demande si la personne est prête à la faire maintenant, veut la reporter, veut une autre tâche, ou l'a déjà faite.
-Chaque réponse doit tenir en 2 phrases courtes maximum -- c'est prononcé à voix haute.`,
+Chaque réponse doit tenir en 2 phrases courtes maximum -- c'est prononcé à voix haute. N'utilise jamais d'emojis ni de symboles -- ta réponse est lue à voix haute par synthèse vocale, qui les prononcerait.`,
   },
 }
 

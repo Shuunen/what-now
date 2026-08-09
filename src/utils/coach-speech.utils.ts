@@ -52,6 +52,11 @@ export function listenOnce(speechLang: string): Promise<string> {
   })
 }
 
+// Strips emoji from LLM output before it reaches the TTS engine, which otherwise speaks
+// them out loud (e.g. "check mark button") -- a backstop for when the system prompt's
+// "no emoji" instruction doesn't hold on the small on-device model.
+const emojiPattern = /\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}]|\u{FE0F}|\u{200D}/gu
+
 /**
  * Speaks the given text via the Web Speech API and resolves once playback finishes.
  * @param text - the text to speak aloud
@@ -60,7 +65,7 @@ export function listenOnce(speechLang: string): Promise<string> {
 export function speak(text: string, speechLang: string): Promise<void> {
   // oxlint-disable-next-line promise/avoid-new -- wraps a callback-based Web API (SpeechSynthesisUtterance), no promise-returning equivalent exists
   return new Promise((resolve, reject) => {
-    const utterance = new SpeechSynthesisUtterance(text)
+    const utterance = new SpeechSynthesisUtterance(text.replaceAll(emojiPattern, '').replaceAll(/ {2,}/gu, ' ').trim())
     utterance.lang = speechLang
     utterance.addEventListener('end', () => {
       resolve()
