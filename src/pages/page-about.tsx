@@ -1,12 +1,16 @@
 import { Link } from 'react-router-dom'
 import { FloatingMenu } from '../components/floating-menu'
+import { Status } from '../components/status'
+import { useAppStatus } from '../utils/app-status.utils'
 import { useActions } from '../utils/pages.utils'
 
 export function PageAbout() {
+  useAppStatus()
   const actions = useActions()
   return (
     <div className="flex grow flex-col justify-center gap-4 text-center" data-testid="page-about">
       <h1 className="mb-4">About</h1>
+      <Status />
       <p>
         This webapp has been deployed from this open-source code{' '}
         <a className="border-b" data-testid="link-github" href="https://github.com/Shuunen/what-now" rel="noopener noreferrer" target="_blank">

@@ -29,18 +29,3 @@ export async function checkSyncUrl(url: string): Promise<SyncUrlCheckResult> {
   if (result.value.schemaVersion !== expectedSchemaVersion) return { ok: false, reason: 'stale-schema' }
   return { ok: true }
 }
-
-/**
- * Wipe every task on the given deployment (the Settings page's explicit "delete my synced data"
- * action). One-shot call, safe with `ConvexHttpClient` — no live subscription involved.
- * @param url - the Convex deployment URL to wipe
- * @returns whether the wipe succeeded
- */
-export async function deleteSyncedData(url: string): Promise<{ ok: boolean }> {
-  const attempt = async () => {
-    const { ConvexHttpClient } = await import('convex/browser')
-    return new ConvexHttpClient(url).mutation(api.tasks.clearAllTasks, {})
-  }
-  const result = await Result.trySafe(attempt())
-  return { ok: result.ok }
-}

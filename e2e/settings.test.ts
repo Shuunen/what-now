@@ -26,18 +26,6 @@ test('connecting to an unreachable sync URL shows an error toast and does not pe
   await expect(page.locator('#input-sync-url')).toBeVisible()
 })
 
-test('the delete-synced-data button requires a confirming second click', async ({ page }) => {
-  const appData = { settings: { finaleDismissedOn: '', syncUrl: 'https://example.convex.cloud', userName: 'Me', webhook: '' }, tasks: [] }
-  await page.goto('/settings')
-  await page.getByTestId('file-input').setInputFiles({ buffer: globalThis.Buffer.from(JSON.stringify(appData)), mimeType: 'application/json', name: 'seed.json' })
-  await page.getByTestId('toast').filter({ hasText: 'Data imported' }).waitFor()
-  await page.waitForTimeout(persistenceDebounceMs)
-  await page.reload()
-  await expect(page.getByTestId('button-delete-synced-data')).toContainText('Delete my synced data')
-  await page.getByTestId('button-delete-synced-data').click()
-  await expect(page.getByTestId('button-delete-synced-data')).toContainText('Confirm delete?')
-})
-
 test('the export button is disabled until there is data to export', async ({ page }) => {
   await page.goto('/settings')
   await expect(page.getByTestId('button-export')).toBeDisabled()
@@ -63,6 +51,15 @@ test('setting the user name updates the quote form attribution on the planner', 
   await page.waitForTimeout(persistenceDebounceMs)
   await page.goto('/planner')
   await expect(page.getByTestId('quote-author')).toContainText('Alice')
+})
+
+test('the coach setting toggles between disabled, English and French', async ({ page }) => {
+  await page.goto('/settings')
+  await expect(page.getByTestId('coach-language-en')).toHaveClass(/bg-primary/u)
+  await page.getByTestId('coach-language-disabled').click()
+  await expect(page.getByTestId('coach-language-disabled')).toHaveClass(/bg-primary/u)
+  await page.getByTestId('coach-language-fr').click()
+  await expect(page.getByTestId('coach-language-fr')).toHaveClass(/bg-primary/u)
 })
 
 test('importing an invalid file shows an error toast and keeps existing data', async ({ page }) => {

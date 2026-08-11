@@ -1,25 +1,28 @@
 import { CoachLanguagePicker } from '../components/coach-language-picker'
 import { FloatingMenu } from '../components/floating-menu'
 import { ImportExportButtons } from '../components/import-export-buttons'
+import { Status } from '../components/status'
 import { SyncSetting } from '../components/sync-setting'
 import { TextSetting } from '../components/text-setting'
 import { useAppStore } from '../store/use-app-store'
-import { useActions } from '../utils/pages.utils'
+import { useAppStatus } from '../utils/app-status.utils'
+import { useActions, useCoachSetting } from '../utils/pages.utils'
 
 export function PageSettings() {
+  useAppStatus()
   const userName = useAppStore(state => state.data.settings.userName)
   const setUserName = useAppStore(state => state.setUserName)
   const webhook = useAppStore(state => state.data.settings.webhook)
   const setWebhook = useAppStore(state => state.setWebhook)
-  const coachLanguage = useAppStore(state => state.data.settings.coachLanguage)
-  const setCoachLanguage = useAppStore(state => state.setCoachLanguage)
+  const coachSetting = useCoachSetting()
   // disabled while hydrating: an edit made here would otherwise be silently overwritten
   // the moment the pending IndexedDB load resolves and replaces the whole store
   const isLoading = useAppStore(state => state.isLoading)
   const actions = useActions()
   return (
-    <div className="flex grow flex-col items-center justify-center gap-8" data-testid="page-settings">
+    <div className="flex grow flex-col items-center justify-center gap-8 py-24" data-testid="page-settings">
       <h1>Settings</h1>
+      <Status />
       <section className="flex w-full max-w-md flex-col gap-3" data-testid="settings-data">
         <h3 className="mb-0">Your data</h3>
         <p className="text-sm text-white/60">Your tasks live only in this browser. Export them to a JSON file to back them up or move them to another device, and import a file to restore them.</p>
@@ -40,8 +43,8 @@ export function PageSettings() {
       <SyncSetting />
       <section className="flex w-full max-w-md flex-col gap-3" data-testid="settings-coach">
         <h3 className="mb-0">Voice coach</h3>
-        <p className="text-sm text-white/60">The language your coach speaks and listens in when you arrive on the tasks page.</p>
-        <CoachLanguagePicker language={coachLanguage} onChange={setCoachLanguage} />
+        <p className="text-sm text-white/60">Whether the coach greets you on the tasks page, and which language it speaks and listens in.</p>
+        <CoachLanguagePicker onChange={coachSetting.setValue} value={coachSetting.value} />
       </section>
       <FloatingMenu actions={actions} />
     </div>

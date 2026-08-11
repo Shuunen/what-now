@@ -1,6 +1,8 @@
 import { z } from 'zod/v4'
 
 export const SettingsSchema = z.object({
+  /** whether the ambient voice coach is allowed to start on the tasks page */
+  coachEnabled: z.boolean().default(true),
   /** the language the voice coach speaks and listens in @example "en" */
   coachLanguage: z.enum(['en', 'fr']).default('en'),
   /** iso10 date the finale celebration screen was last dismissed on, to avoid showing it again the same day */

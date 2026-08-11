@@ -1,7 +1,7 @@
 // oxlint-disable react/no-multi-comp
-import { LinkIcon, Trash2Icon, UnlinkIcon } from 'lucide-react'
+import { LinkIcon } from 'lucide-react'
 import { useState } from 'react'
-import { checkSyncUrl, deleteSyncedData } from '../db/sync-client.utils'
+import { checkSyncUrl } from '../db/sync-client.utils'
 import { syncStatusLabel, type SyncStatus } from '../db/sync-status'
 import { useAppStore } from '../store/use-app-store'
 import { toastError, toastSuccess } from '../store/use-toast-store'
@@ -60,53 +60,15 @@ function SyncConnectForm({ isLoading, onConnect }: { isLoading: boolean; onConne
 }
 
 /**
- * "Delete my synced data" — wipes every task on the connected deployment. A destructive, one-way
- * action, so it's armed by a first click and only executes on a second confirming click, rather
- * than a real click straight through (no modal component exists in this codebase to reuse).
- * @param props - the component props
- * @param props.syncUrl - the currently-connected sync URL to wipe
- * @returns the delete action element
- */
-function DeleteSyncedDataButton({ syncUrl }: { syncUrl: string }) {
-  const [isArmed, setIsArmed] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
-
-  async function handleClick() {
-    if (!isArmed) {
-      setIsArmed(true)
-      return
-    }
-    setIsDeleting(true)
-    const result = await deleteSyncedData(syncUrl)
-    setIsDeleting(false)
-    setIsArmed(false)
-    if (result.ok) {
-      toastSuccess('Synced data deleted — your local tasks are untouched')
-      return
-    }
-    logger.error('failed to delete synced data', { syncUrl })
-    toastError('Failed to delete synced data — check your connection and try again')
-  }
-
-  return (
-    <Button disabled={isDeleting} name="delete-synced-data" onClick={() => void handleClick()} variant={isArmed ? 'error' : 'ghost'}>
-      <Trash2Icon className="size-4" />
-      {isArmed ? 'Confirm delete?' : 'Delete my synced data'}
-    </Button>
-  )
-}
-
-/**
  * The connected state: shows the current sync URL, the live status text, and "Disconnect" /
  * "Delete my synced data" actions.
  * @param props - the component props
  * @param props.isLoading - disables the disconnect button while the store is still hydrating
- * @param props.onDisconnect - called when the user disconnects
  * @param props.syncStatus - the live status reported by useSync (mirrored in the store)
  * @param props.syncUrl - the currently-connected sync URL
  * @returns the connected status element
  */
-function SyncConnectedStatus({ isLoading, onDisconnect, syncStatus, syncUrl }: { isLoading: boolean; onDisconnect: () => void; syncStatus: SyncStatus; syncUrl: string }) {
+function SyncConnectedStatus({ isLoading, syncStatus, syncUrl }: { isLoading: boolean; syncStatus: SyncStatus; syncUrl: string }) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-3">
@@ -115,15 +77,10 @@ function SyncConnectedStatus({ isLoading, onDisconnect, syncStatus, syncUrl }: {
             Synced with {syncUrl}
           </p>
           <p className="text-xs text-white/50" data-testid="sync-status-text">
-            {syncStatusLabel[syncStatus]}
+            Status : {isLoading ? 'loading…' : syncStatusLabel[syncStatus]}
           </p>
         </div>
-        <Button disabled={isLoading} name="disconnect-sync" onClick={onDisconnect} variant="outline">
-          <UnlinkIcon className="size-4" />
-          Disconnect
-        </Button>
       </div>
-      <DeleteSyncedDataButton syncUrl={syncUrl} />
     </div>
   )
 }
@@ -142,18 +99,13 @@ export function SyncSetting() {
   const isLoading = useAppStore(state => state.isLoading)
   const syncStatus = useAppStore(state => state.syncStatus)
 
-  function handleDisconnect() {
-    setSyncUrl('')
-    toastSuccess('Sync disconnected — your local data is untouched')
-  }
-
   return (
     <section className="flex w-full max-w-md flex-col gap-3" data-testid="setting-sync">
       <label className="flex flex-col gap-1 text-sm font-medium" htmlFor="input-sync-url">
         Cross-device sync (optional)
-        <span className="font-normal text-white/60">Paste the URL of a Convex deployment you have deployed from this repo to sync your tasks across devices. Keep it private — anyone with the URL can read and write your synced tasks.</span>
+        <span className="font-normal text-white/60">Url of a Convex deployment to sync your tasks across devices.</span>
       </label>
-      {syncUrl === '' ? <SyncConnectForm isLoading={isLoading} onConnect={setSyncUrl} /> : <SyncConnectedStatus isLoading={isLoading} onDisconnect={handleDisconnect} syncStatus={syncStatus} syncUrl={syncUrl} />}
+      {syncUrl === '' ? <SyncConnectForm isLoading={isLoading} onConnect={setSyncUrl} /> : <SyncConnectedStatus isLoading={isLoading} syncStatus={syncStatus} syncUrl={syncUrl} />}
     </section>
   )
 }

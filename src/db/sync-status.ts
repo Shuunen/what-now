@@ -10,9 +10,9 @@ export type SyncStatus = 'connecting' | 'error' | 'off' | 'synced' | 'syncing'
  * Scope note on the offline indicator extension.
  */
 export const syncStatusLabel: Record<SyncStatus, string> = {
-  connecting: 'Connecting to sync…',
-  error: 'Sync error, retrying…',
-  off: 'Sync off',
-  synced: 'Synced',
-  syncing: 'Syncing…',
+  connecting: 'connecting to sync…',
+  error: 'sync error, retrying…',
+  off: 'sync off',
+  synced: 'active, in sync',
+  syncing: 'syncing…',
 }

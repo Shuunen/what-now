@@ -14,6 +14,8 @@ const hoverCloseDelayMs = 150
 
 export type FloatingMenuAction = {
   disabled?: boolean
+  /** grays the entry out to reflect an "off" state, without blocking clicks the way `disabled` does -- used by toggles like the coach entry */
+  dimmed?: boolean
   handleClick: () => void
   icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>
   name: string
@@ -45,7 +47,7 @@ export function FloatingMenu({ actions, isLoading = false, isSettingsRequired = 
               <CommandList>
                 <CommandEmpty>No results found.</CommandEmpty>
                 {actions.map(action => (
-                  <CommandItem className="cursor-pointer text-lg" data-testid={testIdFromProps('menu-item', action)} disabled={action.disabled} key={action.name} onSelect={action.handleClick}>
+                  <CommandItem className={cn('cursor-pointer text-lg', action.dimmed && 'opacity-40')} data-testid={testIdFromProps('menu-item', action)} disabled={action.disabled} key={action.name} onSelect={action.handleClick}>
                     {createElement(action.icon, { className: 'size-5' })}
                     {action.name}
                   </CommandItem>

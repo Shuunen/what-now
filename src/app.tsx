@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { on } from 'shuutils'
 import { AnimatedRoutes } from './components/animated-routes'
-import { OfflineWarning } from './components/offline-warning'
 import { ToastViewportProvider } from './components/ui/toast-viewport'
 import { useHydration, usePersistence } from './db/use-persistence'
 import { useSync } from './db/use-sync'
@@ -20,6 +19,10 @@ export function App() {
   useHydration()
   usePersistence()
   const isOffline = useOfflineStatus()
+  const setOffline = useAppStore(state => state.setOffline)
+  useEffect(() => {
+    setOffline(isOffline)
+  }, [setOffline, isOffline])
   // called once here (not from Settings/the offline indicator directly) so only one Convex
   // connection ever exists ; its status is mirrored into the store so those other components can
   // read it without each opening their own connection
@@ -35,7 +38,6 @@ export function App() {
   useEffect(setupPwa, [])
   return (
     <ToastViewportProvider>
-      <OfflineWarning isOffline={isOffline} />
       <AnimatedRoutes />
     </ToastViewportProvider>
   )

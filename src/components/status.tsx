@@ -1,9 +1,19 @@
-export function Status({ error, info, progress }: { error?: string; info?: string; progress?: string }) {
+import { useAppStore } from '../store/use-app-store'
+
+/**
+ * The app's single line of textual feedback -- dumb by design, it just reflects
+ * `store.status`, one plain string with no error/info/progress distinction. Any
+ * part of the app calls `setStatus` (usually via the `useAppStatus` hook) to
+ * update it ; used once per page so there's only ever one on screen.
+ * @returns the status element
+ */
+export function Status() {
+  const status = useAppStore(state => state.status)
+  // oxlint-disable-next-line unicorn/no-null
+  if (!status) return null
   return (
-    <div className="my-1 flex flex-col" data-testid="status">
-      <div className="font-bold text-red-500">{error}</div>
-      <div className={`transition-colors ease-in-out ${info ? 'text-inherit' : 'text-transparent'}`}>{info}</div>
-      <div className="text-lg font-light text-white/60 italic">{progress}</div>
+    <div className="flex flex-col text-lg font-light text-white/60 italic transition-colors ease-in-out" data-testid="status">
+      {status}
     </div>
   )
 }

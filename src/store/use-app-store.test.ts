@@ -10,7 +10,7 @@ describe('useAppStore', () => {
   })
 
   it('A loadData replaces data and clears loading', () => {
-    const data = { settings: { coachLanguage: 'en' as const, finaleDismissedOn: '', syncUrl: '', userName: 'Me', webhook: '' }, tasks: [taskMock({ id: 'a' })] }
+    const data = { settings: { coachEnabled: true, coachLanguage: 'en' as const, finaleDismissedOn: '', syncUrl: '', userName: 'Me', webhook: '' }, tasks: [taskMock({ id: 'a' })] }
     useAppStore.getState().loadData(data)
     expect(useAppStore.getState().data).toStrictEqual(data)
     expect(useAppStore.getState().isLoading).toBe(false)
@@ -44,6 +44,10 @@ describe('useAppStore', () => {
     useAppStore.getState().setFinaleDismissedOn('2025-01-01')
     expect(useAppStore.getState().data.settings.finaleDismissedOn).toBe('2025-01-01')
   })
+  it('F1a setCoachEnabled updates the setting', () => {
+    useAppStore.getState().setCoachEnabled(false)
+    expect(useAppStore.getState().data.settings.coachEnabled).toBe(false)
+  })
   it('F1b setCoachLanguage updates the setting', () => {
     useAppStore.getState().setCoachLanguage('fr')
     expect(useAppStore.getState().data.settings.coachLanguage).toBe('fr')
@@ -59,6 +63,14 @@ describe('useAppStore', () => {
   it('F4 setSyncStatus updates the live sync status', () => {
     useAppStore.getState().setSyncStatus('syncing')
     expect(useAppStore.getState().syncStatus).toBe('syncing')
+  })
+  it('F5 setStatus updates the shared status text', () => {
+    useAppStore.getState().setStatus('Nothing done... yet')
+    expect(useAppStore.getState().status).toBe('Nothing done... yet')
+  })
+  it('F6 setOffline updates the live offline flag', () => {
+    useAppStore.getState().setOffline(true)
+    expect(useAppStore.getState().isOffline).toBe(true)
   })
   it('G2 mergeTasks patches an existing task by id and leaves others untouched', () => {
     useAppStore.getState().loadData({ ...defaultAppData, tasks: [taskMock({ id: 'a', once: 'day' }), taskMock({ id: 'b', once: 'day' })] })

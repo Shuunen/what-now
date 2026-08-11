@@ -8,6 +8,7 @@ import { Command } from '../components/ui/command'
 import { CommandEmpty } from '../components/ui/command-empty'
 import { CommandItem } from '../components/ui/command-item'
 import { CommandList } from '../components/ui/command-list'
+import { useAppStore } from '../store/use-app-store'
 import { type ToastItem, toastAction, toastError, toastInfo, toastSuccess, toastVariantClasses } from '../store/use-toast-store'
 import { useActions } from '../utils/pages.utils'
 import { progressAccentColor } from '../utils/progress.utils'
@@ -129,9 +130,7 @@ function tasksSection() {
 function statusSection() {
   return (
     <div className="flex flex-col gap-6">
-      <Status error="Something went wrong" />
-      <Status info="Heads up, here is some info" />
-      <Status progress="Halfway to heaven" />
+      <Status />
     </div>
   )
 }
@@ -237,11 +236,16 @@ function Section({ children, title }: { children: ReactNode; title: string }) {
 // oxlint-disable-next-line react/no-multi-comp
 export function PageKitchenSink() {
   const actions = useActions()
+  const setStatus = useAppStore(state => state.setStatus)
   useEffect(() => {
     // cmdk Command demo below auto-selects its first item on mount and scrolls it into view
     const frame = globalThis.requestAnimationFrame(() => window.scrollTo({ behavior: 'instant', left: 0, top: 0 }))
     return () => globalThis.cancelAnimationFrame(frame)
   }, [])
+  useEffect(() => {
+    setStatus('Halfway to heaven')
+    return () => setStatus('')
+  }, [setStatus])
   return (
     <div className="flex grow flex-col gap-8 py-12" data-testid="page-kitchen-sink">
       <h1 className="text-4xl!">Kitchen Sink</h1>

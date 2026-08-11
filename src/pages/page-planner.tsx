@@ -7,12 +7,14 @@ import { Link } from 'react-router-dom'
 import { dateIso10, formatDate } from 'shuutils'
 import { AddTaskModal } from '../components/add-task-modal'
 import { FloatingMenu } from '../components/floating-menu'
+import { Status } from '../components/status'
 import { TaskQuoteForm } from '../components/task-quote-form'
 import type { Update } from '../components/task-sentence'
 import { Button } from '../components/ui/button'
 import type { Task } from '../schemas/task'
 import { useAppStore } from '../store/use-app-store'
 import { toastAction, toastSuccess } from '../store/use-toast-store'
+import { useAppStatus } from '../utils/app-status.utils'
 import { logger } from '../utils/logger.utils'
 import { useActions } from '../utils/pages.utils'
 import {
@@ -629,6 +631,7 @@ function usePlannerLayout(tasks: Task[], modifications: TaskModifications, selec
  * @returns JSX element for the planner page
  */
 export function PagePlanner() {
+  useAppStatus()
   const actions = useActions()
   const { handleDateChange, handleDeleteTask, handleDiscardModifications, handleFieldChange, handleFrequencyChange, handleSaveModifications, hasModifications, modifications, tasks } = usePlannerTasks()
   const [selectedTaskId, setSelectedTaskId] = useState<string | undefined>(undefined)
@@ -649,6 +652,7 @@ export function PagePlanner() {
   if (tasks.length === 0)
     return (
       <div className="flex grow flex-col items-center justify-center gap-4 text-center" data-testid="page-planner">
+        <Status />
         <p>
           No tasks yet. Head over to{' '}
           <Link className="border-b" to="/settings">
@@ -662,6 +666,7 @@ export function PagePlanner() {
 
   return (
     <div className="flex grow flex-col justify-center" data-testid="page-planner">
+      <Status />
       <PlannerHeader hasModifications={hasModifications} onAdd={() => setIsAdding(true)} onDiscardModifications={handleDiscardModifications} onSaveModifications={handleSaveModifications} />
       <PlannerContent modifications={modifications.frequency} onDateChange={handleDateChange} onFrequencyChange={handleFrequencyChange} onSelect={handleSelect} selectedTaskId={selectedTaskId} tasksByDay={tasksByDay} />
       {formTask !== undefined && <TaskQuoteForm form={form} key={formTask.id} onDelete={handleDelete} onUpdate={handleFormUpdate} task={formTask} />}

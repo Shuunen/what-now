@@ -3,12 +3,11 @@ import { persistenceDebounceMs } from './seed'
 
 test('going offline shows the offline warning, coming back online hides it', async ({ context, page }) => {
   await page.goto('/')
-  await expect(page.getByTestId('offline-warning')).toBeHidden()
+  await expect(page.getByTestId('status')).not.toContainText("You're offline")
   await context.setOffline(true)
-  await expect(page.getByTestId('offline-warning')).toBeVisible()
-  await expect(page.getByTestId('offline-warning')).toContainText("You're offline, changes are saved on this device")
+  await expect(page.getByTestId('status')).toContainText("You're offline, changes are saved on this device")
   await context.setOffline(false)
-  await expect(page.getByTestId('offline-warning')).toBeHidden()
+  await expect(page.getByTestId('status')).not.toContainText("You're offline")
 })
 
 test('going offline with sync configured mentions that sync will resume', async ({ context, page }) => {
@@ -18,6 +17,6 @@ test('going offline with sync configured mentions that sync will resume', async 
   await page.getByTestId('toast').filter({ hasText: 'Data imported' }).waitFor()
   await page.waitForTimeout(persistenceDebounceMs)
   await context.setOffline(true)
-  await expect(page.getByTestId('offline-warning')).toContainText('sync will resume when back online')
+  await expect(page.getByTestId('status')).toContainText('sync will resume when back online')
   await context.setOffline(false)
 })

@@ -9,6 +9,7 @@ import { Tasks } from '../components/tasks'
 import { Button } from '../components/ui/button'
 import { useAppStore } from '../store/use-app-store'
 import { toastError } from '../store/use-toast-store'
+import { useAppStatus } from '../utils/app-status.utils'
 import { type CoachOutcome, type CoachStatus, type CoachTaskActions, runCoachSession } from '../utils/coach-session.utils'
 import { isBrowserSupported } from '../utils/coach-speech.utils'
 import { logger } from '../utils/logger.utils'
@@ -96,6 +97,32 @@ function useHomeCoach(hasActiveTasks: boolean) {
   return status
 }
 
+/**
+ * @param isLoading - whether the app data is still hydrating
+ * @param percent - the task completion percentage
+ * @param coachStatusWord - the coach's status word to append, if any
+ * @returns the text for the shared status's progress line
+ */
+function homeProgressText(isLoading: boolean, percent: number, coachStatusWord: string | undefined) {
+  if (isLoading) return 'Loading, please wait...'
+  if (coachStatusWord) return `${progressText(percent)}, ${coachStatusWord}`
+  return progressText(percent)
+}
+
+/**
+ * @param isCoachBusy - whether the coach is checking/downloading/thinking
+ * @param isCoachSpeaking - whether the coach is currently speaking
+ * @returns the tailwind classes for the ambient background blob
+ */
+function homeCoachBlobClassName(isCoachBusy: boolean, isCoachSpeaking: boolean) {
+  return cn(
+    'pointer-events-none absolute top-1/5 left-3/5 max-w-[80vw] -translate-x-1/2 -translate-y-1/2 blur-[96px] transition-[width,height] duration-500 ease-out md:left-full',
+    isCoachBusy ? 'size-60 animate-[wn-heartbeat_1.1s_ease-in-out_infinite] md:size-72' : 'size-110 md:size-135',
+    isCoachSpeaking && 'animate-[wn-speak-drift_2.4s_ease-in-out_infinite]',
+    !isCoachBusy && !isCoachSpeaking && 'animate-[pulse_6s_ease-in-out_infinite]',
+  )
+}
+
 export function PageTasks() {
   const allTasks = useAppStore(state => state.data.tasks)
   const isLoading = useAppStore(state => state.isLoading)
@@ -105,32 +132,24 @@ export function PageTasks() {
   const percent = computeProgressPercent(tasks)
   const accentColor = progressAccentColor(percent)
   const hasTasks = allTasks.length > 0
-  const coachStatus = useHomeCoach(!isLoading && tasks.length > 0)
+  const coachEnabled = useAppStore(state => state.data.settings.coachEnabled)
+  const coachStatus = useHomeCoach(coachEnabled && !isLoading && tasks.length > 0)
   const isCoachBusy = coachStatus === 'checking' || coachStatus === 'downloading' || coachStatus === 'thinking'
   const isCoachSpeaking = coachStatus === 'speaking'
   const coachStatusWord = coachStatusWords[coachStatus]
-  const info = isLoading ? 'Loading, please wait...' : ''
-  const progress = coachStatusWord ? `${progressText(percent)}, ${coachStatusWord}` : progressText(percent)
+  const progress = homeProgressText(isLoading, percent, coachStatusWord)
+  useAppStatus(progress)
 
   return (
     <div className={cn('relative flex grow flex-col justify-center gap-4 py-24 sm:mx-auto', hasTasks ? '' : 'text-center')} data-testid="page-tasks">
-      <div
-        className={cn(
-          'pointer-events-none absolute top-1/5 left-3/5 max-w-[80vw] -translate-x-1/2 -translate-y-1/2 blur-[96px] transition-[width,height] duration-500 ease-out md:left-full',
-          isCoachBusy ? 'size-60 animate-[wn-heartbeat_1.1s_ease-in-out_infinite] md:size-72' : 'size-110 md:size-135',
-          isCoachSpeaking && 'animate-[wn-speak-drift_2.4s_ease-in-out_infinite]',
-          !isCoachBusy && !isCoachSpeaking && 'animate-[pulse_6s_ease-in-out_infinite]',
-        )}
-        data-testid="home-coach-blob"
-        style={{ background: `radial-gradient(circle at 50% 42%, ${accentColor}, transparent 50%)` }}
-      />
+      <div className={homeCoachBlobClassName(isCoachBusy, isCoachSpeaking)} data-testid="home-coach-blob" style={{ background: `radial-gradient(circle at 50% 42%, ${accentColor}, transparent 50%)` }} />
       <h1 className="relative z-1 -ml-2">
         <span className="opacity-80">What</span>
         <br />
         <span className="ml-1">now</span> <span className="font-light opacity-10">?</span>
       </h1>
       <div className="relative z-10 flex flex-col gap-4">
-        <Status info={info} progress={progress} />
+        <Status />
         <Progress tasks={tasks} />
         <Tasks tasks={tasks} />
         <Progress tasks={tasks} />
