@@ -24,7 +24,10 @@ function offlineSyncNote(hasSyncUrl: boolean) {
 function connectivityNote(isOffline: boolean, syncUrl: string, syncStatus: SyncStatus): string {
   const hasSyncUrl = syncUrl !== ''
   if (isOffline) return `You're offline, changes are saved on this device${offlineSyncNote(hasSyncUrl)}`
-  if (hasSyncUrl && noteworthySyncStatuses.has(syncStatus)) return syncStatusLabel[syncStatus]
+  if (hasSyncUrl && noteworthySyncStatuses.has(syncStatus)) {
+    const label = syncStatusLabel[syncStatus]
+    return label.charAt(0).toUpperCase() + label.slice(1)
+  }
   return ''
 }
 
