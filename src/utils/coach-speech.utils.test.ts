@@ -47,7 +47,6 @@ function streamOf(chunks: string[]) {
 
 describe('coach-speech.utils', () => {
   afterEach(() => {
-    globalThis.window.LanguageModel = undefined
     globalThis.window.SpeechRecognition = undefined
     vi.unstubAllGlobals()
   })
@@ -57,7 +56,6 @@ describe('coach-speech.utils', () => {
   })
 
   it('B isBrowserSupported is true when every API is present', () => {
-    globalThis.window.LanguageModel = { availability: vi.fn<() => Promise<never>>(), create: vi.fn<() => Promise<never>>() }
     globalThis.window.SpeechRecognition = makeFakeRecognition('result') as unknown as new () => SpeechRecognitionLike
     vi.stubGlobal('speechSynthesis', { getVoices: () => [], speak: vi.fn<() => void>() })
     expect(isBrowserSupported()).toBe(true)

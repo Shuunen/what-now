@@ -1,54 +1,8 @@
 /**
- * Ambient types for browser APIs not yet in TypeScript's DOM lib: Chrome's
- * on-device Prompt API (`LanguageModel`, origin-trial-era, no official
- * types yet) and the vendor-prefixed Web Speech API (`webkitSpeechRecognition`).
- * Deliberately minimal -- only what src/utils/coach-session.utils.ts uses.
+ * Ambient types for browser APIs not yet in TypeScript's DOM lib: the
+ * vendor-prefixed Web Speech API (`webkitSpeechRecognition`). Deliberately
+ * minimal -- only what src/utils/coach-speech.utils.ts uses.
  */
-
-type LanguageModelAvailability = 'available' | 'downloadable' | 'downloading' | 'unavailable'
-
-interface LanguageModelMessage {
-  content: string
-  role: 'assistant' | 'system' | 'user'
-}
-
-interface LanguageModelDownloadProgressEvent extends Event {
-  loaded: number
-}
-
-interface LanguageModelCreateMonitor extends EventTarget {
-  addEventListener(type: 'downloadprogress', listener: (event: LanguageModelDownloadProgressEvent) => void): void
-}
-
-interface LanguageModelExpectedContent {
-  languages: string[]
-  type: 'text'
-}
-
-interface LanguageModelCreateOptions {
-  expectedInputs?: LanguageModelExpectedContent[]
-  expectedOutputs?: LanguageModelExpectedContent[]
-  initialPrompts?: LanguageModelMessage[]
-  monitor?: (monitor: LanguageModelCreateMonitor) => void
-}
-
-interface LanguageModelSession {
-  destroy: () => void
-  // Real Chrome returns ReadableStream<string>; typed as the broader (Async)Iterable<string> since
-  // that's all promptToText() actually consumes (a `for await` loop, which iterates sync or async
-  // iterables alike), letting test doubles use a plain generator instead of a full ReadableStream.
-  promptStreaming: (input: string) => AsyncIterable<string> | Iterable<string>
-}
-
-interface LanguageModelAvailabilityOptions {
-  expectedInputs?: LanguageModelExpectedContent[]
-  expectedOutputs?: LanguageModelExpectedContent[]
-}
-
-interface LanguageModelStatic {
-  availability: (options?: LanguageModelAvailabilityOptions) => Promise<LanguageModelAvailability>
-  create: (options?: LanguageModelCreateOptions) => Promise<LanguageModelSession>
-}
 
 interface SpeechRecognitionResultLike {
   0: { transcript: string }
@@ -75,7 +29,6 @@ interface SpeechRecognitionLike extends EventTarget {
 }
 
 interface Window {
-  LanguageModel?: LanguageModelStatic
   SpeechRecognition?: new () => SpeechRecognitionLike
   webkitSpeechRecognition?: new () => SpeechRecognitionLike
 }

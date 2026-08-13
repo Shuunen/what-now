@@ -23,7 +23,7 @@ function logCoachOutcome(outcome: CoachOutcome) {
 }
 
 function noop() {
-  /* the tasks page doesn't display the coach's transcript/response/download progress, only its status */
+  /* the tasks page doesn't display the coach's transcript/response, only its status */
 }
 
 const coachTaskActions: CoachTaskActions = {
@@ -40,7 +40,6 @@ const coachTaskActions: CoachTaskActions = {
 // short, lowercase, appended to the existing progress line as ", <word>" -- e.g. "Nothing done... yet, listening"
 const coachStatusWords: Partial<Record<CoachStatus, string>> = {
   checking: 'checking',
-  downloading: 'downloading',
   listening: 'listening',
   speaking: 'speaking',
   thinking: 'thinking',
@@ -49,11 +48,11 @@ const coachStatusWords: Partial<Record<CoachStatus, string>> = {
 /**
  * Drives the voice coach straight from the tasks page: attempts to start a
  * session the moment there are active tasks to talk about, with no button.
- * Chrome requires a fresh user gesture for the on-device model's download
- * and can block mic access without one, so a silent first attempt that fails
- * doesn't show an error -- it just waits for the user's next click anywhere
- * on the page (completing a task, opening the menu, ...) to retry once, for
- * real this time under a genuine gesture.
+ * Browsers require a fresh user gesture to grant mic access without a
+ * prompt, so a silent first attempt that fails doesn't show an error -- it
+ * just waits for the user's next click anywhere on the page (completing a
+ * task, opening the menu, ...) to retry once, for real this time under a
+ * genuine gesture.
  * @param hasActiveTasks - whether there's at least one task the coach could talk about
  * @returns the coach's live status
  */
@@ -64,11 +63,17 @@ function useHomeCoach(hasActiveTasks: boolean) {
 
   const start = useCallback(async (isRetry: boolean) => {
     try {
-      await runCoachSession({ onDownloadProgress: noop, onOutcome: logCoachOutcome, onResponse: noop, onStatusChange: setStatus, onTaskChange: noop, onTranscript: noop }, useAppStore.getState().data.settings.coachLanguage, coachTaskActions)
+      const { coachLanguage, ollamaUrl } = useAppStore.getState().data.settings
+      await runCoachSession({
+        actions: coachTaskActions,
+        callbacks: { onOutcome: logCoachOutcome, onResponse: noop, onStatusChange: setStatus, onTaskChange: noop, onTranscript: noop },
+        language: coachLanguage,
+        ollamaUrl,
+      })
       setStatus('done')
     } catch (error) {
       if (!isRetry) {
-        // likely blocked by Chrome's gesture requirement for the model download / mic access --
+        // likely blocked by the browser's gesture requirement for mic access --
         // wait for the user's next click anywhere on the page instead of surfacing a scary error
         needsRetryRef.current = true
         return
@@ -110,7 +115,7 @@ function homeProgressText(isLoading: boolean, percent: number, coachStatusWord: 
 }
 
 /**
- * @param isCoachBusy - whether the coach is checking/downloading/thinking
+ * @param isCoachBusy - whether the coach is checking/thinking
  * @param isCoachSpeaking - whether the coach is currently speaking
  * @returns the tailwind classes for the ambient background blob
  */
@@ -134,7 +139,7 @@ export function PageTasks() {
   const hasTasks = allTasks.length > 0
   const coachEnabled = useAppStore(state => state.data.settings.coachEnabled)
   const coachStatus = useHomeCoach(coachEnabled && !isLoading && tasks.length > 0)
-  const isCoachBusy = coachStatus === 'checking' || coachStatus === 'downloading' || coachStatus === 'thinking'
+  const isCoachBusy = coachStatus === 'checking' || coachStatus === 'thinking'
   const isCoachSpeaking = coachStatus === 'speaking'
   const coachStatusWord = coachStatusWords[coachStatus]
   const progress = homeProgressText(isLoading, percent, coachStatusWord)

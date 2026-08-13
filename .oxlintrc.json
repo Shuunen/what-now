@@ -37,6 +37,7 @@
     "NodeList": "readonly",
     "performance": "readonly",
     "process": "readonly",
+    "ReadableStream": "readonly",
     "Response": "readonly",
     "setInterval": "readonly",
     "setTimeout": "readonly",
@@ -44,6 +45,7 @@
     "SpeechSynthesisUtterance": "readonly",
     "structuredClone": "readonly",
     "TextDecoder": "readonly",
+    "TextDecoderStream": "readonly",
     "TextEncoder": "readonly",
     "URL": "readonly",
     "window": "readonly"

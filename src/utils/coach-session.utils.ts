@@ -1,23 +1,24 @@
 import { invariant, isNil } from 'es-toolkit'
 import type { CoachLanguage } from '../components/coach-language-picker'
 import { maxTaskTextLength, type Task } from '../schemas/task'
-import { classifyIntent, type CoachIntent, languageConfigs, modelLanguageCodes, pickNextTask } from './coach-language.utils'
+import { classifyIntent, type CoachIntent, languageConfigs, pickNextTask } from './coach-language.utils'
 import { listenOnce, primeMicrophonePermission, promptToText, speak } from './coach-speech.utils'
+import { checkOllamaReachable, type CoachSession, createOllamaSession } from './ollama.utils'
 
 /**
  * Orchestrates a real voice coach session against the actual task queue (see
  * src/pages/page-tasks.tsx for the React shell, which starts a session as
  * soon as there are active tasks -- no dedicated coach page or button): Web
- * Speech API (STT + TTS) and Chrome's on-device Prompt API (LanguageModel /
- * Gemini Nano). Turn-based (announce -> listen -> act -> next task) rather
- * than a background always-on listener -- docs/voice-coach-design.md's
- * Pipecat spike found always-on listening fights self-echo without real
- * acoustic isolation, and this app isn't a dedicated must-stay-open tab, so
- * each turn opens a fresh listen window right after the coach finishes
- * speaking instead.
+ * Speech API (STT + TTS) and a local Ollama server for the model backend
+ * (see src/utils/ollama.utils.ts). Turn-based (announce -> listen -> act ->
+ * next task) rather than a background always-on listener --
+ * docs/voice-coach-design.md's Pipecat spike found always-on listening
+ * fights self-echo without real acoustic isolation, and this app isn't a
+ * dedicated must-stay-open tab, so each turn opens a fresh listen window
+ * right after the coach finishes speaking instead.
  */
 
-export type CoachStatus = 'checking' | 'done' | 'downloading' | 'error' | 'idle' | 'listening' | 'speaking' | 'thinking'
+export type CoachStatus = 'checking' | 'done' | 'error' | 'idle' | 'listening' | 'speaking' | 'thinking'
 
 export type CoachOutcomeKind = 'answered-reason' | 'delayed' | 'done' | 'skipped' | 'snoozed'
 
@@ -27,7 +28,6 @@ export type CoachOutcome = {
 }
 
 export type CoachCallbacks = {
-  onDownloadProgress: (loaded: number) => void
   onOutcome: (outcome: CoachOutcome) => void
   onResponse: (text: string) => void
   onStatusChange: (status: CoachStatus) => void
@@ -36,42 +36,22 @@ export type CoachCallbacks = {
 }
 
 /**
- * Checks model availability and creates a LanguageModel session, reporting
- * download progress via `callbacks` if the model needs downloading first.
+ * Checks that the configured Ollama server is reachable, then creates a
+ * chat session against it.
  * @param callbacks - status/progress callbacks driving the page's UI
- * @param language - the coach's language, drives the system prompt and the
- *   model's expectedInputs/expectedOutputs (Chrome warns and may degrade
- *   output quality if this isn't specified -- supported codes: de, en, es, fr, ja)
+ * @param language - the coach's language, drives the system prompt
+ * @param ollamaUrl - base URL of the Ollama server, e.g. "http://localhost:11434"
  * @returns the created session
  */
-async function createCoachSession(callbacks: CoachCallbacks, language: CoachLanguage): Promise<LanguageModelSession> {
+async function createCoachSession(callbacks: CoachCallbacks, language: CoachLanguage, ollamaUrl: string): Promise<CoachSession> {
   callbacks.onStatusChange('checking')
-  const modelLanguageCode = modelLanguageCodes[language]
-  const availability = await globalThis.window.LanguageModel?.availability({
-    expectedInputs: [{ languages: [modelLanguageCode], type: 'text' }],
-    expectedOutputs: [{ languages: [modelLanguageCode], type: 'text' }],
-  })
-  invariant(availability, 'LanguageModel.availability() returned nothing')
-  invariant(availability !== 'unavailable', 'This device cannot run the on-device model (unavailable).')
-
-  if (availability !== 'available') callbacks.onStatusChange('downloading')
-  const session = await globalThis.window.LanguageModel?.create({
-    expectedInputs: [{ languages: [modelLanguageCode], type: 'text' }],
-    expectedOutputs: [{ languages: [modelLanguageCode], type: 'text' }],
-    initialPrompts: [{ content: languageConfigs[language].systemPrompt, role: 'system' }],
-    monitor(monitor) {
-      monitor.addEventListener('downloadprogress', event => {
-        callbacks.onDownloadProgress(event.loaded)
-      })
-    },
-  })
-  invariant(session, 'LanguageModel.create() returned nothing')
-  return session
+  await checkOllamaReachable(ollamaUrl)
+  return createOllamaSession(ollamaUrl, languageConfigs[language].systemPrompt)
 }
 
 type RunReasonTurnOptions = {
   callbacks: CoachCallbacks
-  session: LanguageModelSession
+  session: CoachSession
   speechLang: string
   task: Task
 }
@@ -82,7 +62,7 @@ type RunReasonTurnOptions = {
  * raw transcript (clamped to the schema's text length bound).
  * @param root0 - the running session, current task, and callbacks needed for this turn
  * @param root0.callbacks - status/progress callbacks driving the page's UI
- * @param root0.session - the running LanguageModel session
+ * @param root0.session - the running coach session
  * @param root0.speechLang - BCP-47 language code for TTS/STT
  * @param root0.task - the task missing a reason
  * @returns the user's spoken answer, clamped to the schema's text length bound
@@ -105,7 +85,7 @@ type RunAnnounceTurnOptions = {
   callbacks: CoachCallbacks
   clarifyPhrase: string
   language: CoachLanguage
-  session: LanguageModelSession
+  session: CoachSession
   speechLang: string
   task: Task
 }
@@ -119,7 +99,7 @@ type RunAnnounceTurnOptions = {
  * @param root0.callbacks - status/progress callbacks driving the page's UI
  * @param root0.clarifyPhrase - spoken once, if the first reply doesn't match a known intent
  * @param root0.language - which keyword set to classify the reply against
- * @param root0.session - the running LanguageModel session
+ * @param root0.session - the running coach session
  * @param root0.speechLang - BCP-47 language code for TTS/STT
  * @param root0.task - the task being announced
  * @returns the classified intent -- may still be "unclear" after the retry, which callers treat
@@ -159,7 +139,7 @@ type RunOneTaskOptions = {
   callbacks: CoachCallbacks
   clarifyPhrase: string
   language: CoachLanguage
-  session: LanguageModelSession
+  session: CoachSession
   skipIds: Set<string>
   speechLang: string
   task: Task
@@ -174,7 +154,7 @@ type RunOneTaskOptions = {
  * @param root0.callbacks - status/progress callbacks driving the page's UI
  * @param root0.clarifyPhrase - spoken once, if the announce turn's first reply doesn't match a known intent
  * @param root0.language - which keyword set to classify replies against
- * @param root0.session - the running LanguageModel session
+ * @param root0.session - the running coach session
  * @param root0.skipIds - this session's skip list, mutated when the task isn't marked done
  * @param root0.speechLang - BCP-47 language code for TTS/STT
  * @param root0.task - the task to run
@@ -198,6 +178,14 @@ async function runOneTask({ actions, callbacks, clarifyPhrase, language, session
   return { kind: 'skipped', taskName: task.name }
 }
 
+export type RunCoachSessionOptions = {
+  actions: CoachTaskActions
+  callbacks: CoachCallbacks
+  language: CoachLanguage
+  /** base URL of the Ollama server, e.g. "http://localhost:11434" */
+  ollamaUrl: string
+}
+
 /**
  * Runs the full coach session: creates the model session, then repeatedly
  * picks the next active task and hands it to `runOneTask`, until the queue
@@ -205,14 +193,16 @@ async function runOneTask({ actions, callbacks, clarifyPhrase, language, session
  * (rather than a snapshot taken at session start) so a completion or a sync
  * update mid-session is reflected immediately, matching the store's own
  * reactive-subscription discipline elsewhere in the app.
- * @param callbacks - status/progress callbacks driving the page's UI
- * @param language - which language config to run the coach in
- * @param actions - read/write access to the real task store
+ * @param root0 - the callbacks, language, task actions, and Ollama endpoint driving this session
+ * @param root0.actions - read/write access to the real task store
+ * @param root0.callbacks - status/progress callbacks driving the page's UI
+ * @param root0.language - which language config to run the coach in
+ * @param root0.ollamaUrl - base URL of the Ollama server, e.g. "http://localhost:11434"
  * @returns the outcomes recorded this session, in order
  */
-export async function runCoachSession(callbacks: CoachCallbacks, language: CoachLanguage, actions: CoachTaskActions): Promise<CoachOutcome[]> {
+export async function runCoachSession({ actions, callbacks, language, ollamaUrl }: RunCoachSessionOptions): Promise<CoachOutcome[]> {
   await primeMicrophonePermission()
-  const session = await createCoachSession(callbacks, language)
+  const session = await createCoachSession(callbacks, language, ollamaUrl)
   const { clarifyPhrase, speechLang } = languageConfigs[language]
   const outcomes: CoachOutcome[] = []
   const skipIds = new Set<string>()

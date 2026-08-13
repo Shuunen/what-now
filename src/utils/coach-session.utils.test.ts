@@ -1,7 +1,10 @@
 import { type CoachCallbacks, type CoachTaskActions, runCoachSession } from './coach-session.utils'
+import type { CoachSession } from './ollama.utils'
 import { taskMock } from './tasks.utils'
 
-const { listenOnceMock, promptToTextMock, speakMock } = vi.hoisted(() => ({
+const { checkOllamaReachableMock, createOllamaSessionMock, listenOnceMock, promptToTextMock, speakMock } = vi.hoisted(() => ({
+  checkOllamaReachableMock: vi.fn<(ollamaUrl: string) => Promise<void>>(),
+  createOllamaSessionMock: vi.fn<(ollamaUrl: string, systemPrompt: string) => CoachSession>(),
   listenOnceMock: vi.fn<(speechLang: string) => Promise<string>>(),
   promptToTextMock: vi.fn<(session: unknown, input: string) => Promise<string>>(),
   speakMock: vi.fn<(text: string, speechLang: string) => Promise<void>>(),
@@ -14,27 +17,21 @@ vi.mock(import('./coach-speech.utils'), () => ({
   speak: speakMock,
 }))
 
+vi.mock(import('./ollama.utils'), () => ({
+  checkOllamaReachable: checkOllamaReachableMock,
+  createOllamaSession: createOllamaSessionMock,
+}))
+
 function* emptyStream() {
   /* no chunks -- the session's response text always comes from promptToTextMock in these tests */
 }
 
-function noopSession() {
+function noopSession(): CoachSession {
   return { destroy: vi.fn<() => void>(), promptStreaming: () => emptyStream() }
-}
-
-function fakeLanguageModel(availability: 'available' | 'downloadable', onCreate?: (options: LanguageModelCreateOptions) => void) {
-  return {
-    availability: vi.fn<() => Promise<LanguageModelAvailability>>().mockResolvedValue(availability),
-    create: vi.fn<(options?: LanguageModelCreateOptions) => Promise<LanguageModelSession>>().mockImplementation(options => {
-      if (options) onCreate?.(options)
-      return Promise.resolve(noopSession())
-    }),
-  }
 }
 
 function makeCallbacks(): CoachCallbacks {
   return {
-    onDownloadProgress: vi.fn<(loaded: number) => void>(),
     onOutcome: vi.fn<(outcome: unknown) => void>(),
     onResponse: vi.fn<(text: string) => void>(),
     onStatusChange: vi.fn<(status: unknown) => void>(),
@@ -43,22 +40,21 @@ function makeCallbacks(): CoachCallbacks {
   }
 }
 
+const ollamaUrl = 'http://localhost:11434'
+
 describe('coach-session.utils runCoachSession', () => {
   beforeEach(() => {
     listenOnceMock.mockReset()
     promptToTextMock.mockReset().mockResolvedValue('spoken response')
     speakMock.mockReset().mockResolvedValue(undefined)
-    globalThis.window.LanguageModel = fakeLanguageModel('available')
-  })
-
-  afterEach(() => {
-    globalThis.window.LanguageModel = undefined
+    checkOllamaReachableMock.mockReset().mockResolvedValue(undefined)
+    createOllamaSessionMock.mockReset().mockReturnValue(noopSession())
   })
 
   it('A ends immediately with no active tasks', async () => {
     const callbacks = makeCallbacks()
     const actions: CoachTaskActions = { getTasks: () => [], markDone: vi.fn<(id: string) => void>(), writeReason: vi.fn<(id: string, reason: string) => void>() }
-    const outcomes = await runCoachSession(callbacks, 'en', actions)
+    const outcomes = await runCoachSession({ actions, callbacks, language: 'en', ollamaUrl })
     expect(outcomes).toStrictEqual([])
     expect(callbacks.onStatusChange).toHaveBeenCalledWith('done')
   })
@@ -76,7 +72,7 @@ describe('coach-session.utils runCoachSession', () => {
         tasks = [{ ...task, reason }]
       },
     }
-    const outcomes = await runCoachSession(makeCallbacks(), 'en', actions)
+    const outcomes = await runCoachSession({ actions, callbacks: makeCallbacks(), language: 'en', ollamaUrl })
     expect(writeReason).toHaveBeenCalledWith('a', 'because it matters')
     expect(outcomes.at(0)).toStrictEqual({ kind: 'answered-reason', taskName: task.name })
   })
@@ -94,7 +90,7 @@ describe('coach-session.utils runCoachSession', () => {
       markDone: vi.fn<(id: string) => void>(),
       writeReason,
     }
-    const outcomes = await runCoachSession(makeCallbacks(), 'en', actions)
+    const outcomes = await runCoachSession({ actions, callbacks: makeCallbacks(), language: 'en', ollamaUrl })
     expect(writeReason).not.toHaveBeenCalled()
     expect(outcomes).toStrictEqual([{ kind: 'answered-reason', taskName: task.name }])
   })
@@ -112,7 +108,7 @@ describe('coach-session.utils runCoachSession', () => {
       },
       writeReason: vi.fn<(id: string, reason: string) => void>(),
     }
-    const outcomes = await runCoachSession(makeCallbacks(), 'en', actions)
+    const outcomes = await runCoachSession({ actions, callbacks: makeCallbacks(), language: 'en', ollamaUrl })
     expect(markDone).toHaveBeenCalledWith('a')
     expect(outcomes).toStrictEqual([{ kind: 'done', taskName: task.name }])
   })
@@ -121,7 +117,7 @@ describe('coach-session.utils runCoachSession', () => {
     const task = taskMock({ completedOn: '', id: 'a', reason: 'a good reason' })
     listenOnceMock.mockResolvedValueOnce('delay it')
     const actions: CoachTaskActions = { getTasks: () => [task], markDone: vi.fn<(id: string) => void>(), writeReason: vi.fn<(id: string, reason: string) => void>() }
-    const outcomes = await runCoachSession(makeCallbacks(), 'en', actions)
+    const outcomes = await runCoachSession({ actions, callbacks: makeCallbacks(), language: 'en', ollamaUrl })
     expect(outcomes).toStrictEqual([{ kind: 'delayed', taskName: task.name }])
   })
 
@@ -129,7 +125,7 @@ describe('coach-session.utils runCoachSession', () => {
     const task = taskMock({ completedOn: '', id: 'a', reason: 'a good reason' })
     listenOnceMock.mockResolvedValueOnce("I'm busy")
     const actions: CoachTaskActions = { getTasks: () => [task], markDone: vi.fn<(id: string) => void>(), writeReason: vi.fn<(id: string, reason: string) => void>() }
-    const outcomes = await runCoachSession(makeCallbacks(), 'en', actions)
+    const outcomes = await runCoachSession({ actions, callbacks: makeCallbacks(), language: 'en', ollamaUrl })
     expect(outcomes).toStrictEqual([{ kind: 'snoozed', taskName: task.name }])
   })
 
@@ -137,7 +133,7 @@ describe('coach-session.utils runCoachSession', () => {
     const task = taskMock({ completedOn: '', id: 'a', reason: 'a good reason' })
     listenOnceMock.mockResolvedValueOnce('give me another one')
     const actions: CoachTaskActions = { getTasks: () => [task], markDone: vi.fn<(id: string) => void>(), writeReason: vi.fn<(id: string, reason: string) => void>() }
-    const outcomes = await runCoachSession(makeCallbacks(), 'en', actions)
+    const outcomes = await runCoachSession({ actions, callbacks: makeCallbacks(), language: 'en', ollamaUrl })
     expect(outcomes).toStrictEqual([{ kind: 'skipped', taskName: task.name }])
   })
 
@@ -145,7 +141,7 @@ describe('coach-session.utils runCoachSession', () => {
     const task = taskMock({ completedOn: '', id: 'a', reason: 'a good reason' })
     listenOnceMock.mockResolvedValueOnce('what a nice day').mockResolvedValueOnce('still unrelated')
     const actions: CoachTaskActions = { getTasks: () => [task], markDone: vi.fn<(id: string) => void>(), writeReason: vi.fn<(id: string, reason: string) => void>() }
-    const outcomes = await runCoachSession(makeCallbacks(), 'en', actions)
+    const outcomes = await runCoachSession({ actions, callbacks: makeCallbacks(), language: 'en', ollamaUrl })
     expect(speakMock).toHaveBeenCalledWith("Sorry, I didn't catch that -- say done, delay, another, or snooze.", 'en-US')
     expect(outcomes).toStrictEqual([{ kind: 'skipped', taskName: task.name }])
   })
@@ -155,20 +151,15 @@ describe('coach-session.utils runCoachSession', () => {
     listenOnceMock.mockResolvedValueOnce('fait')
     const markDone = vi.fn<(id: string) => void>()
     const actions: CoachTaskActions = { getTasks: () => [task], markDone, writeReason: vi.fn<(id: string, reason: string) => void>() }
-    await runCoachSession(makeCallbacks(), 'fr', actions)
+    await runCoachSession({ actions, callbacks: makeCallbacks(), language: 'fr', ollamaUrl })
     expect(markDone).toHaveBeenCalledWith('a')
     expect(speakMock).toHaveBeenCalledWith('spoken response', 'fr-FR')
   })
 
-  it('I reports download progress when the model needs downloading', async () => {
-    const onDownloadProgress = vi.fn<(loaded: number) => void>()
-    globalThis.window.LanguageModel = fakeLanguageModel('downloadable', options => {
-      options.monitor?.({ addEventListener: (_type, listener) => listener({ loaded: 0.5 } as LanguageModelDownloadProgressEvent) } as LanguageModelCreateMonitor)
-    })
-    const callbacks = { ...makeCallbacks(), onDownloadProgress }
+  it('I creates the Ollama session against the given endpoint', async () => {
     const actions: CoachTaskActions = { getTasks: () => [], markDone: vi.fn<(id: string) => void>(), writeReason: vi.fn<(id: string, reason: string) => void>() }
-    await runCoachSession(callbacks, 'en', actions)
-    expect(callbacks.onStatusChange).toHaveBeenCalledWith('downloading')
-    expect(onDownloadProgress).toHaveBeenCalledWith(0.5)
+    await runCoachSession({ actions, callbacks: makeCallbacks(), language: 'en', ollamaUrl: 'http://example.test:11434' })
+    expect(checkOllamaReachableMock).toHaveBeenCalledWith('http://example.test:11434')
+    expect(createOllamaSessionMock).toHaveBeenCalledWith('http://example.test:11434', expect.any(String))
   })
 })

@@ -1,9 +1,11 @@
 import { invariant } from 'es-toolkit'
+import type { CoachSession } from './ollama.utils'
 
 /**
- * Thin wrappers over the browser's Web Speech API (STT + TTS) and Chrome's
- * on-device Prompt API (`LanguageModel`) -- no coach-domain knowledge here,
- * see src/utils/coach-session.utils.ts for the orchestration built on top.
+ * Thin wrappers over the browser's Web Speech API (STT + TTS) -- no
+ * coach-domain knowledge here, see src/utils/coach-session.utils.ts for the
+ * orchestration built on top, and src/utils/ollama.utils.ts for the model
+ * backend.
  */
 
 /**
@@ -14,7 +16,7 @@ function getSpeechRecognition(): (new () => SpeechRecognitionLike) | undefined {
 }
 
 export function isBrowserSupported(): boolean {
-  return globalThis.window.LanguageModel !== undefined && getSpeechRecognition() !== undefined && globalThis.speechSynthesis !== undefined
+  return getSpeechRecognition() !== undefined && globalThis.speechSynthesis !== undefined
 }
 
 /**
@@ -82,11 +84,11 @@ export function speak(text: string, speechLang: string): Promise<void> {
  * one string. Handles both cumulative and delta streaming semantics (the
  * Prompt API's chunk format isn't documented either way), by detecting
  * whether each new chunk extends the accumulated text or replaces it.
- * @param session - the LanguageModel session to prompt
+ * @param session - the coach session to prompt
  * @param input - the user's message
  * @returns the full accumulated response text
  */
-export async function promptToText(session: LanguageModelSession, input: string): Promise<string> {
+export async function promptToText(session: CoachSession, input: string): Promise<string> {
   let full = ''
   for await (const chunk of session.promptStreaming(input)) full = chunk.startsWith(full) ? chunk : full + chunk
   return full

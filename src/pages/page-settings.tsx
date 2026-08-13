@@ -1,4 +1,4 @@
-import { CoachLanguagePicker } from '../components/coach-language-picker'
+import { CoachSettings } from '../components/coach-settings'
 import { FloatingMenu } from '../components/floating-menu'
 import { ImportExportButtons } from '../components/import-export-buttons'
 import { Status } from '../components/status'
@@ -6,7 +6,7 @@ import { SyncSetting } from '../components/sync-setting'
 import { TextSetting } from '../components/text-setting'
 import { useAppStore } from '../store/use-app-store'
 import { useAppStatus } from '../utils/app-status.utils'
-import { useActions, useCoachSetting } from '../utils/pages.utils'
+import { useActions } from '../utils/pages.utils'
 
 export function PageSettings() {
   useAppStatus()
@@ -14,7 +14,6 @@ export function PageSettings() {
   const setUserName = useAppStore(state => state.setUserName)
   const webhook = useAppStore(state => state.data.settings.webhook)
   const setWebhook = useAppStore(state => state.setWebhook)
-  const coachSetting = useCoachSetting()
   // disabled while hydrating: an edit made here would otherwise be silently overwritten
   // the moment the pending IndexedDB load resolves and replaces the whole store
   const isLoading = useAppStore(state => state.isLoading)
@@ -41,11 +40,7 @@ export function PageSettings() {
         value={webhook}
       />
       <SyncSetting />
-      <section className="flex w-full max-w-md flex-col gap-3" data-testid="settings-coach">
-        <h3 className="mb-0">Voice coach</h3>
-        <p className="text-sm text-white/60">Whether the coach greets you on the tasks page, and which language it speaks and listens in.</p>
-        <CoachLanguagePicker onChange={coachSetting.setValue} value={coachSetting.value} />
-      </section>
+      <CoachSettings />
       <FloatingMenu actions={actions} />
     </div>
   )

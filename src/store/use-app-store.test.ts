@@ -10,7 +10,7 @@ describe('useAppStore', () => {
   })
 
   it('A loadData replaces data and clears loading', () => {
-    const data = { settings: { coachEnabled: true, coachLanguage: 'en' as const, finaleDismissedOn: '', syncUrl: '', userName: 'Me', webhook: '' }, tasks: [taskMock({ id: 'a' })] }
+    const data = { settings: { coachEnabled: true, coachLanguage: 'en' as const, finaleDismissedOn: '', ollamaUrl: 'http://localhost:11434', syncUrl: '', userName: 'Me', webhook: '' }, tasks: [taskMock({ id: 'a' })] }
     useAppStore.getState().loadData(data)
     expect(useAppStore.getState().data).toStrictEqual(data)
     expect(useAppStore.getState().isLoading).toBe(false)
@@ -59,6 +59,10 @@ describe('useAppStore', () => {
   it('F3 setSyncUrl updates the setting', () => {
     useAppStore.getState().setSyncUrl('https://example.convex.cloud')
     expect(useAppStore.getState().data.settings.syncUrl).toBe('https://example.convex.cloud')
+  })
+  it('F3a setOllamaUrl updates the setting', () => {
+    useAppStore.getState().setOllamaUrl('http://example.test:11434')
+    expect(useAppStore.getState().data.settings.ollamaUrl).toBe('http://example.test:11434')
   })
   it('F4 setSyncStatus updates the live sync status', () => {
     useAppStore.getState().setSyncStatus('syncing')

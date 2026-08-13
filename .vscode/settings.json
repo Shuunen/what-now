@@ -2,7 +2,7 @@
   "[markdown]": {
     "editor.defaultFormatter": "oxc.oxc-vscode"
   },
-  "cSpell.words": ["appwrite", "shuunen", "trmnl", "webmanifest"],
+  "cSpell.words": ["appwrite", "ollama", "shuunen", "trmnl", "webmanifest"],
   "editor.defaultFormatter": "oxc.oxc-vscode",
   "editor.formatOnSave": true,
   "js/ts.experimental.useTsgo": true,

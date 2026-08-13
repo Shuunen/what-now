@@ -19,6 +19,7 @@ type AppStore = {
   setCoachLanguage: (coachLanguage: Settings['coachLanguage']) => void
   setFinaleDismissedOn: (finaleDismissedOn: string) => void
   setOffline: (isOffline: boolean) => void
+  setOllamaUrl: (ollamaUrl: string) => void
   setStatus: (status: string) => void
   setSyncStatus: (syncStatus: SyncStatus) => void
   setSyncUrl: (syncUrl: string) => void
@@ -54,6 +55,7 @@ export const useAppStore = create<AppStore>()(
     setCoachLanguage: coachLanguage => set(state => ({ data: { ...state.data, settings: { ...state.data.settings, coachLanguage } } })),
     setFinaleDismissedOn: finaleDismissedOn => set(state => ({ data: { ...state.data, settings: { ...state.data.settings, finaleDismissedOn } } })),
     setOffline: isOffline => set({ isOffline }),
+    setOllamaUrl: ollamaUrl => set(state => ({ data: { ...state.data, settings: { ...state.data.settings, ollamaUrl } } })),
     setStatus: status => set({ status }),
     setSyncStatus: syncStatus => set({ syncStatus }),
     setSyncUrl: syncUrl => set(state => ({ data: { ...state.data, settings: { ...state.data.settings, syncUrl } } })),

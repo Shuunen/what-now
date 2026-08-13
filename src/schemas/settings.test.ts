@@ -2,7 +2,7 @@ import { defaultSettings, SettingsSchema } from './settings'
 
 describe('SettingsSchema', () => {
   it('A provides empty defaults', () => {
-    expect(defaultSettings).toStrictEqual({ coachEnabled: true, coachLanguage: 'en', finaleDismissedOn: '', syncUrl: '', userName: 'Me', webhook: '' })
+    expect(defaultSettings).toStrictEqual({ coachEnabled: true, coachLanguage: 'en', finaleDismissedOn: '', ollamaUrl: 'http://localhost:11434', syncUrl: '', userName: 'Me', webhook: '' })
   })
 
   it('B keeps provided values', () => {

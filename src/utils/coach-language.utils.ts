@@ -18,9 +18,6 @@ export type LanguageConfig = {
   systemPrompt: string
 }
 
-// modelLanguageCode is the bare ISO 639-1 code LanguageModel's
-// expectedInputs/expectedOutputs wants (console warning if omitted:
-// "specify a supported output language code: [de, en, es, fr, ja]").
 export const languageConfigs: Record<CoachLanguage, LanguageConfig> = {
   en: {
     clarifyPhrase: "Sorry, I didn't catch that -- say done, delay, another, or snooze.",
@@ -41,8 +38,6 @@ Keep every response to at most 2 short sentences -- this is spoken aloud. Never 
 Chaque réponse doit tenir en 2 phrases courtes maximum -- c'est prononcé à voix haute. N'utilise jamais d'emojis ni de symboles -- ta réponse est lue à voix haute par synthèse vocale, qui les prononcerait.`,
   },
 }
-
-export const modelLanguageCodes: Record<CoachLanguage, string> = { en: 'en', fr: 'fr' }
 
 const intentKeywords: Record<CoachLanguage, Record<Exclude<CoachIntent, 'unclear'>, RegExp>> = {
   en: {
