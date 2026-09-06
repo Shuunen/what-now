@@ -11,6 +11,8 @@ dist
 node_modules
 out-tsc
 playwright-report
+public/pocket-tts
+coach/vendor
 test-output
 test-results
 tsconfig.tsbuildinfo

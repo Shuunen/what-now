@@ -12,6 +12,7 @@
   "globals": {
     "atob": "readonly",
     "Audio": "readonly",
+    "AudioContext": "readonly",
     "Blob": "readonly",
     "btoa": "readonly",
     "clearInterval": "readonly",
@@ -48,7 +49,8 @@
     "TextDecoderStream": "readonly",
     "TextEncoder": "readonly",
     "URL": "readonly",
-    "window": "readonly"
+    "window": "readonly",
+    "Worker": "readonly"
   },
   "ignorePatterns": [".git", "*.d.ts", "convex/_generated", "coverage", "dist", "node_modules", "out-tsc", "test-output"],
   "overrides": [

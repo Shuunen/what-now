@@ -1,4 +1,4 @@
-import { checkOllamaReachable, createOllamaSession } from './ollama.utils'
+import { askOllamaJson, checkOllamaReachable, createOllamaSession } from './ollama.utils'
 
 const ollamaUrl = 'http://localhost:11434'
 
@@ -118,5 +118,36 @@ describe('ollama.utils createOllamaSession', () => {
   it('E destroy clears the message history', () => {
     const session = createOllamaSession(ollamaUrl, 'be brief')
     expect(() => session.destroy()).not.toThrow()
+  })
+})
+
+describe('ollama.utils askOllamaJson', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('A asks in json mode, at temperature zero, with no conversation history', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ message: { content: '{"actions":[]}' } }))
+    vi.stubGlobal('fetch', fetchMock)
+    await expect(askOllamaJson(ollamaUrl, 'extract things', 'he said hi')).resolves.toStrictEqual({ actions: [] })
+    const [, options] = fetchMock.mock.calls[0] ?? []
+    const body = JSON.parse((options as { body: string }).body) as { format: string; messages: unknown[]; options: { temperature: number }; stream: boolean }
+    expect(body.format).toBe('json')
+    expect(body.stream).toBe(false)
+    expect(body.options.temperature).toBe(0)
+    expect(body.messages).toStrictEqual([
+      { content: 'extract things', role: 'system' },
+      { content: 'he said hi', role: 'user' },
+    ])
+  })
+
+  it('B throws when the server responds with an error status', async () => {
+    vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockResolvedValue(new Response(undefined, { status: 500 })))
+    await expect(askOllamaJson(ollamaUrl, 'extract things', 'he said hi')).rejects.toThrow('Ollama request failed')
+  })
+
+  it('C throws when the reply is not valid json', async () => {
+    vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockResolvedValue(Response.json({ message: { content: 'sure thing!' } })))
+    await expect(askOllamaJson(ollamaUrl, 'extract things', 'he said hi')).rejects.toThrow('is not valid JSON')
   })
 })

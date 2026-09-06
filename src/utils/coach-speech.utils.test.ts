@@ -133,6 +133,23 @@ describe('coach-speech.utils', () => {
     await expect(speak('hello', 'en-US')).rejects.toThrow('speech synthesis error')
   })
 
+  it('F2 speak falls back to the browser for a French speechLang too', async () => {
+    const spokenLangs: string[] = []
+    // oxlint-disable-next-line prefer-arrow-callback -- speak() calls `new SpeechSynthesisUtterance(...)`, which arrow functions can't serve as
+    vi.stubGlobal('SpeechSynthesisUtterance', function fakeSpeechSynthesisUtterance(text: string) {
+      const utterance = fakeUtterance(text)
+      return utterance
+    })
+    vi.stubGlobal('speechSynthesis', {
+      speak: (utterance: ReturnType<typeof fakeUtterance>) => {
+        spokenLangs.push(utterance.lang)
+        utterance.fire('end')
+      },
+    })
+    await expect(speak('bonjour', 'fr-FR')).resolves.toBeUndefined()
+    expect(spokenLangs).toStrictEqual(['fr-FR'])
+  })
+
   it('G promptToText accumulates cumulative chunks', async () => {
     await expect(promptToText(streamOf(['Hel', 'Hello']), 'hi')).resolves.toBe('Hello')
   })

@@ -207,5 +207,5 @@ Tested via the language toggle added to `/coach-browser` (English/Français, def
 
 **UNRESOLVED DECISIONS:**
 
-- Whether a lightweight phrase-matching guard should sit in front of Ollama's intent classification to reduce false-triggering from unrelated speech, or whether classification alone is trusted.
+- ~~Whether a lightweight phrase-matching guard should sit in front of Ollama's intent classification to reduce false-triggering from unrelated speech, or whether classification alone is trusted.~~ **RESOLVED against the guard.** It shipped first (keyword regexes per language) and was the single biggest reason the coach felt robotic: anything outside "done / delay / another / snooze" fell through to a canned "I didn't catch that", so the user was effectively navigating a phone menu by voice. It is now replaced by a stateless JSON-mode extraction call (`src/utils/coach-actions.utils.ts`) running beside the conversation at temperature 0, over numbered tasks rather than uuids, degrading to "no action" on any failure. False-triggering is contained by that fail-closed default and by the extractor only ever being allowed to name a task it was shown, not by constraining what the user may say.
 - Multi-missing-attribute tasks: ask about all missing fields in one turn vs. one per turn — deliberately left as an implementation-time call, acceptable either way for v1.

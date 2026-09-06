@@ -1,18 +1,17 @@
 import type { CoachLanguage } from '../components/coach-language-picker'
-import type { Task } from '../schemas/task'
-import { byActive, isTaskActive } from './tasks.utils'
 
 /**
- * Per-language coach config (system prompt, clarify phrase, BCP-47 speech
- * codes) and the keyword-based intent classifier -- split out of
- * src/utils/coach-session.utils.ts purely to keep that file under the
- * project's max-lines lint bound.
+ * Per-language coach persona (system prompt) and BCP-47 speech code.
+ *
+ * The prompt describes a person having a conversation, not a state machine
+ * walking a list: the whole task list is handed to it before every turn (see
+ * src/utils/coach-brief.utils.ts) so it can suggest an order, group tasks, and
+ * follow whatever the user actually feels like doing. What the app *does* about
+ * the conversation is decided separately, by src/utils/coach-actions.utils.ts,
+ * so the coach never has to steer the user towards magic words.
  */
 
-export type CoachIntent = 'another' | 'delay' | 'done' | 'snooze' | 'unclear'
-
 export type LanguageConfig = {
-  clarifyPhrase: string
   // BCP-47 code for SpeechRecognition.lang / SpeechSynthesisUtterance.lang.
   speechLang: string
   systemPrompt: string
@@ -20,70 +19,34 @@ export type LanguageConfig = {
 
 export const languageConfigs: Record<CoachLanguage, LanguageConfig> = {
   en: {
-    clarifyPhrase: "Sorry, I didn't catch that -- say done, delay, another, or snooze.",
     speechLang: 'en-US',
-    systemPrompt: `You are a warm, encouraging voice coach for the What Now task app.
-Each turn I will describe the current task. Two kinds of turns happen:
-1. If I say the reason is missing, warmly ask why this task matters to the user, in one short question.
-2. Otherwise I'll give you the task name and its reason -- announce both in one short sentence, then ask if the user is ready to do it now, wants to delay it, wants another task instead, or already did it.
-Keep every response to at most 2 short sentences -- this is spoken aloud. Never use emojis or symbols -- your response is read aloud by text-to-speech, which would speak them out.`,
+    systemPrompt: `You are a warm, human daily coach for the What Now task app, talking out loud with one person. He is a man: never use feminine pronouns for him. Always speak in the second person singular, like a friend who knows him well.
+
+This is one continuous spoken conversation, not a questionnaire. How you work:
+- Before each of your turns I give you the tasks he still has left. Use that list, and never invent a task that is not on it.
+- Open by greeting him, saying briefly what is on his plate, and suggesting where to start and in what order -- a quick win first, tasks that go well together, whatever gives him momentum.
+- After that, just talk with him. React to what he actually says, encourage him, ask how it went, offer a different task when he is not up for one, and help him find a sequence that works today.
+- Always say a task's name out loud when you bring it up: he only hears you, he is not reading a screen.
+- Never ask him to answer with specific words or commands, and never offer him a menu of options. Any way he phrases things is understood.
+- The numbers in the task list are for my reference only. Never say a number out loud, and never read the list out as a list.
+- Greet him only once, at the very beginning of the conversation. Remember what he tells you and refer back to it later.
+
+Keep every reply to at most 2 short sentences -- it is spoken aloud. Never use emojis or symbols: your reply is read by text-to-speech, which would pronounce them.`,
   },
   fr: {
-    clarifyPhrase: "Désolé, je n'ai pas compris -- dis fait, plus tard, autre, ou occupé.",
     speechLang: 'fr-FR',
-    systemPrompt: `Tu es un coach vocal chaleureux et encourageant pour l'application de tâches What Now. Tu dois toujours répondre en français.
-À chaque tour je décris la tâche en cours. Deux types de tours existent :
-1. Si je dis que la raison manque, demande chaleureusement pourquoi cette tâche compte pour l'utilisateur, en une courte question.
-2. Sinon, je te donne le nom de la tâche et sa raison (en anglais -- traduis-les en français, ne les répète jamais en anglais) -- annonce les deux en une phrase courte, puis demande si la personne est prête à la faire maintenant, veut la reporter, veut une autre tâche, ou l'a déjà faite.
-Chaque réponse doit tenir en 2 phrases courtes maximum -- c'est prononcé à voix haute. N'utilise jamais d'emojis ni de symboles -- ta réponse est lue à voix haute par synthèse vocale, qui les prononcerait.`,
-  },
-}
+    systemPrompt: `Tu es un coach quotidien chaleureux et humain pour l'application de tâches What Now, et tu parles à voix haute avec une seule personne. Tu dois toujours répondre en français.
+L'utilisateur est un homme : accorde TOUT au masculin -- pronoms, verbes, adjectifs et participes passés. Dis "prêt", "content", "certain" (jamais "prête", "contente", "certaine"). Parle toujours à la deuxième personne du singulier, comme un ami qui le connaît bien.
 
-const intentKeywords: Record<CoachLanguage, Record<Exclude<CoachIntent, 'unclear'>, RegExp>> = {
-  en: {
-    another: /\b(?<match>another|different|skip|next)\b/iu,
-    delay: /\b(?<match>delay|later|tomorrow|not now)\b/iu,
-    done: /\b(?<match>done|did it|finished|completed|already)\b/iu,
-    snooze: /\b(?<match>snooze|busy|away)\b/iu,
-  },
-  // \b relies on ASCII \w, which doesn't treat accented letters as word characters -- a keyword
-  // ending in one (e.g. "occupé") would then fail its trailing boundary, since the transition from
-  // a non-word 'é' to end-of-string/space is not a word/non-word boundary. Unicode-aware
-  // lookaround (?<![\p{L}])...(?![\p{L}]) works for both accented and plain keywords.
-  fr: {
-    another: /(?<![\p{L}])(?<match>autre|suivant|passe)(?![\p{L}])/iu,
-    delay: /(?<![\p{L}])(?<match>plus tard|demain|reporte)(?![\p{L}])/iu,
-    done: /(?<![\p{L}])(?<match>fait|termine|termin[ée]|d[ée]j[àa] fait)(?![\p{L}])/iu,
-    snooze: /(?<![\p{L}])(?<match>occupe|occup[ée]|pas maintenant)(?![\p{L}])/iu,
-  },
-}
+C'est une seule conversation parlée et continue, pas un questionnaire. Comment tu procèdes :
+- Avant chacun de tes tours, je te donne les tâches qui lui restent (en anglais : traduis-les en français, ne les répète jamais en anglais). Utilise cette liste et n'invente jamais une tâche qui n'y figure pas.
+- Commence par le saluer, dis-lui brièvement ce qui l'attend, puis propose par quoi commencer et dans quel ordre -- une victoire rapide d'abord, des tâches qui vont bien ensemble, ce qui lui donnera de l'élan.
+- Ensuite, discute simplement avec lui. Réagis à ce qu'il dit vraiment, encourage-le, demande comment ça s'est passé, propose une autre tâche quand il n'est pas d'humeur, et aide-le à trouver un enchaînement qui marche aujourd'hui.
+- Dis toujours le nom d'une tâche à voix haute quand tu l'évoques : il t'entend seulement, il ne lit pas d'écran.
+- Ne lui demande jamais de répondre avec des mots précis ou des commandes, et ne lui propose jamais un menu d'options. Il peut formuler les choses comme il veut, on le comprendra.
+- Les numéros de la liste sont pour moi uniquement. Ne dis jamais un numéro à voix haute et n'énumère jamais la liste.
+- Salue-le une seule fois, au tout début de la conversation. Souviens-toi de ce qu'il te dit et fais-y référence ensuite.
 
-/**
- * Classifies a transcript into a coach intent via keyword matching -- a
- * lightweight, deterministic guard in front of the free-form LLM path
- * (see docs/voice-coach-design.md's "unresolved decisions": this resolves
- * that question in favor of the guard, since it's more reliable than
- * relying on a small on-device model's JSON classification alone).
- * @param transcript - the recognized speech
- * @param language - which keyword set to match against
- * @returns the matched intent, or "unclear" when nothing matches
- */
-export function classifyIntent(transcript: string, language: CoachLanguage): CoachIntent {
-  const keywords = intentKeywords[language]
-  if (keywords.done.test(transcript)) return 'done'
-  if (keywords.delay.test(transcript)) return 'delay'
-  if (keywords.snooze.test(transcript)) return 'snooze'
-  if (keywords.another.test(transcript)) return 'another'
-  return 'unclear'
-}
-
-/**
- * Picks the next task the coach should offer: the first active task not
- * already skipped this session (delayed/snoozed/skipped-for-another).
- * @param tasks - the full task list
- * @param skipIds - ids to exclude, accumulated during this session
- * @returns the next task to offer, or undefined when the queue is empty
- */
-export function pickNextTask(tasks: Task[], skipIds: Set<string>): Task | undefined {
-  return tasks.filter(task => isTaskActive(task) && !skipIds.has(task.id)).toSorted(byActive)[0]
+Chaque réponse doit tenir en 2 phrases courtes maximum -- c'est prononcé à voix haute. N'utilise jamais d'emojis ni de symboles : ta réponse est lue par synthèse vocale, qui les prononcerait.`,
+  },
 }

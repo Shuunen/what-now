@@ -1,5 +1,8 @@
 import { invariant } from 'es-toolkit'
+import type { PocketTtsLanguage } from '../workers/pocket-tts-protocol'
+import { logger } from './logger.utils'
 import type { CoachSession } from './ollama.utils'
+import { speakWithPocketTts } from './pocket-tts.utils'
 
 /**
  * Thin wrappers over the browser's Web Speech API (STT + TTS) -- no
@@ -60,14 +63,14 @@ export function listenOnce(speechLang: string): Promise<string> {
 const emojiPattern = /\p{Extended_Pictographic}|[\u{1F1E6}-\u{1F1FF}]|\u{FE0F}|\u{200D}/gu
 
 /**
- * Speaks the given text via the Web Speech API and resolves once playback finishes.
+ * Speaks the given text via the browser's Web Speech API and resolves once playback finishes.
  * @param text - the text to speak aloud
  * @param speechLang - BCP-47 language code for the utterance and voice selection (e.g. "en-US", "fr-FR")
  */
-export function speak(text: string, speechLang: string): Promise<void> {
+function speakWithBrowser(text: string, speechLang: string): Promise<void> {
   // oxlint-disable-next-line promise/avoid-new -- wraps a callback-based Web API (SpeechSynthesisUtterance), no promise-returning equivalent exists
   return new Promise((resolve, reject) => {
-    const utterance = new SpeechSynthesisUtterance(text.replaceAll(emojiPattern, '').replaceAll(/ {2,}/gu, ' ').trim())
+    const utterance = new SpeechSynthesisUtterance(text)
     utterance.lang = speechLang
     utterance.addEventListener('end', () => {
       resolve()
@@ -77,6 +80,24 @@ export function speak(text: string, speechLang: string): Promise<void> {
     })
     speechSynthesis.speak(utterance)
   })
+}
+
+/**
+ * Speaks the given text aloud, resolving once playback finishes. Prefers the local pocket-tts
+ * WASM model (see src/utils/pocket-tts.utils.ts, set up by coach/install.sh) for its far more
+ * natural voice, falling back to the browser's native Web Speech API if pocket-tts's assets
+ * aren't installed or generation fails for any other reason.
+ * @param text - the text to speak aloud
+ * @param speechLang - BCP-47 language code for the utterance and voice selection (e.g. "en-US", "fr-FR")
+ */
+export async function speak(text: string, speechLang: string): Promise<void> {
+  const cleanText = text.replaceAll(emojiPattern, '').replaceAll(/ {2,}/gu, ' ').trim()
+  const pocketTtsLanguage: PocketTtsLanguage = speechLang.toLowerCase().startsWith('fr') ? 'fr' : 'en'
+  try {
+    await speakWithPocketTts(cleanText, pocketTtsLanguage)
+  } catch {
+    await speakWithBrowser(cleanText, speechLang)
+  }
 }
 
 /**
@@ -91,6 +112,7 @@ export function speak(text: string, speechLang: string): Promise<void> {
 export async function promptToText(session: CoachSession, input: string): Promise<string> {
   let full = ''
   for await (const chunk of session.promptStreaming(input)) full = chunk.startsWith(full) ? chunk : full + chunk
+  logger.info('ollama response', full)
   return full
 }
 

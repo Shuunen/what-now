@@ -1,48 +1,38 @@
-import { classifyIntent, pickNextTask } from './coach-language.utils'
-import { taskMock } from './tasks.utils'
+import { languageConfigs } from './coach-language.utils'
 
-describe('coach-language.utils', () => {
-  it('A classifyIntent en detects done', () => {
-    expect(classifyIntent('yeah I already did it', 'en')).toBe('done')
+describe('coach-language.utils languageConfigs', () => {
+  it('A uses the right BCP-47 speech codes', () => {
+    expect(languageConfigs.en.speechLang).toBe('en-US')
+    expect(languageConfigs.fr.speechLang).toBe('fr-FR')
   })
-  it('B classifyIntent en detects delay', () => {
-    expect(classifyIntent('delay it please', 'en')).toBe('delay')
+
+  it('B tells the coach never to ask for specific words, so no keyword is ever needed', () => {
+    expect(languageConfigs.en.systemPrompt).toContain('Never ask him to answer with specific words or commands')
+    expect(languageConfigs.fr.systemPrompt).toContain('Ne lui demande jamais de répondre avec des mots précis')
   })
-  it('C classifyIntent en detects snooze', () => {
-    expect(classifyIntent("I'm busy right now", 'en')).toBe('snooze')
+
+  it('C frames it as one continuous conversation, not a task-by-task script', () => {
+    expect(languageConfigs.en.systemPrompt).toContain('one continuous spoken conversation')
+    expect(languageConfigs.fr.systemPrompt).toContain('une seule conversation parlée et continue')
   })
-  it('D classifyIntent en detects another', () => {
-    expect(classifyIntent('give me another task', 'en')).toBe('another')
+
+  it('D asks for suggestions and an order rather than a bare announcement', () => {
+    expect(languageConfigs.en.systemPrompt).toContain('suggesting where to start and in what order')
+    expect(languageConfigs.fr.systemPrompt).toContain('par quoi commencer et dans quel ordre')
   })
-  it('E classifyIntent en returns unclear on unrelated speech', () => {
-    expect(classifyIntent('what a nice day', 'en')).toBe('unclear')
+
+  it('E keeps the task numbers out of the spoken reply', () => {
+    expect(languageConfigs.en.systemPrompt).toContain('Never say a number out loud')
+    expect(languageConfigs.fr.systemPrompt).toContain('Ne dis jamais un numéro à voix haute')
   })
-  it('F classifyIntent fr detects done', () => {
-    expect(classifyIntent("c'est déjà fait", 'fr')).toBe('done')
+
+  it('F keeps replies short and free of symbols, since they are read aloud', () => {
+    expect(languageConfigs.en.systemPrompt).toContain('2 short sentences')
+    expect(languageConfigs.fr.systemPrompt).toContain('2 phrases courtes maximum')
   })
-  it('G classifyIntent fr detects delay', () => {
-    expect(classifyIntent('plus tard', 'fr')).toBe('delay')
-  })
-  it('H classifyIntent fr detects snooze', () => {
-    expect(classifyIntent('je suis occupé', 'fr')).toBe('snooze')
-  })
-  it('I classifyIntent fr detects another', () => {
-    expect(classifyIntent('une autre tâche', 'fr')).toBe('another')
-  })
-  it('J pickNextTask returns the first active task not skipped', () => {
-    const taskA = taskMock({ completedOn: '', id: 'a', once: 'day' })
-    const taskB = taskMock({ completedOn: '', id: 'b', once: 'day' })
-    const next = pickNextTask([taskA, taskB], new Set())
-    expect(next?.id).toBe('a')
-  })
-  it('K pickNextTask skips ids already in the skip set', () => {
-    const taskA = taskMock({ completedOn: '', id: 'a', once: 'day' })
-    const taskB = taskMock({ completedOn: '', id: 'b', once: 'day' })
-    const next = pickNextTask([taskA, taskB], new Set(['a']))
-    expect(next?.id).toBe('b')
-  })
-  it('L pickNextTask returns undefined when the queue is empty', () => {
-    const doneTask = taskMock({ id: 'a', isDone: true, once: 'yes' })
-    expect(pickNextTask([doneTask], new Set())).toBeUndefined()
+
+  it('G asks the French coach to answer in French, in the masculine', () => {
+    expect(languageConfigs.fr.systemPrompt).toContain('toujours répondre en français')
+    expect(languageConfigs.fr.systemPrompt).toContain('accorde TOUT au masculin')
   })
 })

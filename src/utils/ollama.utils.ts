@@ -39,6 +39,40 @@ function parseNdjsonLines(buffer: string): { chunks: OllamaChatChunk[]; rest: st
 }
 
 /**
+ * Asks the model a one-shot question in JSON mode, outside any conversation.
+ * Used by the action extractor (src/utils/coach-actions.utils.ts), which must
+ * stay stateless and deterministic: it reads the coach conversation from the
+ * outside and must never leak its own bookkeeping into that conversation's
+ * history, nor be swayed by it.
+ * @param ollamaUrl - base URL of the Ollama server, e.g. "http://localhost:11434"
+ * @param systemPrompt - the extractor's instructions, including the expected JSON shape
+ * @param input - the exchange to extract from
+ * @returns the parsed JSON the model replied with
+ */
+export async function askOllamaJson(ollamaUrl: string, systemPrompt: string, input: string): Promise<unknown> {
+  const response = await fetch(`${ollamaUrl.replace(/\/$/u, '')}/api/chat`, {
+    body: JSON.stringify({
+      format: 'json',
+      messages: [
+        { content: systemPrompt, role: 'system' },
+        { content: input, role: 'user' },
+      ],
+      model: ollamaModel,
+      // deterministic: the same exchange must always yield the same actions
+      options: { temperature: 0 },
+      stream: false,
+    }),
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+  })
+  invariant(response.ok, `Ollama request failed: ${response.status} ${response.statusText}`)
+  const data = (await response.json()) as { message?: { content?: string } }
+  const content = data.message?.content
+  invariant(content, 'Ollama JSON response has no content')
+  return JSON.parse(content) as unknown
+}
+
+/**
  * Checks that an Ollama server is reachable at the given URL.
  * @param ollamaUrl - base URL of the Ollama server, e.g. "http://localhost:11434"
  */

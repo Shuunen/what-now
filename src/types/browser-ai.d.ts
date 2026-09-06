@@ -1,7 +1,9 @@
 /**
  * Ambient types for browser APIs not yet in TypeScript's DOM lib: the
- * vendor-prefixed Web Speech API (`webkitSpeechRecognition`). Deliberately
- * minimal -- only what src/utils/coach-speech.utils.ts uses.
+ * vendor-prefixed Web Speech API (`webkitSpeechRecognition`) and the
+ * vendor-prefixed Web Audio API (`webkitAudioContext`, needed by
+ * src/utils/pocket-tts.utils.ts for older Safari). Deliberately minimal --
+ * only what src/utils/coach-speech.utils.ts and src/utils/pocket-tts.utils.ts use.
  */
 
 interface SpeechRecognitionResultLike {
@@ -30,5 +32,6 @@ interface SpeechRecognitionLike extends EventTarget {
 
 interface Window {
   SpeechRecognition?: new () => SpeechRecognitionLike
+  webkitAudioContext?: typeof AudioContext
   webkitSpeechRecognition?: new () => SpeechRecognitionLike
 }
