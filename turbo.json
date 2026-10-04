@@ -11,19 +11,19 @@
       "outputs": ["dist/**"]
     },
     "lint:format": {
-      "inputs": ["src/**", ".github/**", ".oxfmtrc.jsonc", "*.{ts,js,json,md,yaml,yml}"]
+      "inputs": ["src/**", "convex/**", ".github/**", ".oxfmtrc.jsonc", "*.{ts,js,json,md,yaml,yml}"]
     },
     "lint:issues": {
-      "inputs": ["src/**/*.{ts,tsx}", ".oxlintrc.json", "tsconfig*.json"]
+      "inputs": ["src/**/*.{ts,tsx}", "convex/**/*.ts", ".oxlintrc.json", "tsconfig*.json"]
     },
     "lint:types": {
-      "inputs": ["src/**/*.{ts,tsx}", "tsconfig*.json"]
+      "inputs": ["src/**/*.{ts,tsx}", "convex/**/*.ts", "convex/tsconfig.json", "tsconfig*.json"]
     },
     "lint:rules": {
       "inputs": ["src/bin/lint.*.ts", "src/utils/**", "index.html", "public/_headers"]
     },
     "test:unit": {
-      "inputs": ["src/**/*.{ts,tsx}", "vite.config.ts"],
+      "inputs": ["src/**/*.{ts,tsx}", "convex/**/*.ts", "vite.config.ts"],
       "outputs": ["test-output/**"]
     },
     "test:e2e": {
