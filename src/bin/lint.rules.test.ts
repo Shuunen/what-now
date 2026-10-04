@@ -4,9 +4,11 @@ describe('extractNonce', () => {
   it('extracts the nonce from a script tag', () => {
     expect(extractNonce('<script nonce="shu1772n1" src="/src/main.tsx"></script>')).toBe('shu1772n1')
   })
+
   it('extracts the nonce from a CSP header', () => {
     expect(extractNonce("Content-Security-Policy: script-src 'nonce-shu1772n1'")).toBe('shu1772n1')
   })
+
   it('returns undefined when no nonce is present', () => {
     expect(extractNonce('<script src="/src/main.tsx"></script>')).toBeUndefined()
   })

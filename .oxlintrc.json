@@ -117,6 +117,7 @@
     "explicit-module-boundary-types": "off",
     "exports-last": "off",
     "extensions": "off",
+    "one-var": "off",
     "filename-case": [
       "error",
       {

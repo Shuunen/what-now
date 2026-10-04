@@ -44,18 +44,22 @@ describe('useAppStore', () => {
     useAppStore.getState().setFinaleDismissedOn('2025-01-01')
     expect(useAppStore.getState().data.settings.finaleDismissedOn).toBe('2025-01-01')
   })
+
   it('F2 setUserName updates the setting', () => {
     useAppStore.getState().setUserName('Alice')
     expect(useAppStore.getState().data.settings.userName).toBe('Alice')
   })
+
   it('F3 setSyncUrl updates the setting', () => {
     useAppStore.getState().setSyncUrl('https://example.convex.cloud')
     expect(useAppStore.getState().data.settings.syncUrl).toBe('https://example.convex.cloud')
   })
+
   it('F4 setSyncStatus updates the live sync status', () => {
     useAppStore.getState().setSyncStatus('syncing')
     expect(useAppStore.getState().syncStatus).toBe('syncing')
   })
+
   it('G2 mergeTasks patches an existing task by id and leaves others untouched', () => {
     useAppStore.getState().loadData({ ...defaultAppData, tasks: [taskMock({ id: 'a', once: 'day' }), taskMock({ id: 'b', once: 'day' })] })
     useAppStore.getState().mergeTasks([taskMock({ id: 'b', once: 'week' })])
