@@ -62,6 +62,7 @@ export default defineConfig({
   server: { port: 4200 },
   test: {
     coverage: {
+      exclude: ['**/__snapshots__/**'],
       include: ['src/utils', 'src/schemas', 'src/store'],
       provider: 'v8' as const,
       reporter: [['text', { maxCols: 120 }], 'lcov'],
