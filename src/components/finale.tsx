@@ -1,5 +1,5 @@
 import confetti from 'canvas-confetti'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { dateIso10, nbMsInSecond } from 'shuutils'
 import type { Task } from '../schemas/task'
 import { useAppStore } from '../store/use-app-store'
@@ -33,10 +33,10 @@ export function Finale({ tasks }: { tasks: Task[] }) {
     audioRef.current = new Audio('/fireworks.mp3')
   }, [])
 
-  function dismiss() {
+  const dismiss = useCallback(() => {
     setIsVisible(false)
     useAppStore.getState().setFinaleDismissedOn(dateIso10(new Date()))
-  }
+  }, [])
 
   useEffect(() => {
     if (!isAllDone) {
@@ -50,7 +50,7 @@ export function Finale({ tasks }: { tasks: Task[] }) {
     burstFinale()
     const timeout = setTimeout(dismiss, finaleDurationMs)
     return () => clearTimeout(timeout)
-  }, [isAllDone])
+  }, [dismiss, isAllDone])
 
   // oxlint-disable-next-line unicorn/no-null
   if (!isVisible || !isAllDone) return null

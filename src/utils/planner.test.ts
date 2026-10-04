@@ -221,20 +221,24 @@ describe('planner utils', () => {
     const dailyTask: Task = { ...mockTask, once: 'day' }
     expect(canMoveTaskEarlier(dailyTask, {})).toBe(false)
   })
+
   it('canMoveTaskEarlier B should be false when the earliest occurrence is today', () => {
     vi.mocked(tasksUtils.daysRecurrence).mockReturnValue(7)
     vi.mocked(tasksUtils.daysSinceCompletion).mockReturnValue(7)
     expect(canMoveTaskEarlier(mockTask, {})).toBe(false)
   })
+
   it('canMoveTaskEarlier C should be true when the earliest occurrence is after today', () => {
     vi.mocked(tasksUtils.daysRecurrence).mockReturnValue(7)
     vi.mocked(tasksUtils.daysSinceCompletion).mockReturnValue(5)
     expect(canMoveTaskEarlier(mockTask, {})).toBe(true)
   })
+
   it('canMoveTaskEarlier D should be false when the task never appears in the window', () => {
     const oneTimeTask: Task = { ...mockTask, once: 'yes' }
     expect(canMoveTaskEarlier(oneTimeTask, {})).toBe(false)
   })
+
   it('createTaskDistribution A should create empty distribution for empty task list', () => {
     const result = createTaskDistribution([])
     expect(result).toMatchSnapshot()

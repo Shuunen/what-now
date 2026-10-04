@@ -260,6 +260,7 @@ function PlannerContent({
   selectedTaskId?: string
   onSelect: (taskId: string) => void
 }) {
+  // oxlint-disable-next-line react/purity
   const today = new Date()
   return (
     <div className="overflow-hidden rounded-lg border border-gray-600/30 bg-gray-800/30 shadow-sm">

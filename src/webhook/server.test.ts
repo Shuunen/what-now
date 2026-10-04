@@ -42,18 +42,18 @@ async function request(path: string, method: 'GET' | 'POST' = 'GET', body?: Requ
   }
 }
 
+async function waitForServerReady(timeout = 2000, start = Date.now()) {
+  const result = await request('/hello')
+  if (result.ok) return
+  if (Date.now() - start < timeout) {
+    await sleep(100)
+    return waitForServerReady(timeout, start)
+  }
+  throw new Error('Server startup timed out')
+}
+
 describe('server.cli.ts (integration)', () => {
   let proc: ChildProcess | undefined = undefined
-  async function waitForServerReady(timeout = 2000, start = Date.now()) {
-    const result = await request('/hello')
-    if (result.ok) return
-    if (Date.now() - start < timeout) {
-      await sleep(100)
-      return waitForServerReady(timeout, start)
-    }
-    throw new Error('Server startup timed out')
-  }
-
   beforeAll(async () => {
     proc = startServer()
     await waitForServerReady()
@@ -117,6 +117,7 @@ describe('server.cli.ts (unit)', () => {
       sat: 255,
     })
   })
+
   it('getHueColorBody B should return correct JSON for 0', () => {
     expect(JSON.parse(serverModule.getHueColorBody(0))).toMatchObject({ bri: 255, hue: 0, on: true, sat: 255 })
   })
@@ -159,10 +160,12 @@ describe('server.cli.ts (unit)', () => {
       }
     `)
   })
+
   it('parseProgressBody B should handle invalid content', () => {
     const { error } = serverModule.parseProgressBody('not-valid')
     expect(error).toMatchInlineSnapshot(`"Invalid body : must be an object with a progress property, got "not-valid""`)
   })
+
   it('parseProgressBody C should handle empty body', () => {
     const { error } = serverModule.parseProgressBody('')
     expect(error).toMatchInlineSnapshot(`"Invalid body : must be an object with a progress property, got """`)

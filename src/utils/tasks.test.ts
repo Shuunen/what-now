@@ -186,27 +186,35 @@ describe('daysRecurrence', () => {
   it('A', () => {
     expect(daysRecurrence('day')).toBe(1)
   })
+
   it('B', () => {
     expect(daysRecurrence('week')).toBe(7)
   })
+
   it('C', () => {
     expect(daysRecurrence('month')).toBe(30)
   })
+
   it('D', () => {
     expect(daysRecurrence('year')).toBe(365)
   })
+
   it('E', () => {
     expect(daysRecurrence('yes')).toBe(0)
   })
+
   it('F', () => {
     expect(daysRecurrence('3-days')).toBe(3)
   })
+
   it('G', () => {
     expect(daysRecurrence('2-weeks')).toBe(14)
   })
+
   it('H', () => {
     expect(daysRecurrence('2-months')).toBe(60)
   })
+
   it('I', () => {
     expect(daysRecurrence('2-years')).toBe(730)
   })
@@ -216,9 +224,11 @@ describe('daysSinceCompletion', () => {
   it('A', () => {
     expect(daysSinceCompletion(taskMock({ completedOn: today }))).toBe(0)
   })
+
   it('B', () => {
     expect(daysSinceCompletion(taskMock({ completedOn: yesterday }))).toBe(1)
   })
+
   it('C', () => {
     expect(daysSinceCompletion(taskMock({ completedOn: daysAgoIso10(2) }))).toBe(2)
   })
@@ -276,6 +286,7 @@ describe('createTask', () => {
     expect(task.id.length).toBeGreaterThan(0)
     expect(isTaskActive(task)).toBe(true)
   })
+
   it('B honors provided fields', () => {
     const task = createTask({ minutes: 15, name: 'weekly review', once: 'week', reason: 'stay on top' })
     expect(task.minutes).toBe(15)
@@ -283,6 +294,7 @@ describe('createTask', () => {
     expect(task.reason).toBe('stay on top')
     expect(task.id.length).toBeGreaterThan(0)
   })
+
   it('C generates unique ids across calls', () => {
     expect(createTask({ name: 'a' }).id).not.toBe(createTask({ name: 'b' }).id)
   })
@@ -292,18 +304,23 @@ describe('buildOnce', () => {
   it('A a single unit yields the bare unit', () => {
     expect(buildOnce(1, 'day')).toBe('day')
   })
+
   it('B many units yield a pluralized recurrence', () => {
     expect(buildOnce(2, 'week')).toBe('2-weeks')
   })
+
   it('C an empty or zero quantity falls back to a single unit', () => {
     expect(buildOnce(0, 'month')).toBe('month')
   })
+
   it('D fractional quantities are truncated', () => {
     expect(buildOnce(3.9, 'year')).toBe('3-years')
   })
+
   it('E the result round-trips through daysRecurrence', () => {
     expect(daysRecurrence(buildOnce(2, 'week'))).toBe(14)
   })
+
   it('F a quantity beyond the regex 3-digit capture is clamped, never silently desyncs', () => {
     const once = buildOnce(1000, 'day')
     expect(daysRecurrence(once)).toBeGreaterThan(0)
@@ -314,12 +331,15 @@ describe('parseOnce', () => {
   it('A a bare unit yields a quantity of one', () => {
     expect(parseOnce('day')).toStrictEqual({ quantity: 1, unit: 'day' })
   })
+
   it('B a pluralized recurrence yields quantity and singular unit', () => {
     expect(parseOnce('2-weeks')).toStrictEqual({ quantity: 2, unit: 'week' })
   })
+
   it('C an unparseable value falls back to one day', () => {
     expect(parseOnce('yes')).toStrictEqual({ quantity: 1, unit: 'day' })
   })
+
   it('D it round-trips with buildOnce', () => {
     const { quantity, unit } = parseOnce('3-months')
     expect(buildOnce(quantity, unit)).toBe('3-months')
