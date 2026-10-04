@@ -23,6 +23,19 @@ const clearBatchSize = 2000
 /** validators for the app-shape Task fields, shared between the upsert mutation args and query returns — derived from `schema.ts` so the two never drift apart */
 const taskFields = schema.tables.tasks.validator.fields
 
+/** every field a patch may change: all task fields but the id, each optional, so a caller sends only what it means to modify */
+const taskChangeFields = {
+  completedOn: v.optional(taskFields.completedOn),
+  createdOn: v.optional(taskFields.createdOn),
+  deletedOn: v.optional(taskFields.deletedOn),
+  isDone: v.optional(taskFields.isDone),
+  minutes: v.optional(taskFields.minutes),
+  name: v.optional(taskFields.name),
+  once: v.optional(taskFields.once),
+  reason: taskFields.reason,
+  updatedOn: v.optional(taskFields.updatedOn),
+}
+
 /**
  * Strip Convex's own `_id`/`_creationTime` off a row, returning just the app-shape Task fields.
  * @param row - the raw `tasks` table row, as read from `ctx.db`
@@ -81,6 +94,33 @@ export const upsertTask = mutation({
     return null
   },
   returns: v.null(),
+})
+
+/**
+ * Change some fields of one live task in a single transaction. Unlike `upsertTask`, which overwrites
+ * the whole row from the caller's snapshot, this reads the current row and writes only the given
+ * fields, so an edit made from another device between the caller's read and write is never undone.
+ * `syncedAt` is stamped here, and always lands after the stored one so a device with a fast clock
+ * cannot make the change lose the client-side last-write-wins merge.
+ */
+export const patchTask = mutation({
+  args: { changes: v.object(taskChangeFields), id: v.string() },
+  handler: async (ctx, { changes, id }) => {
+    const existing = await ctx.db
+      .query('tasks')
+      .withIndex('by_task_id', matcher => matcher.eq('id', id))
+      .unique()
+    if (existing?.deletedOn !== '') throw new Error(`no task found with id "${id}"`)
+    const stored = Date.parse(existing.syncedAt)
+    const syncedAt = new Date(Number.isNaN(stored) ? Date.now() : Math.max(Date.now(), stored + 1)).toISOString()
+    // oxlint-disable-next-line no-underscore-dangle -- `_id` is Convex's own generated field name, not ours to rename
+    await ctx.db.patch(existing._id, { ...changes, syncedAt })
+    // oxlint-disable-next-line no-underscore-dangle -- `_id` is Convex's own generated field name, not ours to rename
+    const written = await ctx.db.get(existing._id)
+    if (written === null) throw new Error(`task "${id}" vanished during its own patch`)
+    return toTaskFields(written)
+  },
+  returns: v.object(taskFields),
 })
 
 /**

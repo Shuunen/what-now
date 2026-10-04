@@ -351,3 +351,100 @@ describe('delete_task', () => {
     expect(stored[0]?.deletedOn).not.toBe('')
   })
 })
+
+describe('update_task state', () => {
+  it('A makes a finished one-time task due again once it becomes recurring', async () => {
+    const t = convexTest(schema, modules)
+    await t.mutation(api.tasks.upsertTask, taskArgs({ completedOn: dateIso10(), id: 'once', isDone: true, once: 'yes' }))
+    await callTool(t, 'update_task', { id: 'once', once: 'week' })
+    const [stored] = await t.query(api.tasks.getAllTasks, {})
+    expect(stored?.isDone).toBe(false)
+    expect(stored?.once).toBe('week')
+  })
+  it('B leaves a recurring task done state alone when only its name changes', async () => {
+    const t = convexTest(schema, modules)
+    await t.mutation(api.tasks.upsertTask, taskArgs({ completedOn: dateIso10(), id: 'weekly', once: 'week' }))
+    await callTool(t, 'update_task', { id: 'weekly', name: 'renamed' })
+    const [stored] = await t.query(api.tasks.getAllTasks, {})
+    expect(stored?.completedOn).toBe(dateIso10())
+    expect(stored?.name).toBe('renamed')
+  })
+  it('C still edits a task whose stored rhythm the coach could not have written', async () => {
+    const t = convexTest(schema, modules)
+    await t.mutation(api.tasks.upsertTask, taskArgs({ id: 'legacy', once: 'weekly-ish' }))
+    const { isError } = await callTool(t, 'update_task', { id: 'legacy', minutes: 5 })
+    expect(isError).toBe(false)
+  })
+  it('D refuses a rhythm with a zero quantity', async () => {
+    const t = convexTest(schema, modules)
+    await t.mutation(api.tasks.upsertTask, taskArgs({ id: 'zero' }))
+    const { isError, text } = await callTool(t, 'update_task', { id: 'zero', once: '0-days' })
+    expect(isError).toBe(true)
+    expect(text).toContain('not a valid rhythm')
+  })
+})
+
+describe('deleted tasks', () => {
+  it('A are not found by id, so a retried call cannot touch them', async () => {
+    const t = convexTest(schema, modules)
+    await t.mutation(api.tasks.upsertTask, taskArgs({ deletedOn: '2025-01-01T00:00:00.000Z', id: 'gone' }))
+    const { isError, text } = await callTool(t, 'complete_task', { id: 'gone' })
+    expect(isError).toBe(true)
+    expect(text).toContain('no task found')
+  })
+})
+
+describe('patchTask', () => {
+  it('A writes only the fields it was given, keeping a concurrent edit', async () => {
+    const t = convexTest(schema, modules)
+    await t.mutation(api.tasks.upsertTask, taskArgs({ id: 'shared', syncedAt: '2025-01-01T00:00:00.000Z' }))
+    await t.mutation(api.tasks.patchTask, { changes: { name: 'renamed in the app' }, id: 'shared' })
+    await t.mutation(api.tasks.patchTask, { changes: { reason: 'from the coach' }, id: 'shared' })
+    const [stored] = await t.query(api.tasks.getAllTasks, {})
+    expect(stored?.name).toBe('renamed in the app')
+    expect(stored?.reason).toBe('from the coach')
+  })
+  it('B always stamps a sync clock later than the stored one, even when the stored one is in the future', async () => {
+    const t = convexTest(schema, modules)
+    const future = '2999-01-01T00:00:00.000Z'
+    await t.mutation(api.tasks.upsertTask, taskArgs({ id: 'skewed', syncedAt: future }))
+    await t.mutation(api.tasks.patchTask, { changes: { minutes: 3 }, id: 'skewed' })
+    const [stored] = await t.query(api.tasks.getAllTasks, {})
+    expect(Date.parse(stored?.syncedAt ?? '')).toBeGreaterThan(Date.parse(future))
+  })
+})
+
+describe('malformed input', () => {
+  it('A answers an unknown tool name with a tool error', async () => {
+    const t = convexTest(schema, modules)
+    const { isError, text } = await callTool(t, 'nope')
+    expect(isError).toBe(true)
+    expect(text).toContain('unknown tool')
+  })
+  it('B does not dispatch an inherited Object.prototype member as a tool', async () => {
+    const t = convexTest(schema, modules)
+    const { isError, text } = await callTool(t, 'constructor')
+    expect(isError).toBe(true)
+    expect(text).toContain('unknown tool')
+  })
+  it('C treats null params as absent instead of crashing', async () => {
+    const t = convexTest(schema, modules)
+    const response = await t.fetch('/mcp', { body: '{"id":7,"jsonrpc":"2.0","method":"tools/call","params":null}', headers: { 'Content-Type': 'application/json' }, method: 'POST' })
+    const body = (await response.json()) as { id: number; result: { isError: boolean } }
+    expect(body.id).toBe(7)
+    expect(body.result.isError).toBe(true)
+  })
+  it('D caps find_task results while reporting the full match count', async () => {
+    const t = convexTest(schema, modules)
+    await Promise.all(Array.from({ length: 9 }, (_, index) => t.mutation(api.tasks.upsertTask, taskArgs({ id: `task-${index}`, name: 'tidy desk' }))))
+    const { value } = await callTool(t, 'find_task', { query: 'tidy' })
+    expect(value?.matchCount).toBe(9)
+    expect(value?.matches).toHaveLength(8)
+  })
+  it('E clamps a negative duration to zero', async () => {
+    const t = convexTest(schema, modules)
+    const { value } = await callTool(t, 'add_task', { minutes: -5, name: 'x' })
+    invariant(value, 'add_task should answer with a payload')
+    expect((value.added as { minutes: number }).minutes).toBe(0)
+  })
+})

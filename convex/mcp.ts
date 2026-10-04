@@ -1,19 +1,14 @@
 import { invariant } from 'es-toolkit'
 import { api } from './_generated/api'
 import type { ActionCtx } from './_generated/server'
+import { capText, maxTaskTextLength, normalize, numberArg, rhythmArg, textArg } from './args'
 import { byCoachPriority, computeProgressPercent, dateIso10, daysAgoIso10, daysRecurrence, isTaskActive, overdueDays } from './recurrence'
-
-/** mirrors `maxTaskTextLength` in `src/schemas/task.ts`, so the coach can't write a task the app would reject on import */
-const maxTaskTextLength = 150
 
 /** how many tasks `find_task` returns at most, keeping a spoken answer short */
 const maxSearchResults = 8
 
 /** shortest rhythm that can be deferred: below this, pushing a task to tomorrow and completing it are the same write */
 const minDeferrableRecurrence = 2
-
-/** a rhythm the recurrence math understands: an optional quantity, then a unit */
-const rhythmRegex = /^(?:\d{1,3}-?)?(?:day|week|month|year)s?$/u
 
 /** the app-shape task, as stored by `convex/schema.ts` and returned by `tasks:getAllTasks` */
 type SyncedTask = {
@@ -30,6 +25,9 @@ type SyncedTask = {
   updatedOn: string
 }
 
+/** the fields a write may change on an existing task */
+type TaskChanges = Omit<Partial<SyncedTask>, 'id' | 'syncedAt'>
+
 /** a tool as advertised over MCP */
 type McpTool = { description: string; inputSchema: Record<string, unknown>; name: string }
 
@@ -38,40 +36,6 @@ type ToolInput = { args: Record<string, unknown>; ctx: ActionCtx; tasks: SyncedT
 
 /** what a handler on one existing task receives */
 type TaskToolInput = ToolInput & { task: SyncedTask }
-
-/**
- * Read a string argument, ignoring anything the client sent that is not actually a string.
- * @param value - the raw argument value
- * @param fallback - what to use when the value is missing or not a string, defaults to empty
- * @returns the string value
- */
-export function textArg(value: unknown, fallback = '') {
-  return typeof value === 'string' ? value : fallback
-}
-
-/**
- * Read a numeric argument, ignoring anything that is not a finite number.
- * @param value - the raw argument value
- * @param fallback - what to use when the value is missing or not a number
- * @returns the numeric value, never negative
- */
-function numberArg(value: unknown, fallback: number) {
-  if (typeof value !== 'number' || !Number.isFinite(value)) return fallback
-  return Math.max(0, value)
-}
-
-/**
- * Read a rhythm argument, refusing anything the app's recurrence math could not parse, which would
- * silently make the task due every day.
- * @param value - the raw argument value
- * @param fallback - what to use when the value is missing or not a string
- * @returns the validated rhythm, e.g. "day", "2-weeks" or "yes"
- */
-function rhythmArg(value: unknown, fallback: string) {
-  const rhythm = textArg(value, fallback).trim()
-  invariant(rhythm === 'yes' || rhythmRegex.test(rhythm), `"${rhythm}" is not a valid rhythm — use "day", "week", "month", "year", "2-days", "3-weeks", "2-months" and so on, or "yes" for a one-time task`)
-  return rhythm
-}
 
 /**
  * Build a JSON Schema object for a tool's arguments.
@@ -135,37 +99,29 @@ export const tools: McpTool[] = [
 ]
 
 /**
- * Persist a task, always stamping the sync clock so a stale copy on another device can never win the
- * last-write-wins merge and silently undo the coach.
+ * Insert a brand-new task, stamping the sync clock.
  * @param ctx - the Convex action context
  * @param task - the complete task to write
  * @returns the task as written
  */
-async function writeTask(ctx: ActionCtx, task: SyncedTask) {
+async function insertTask(ctx: ActionCtx, task: SyncedTask) {
   const written = { ...task, syncedAt: new Date().toISOString() }
   await ctx.runMutation(api.tasks.upsertTask, written)
   return written
 }
 
 /**
- * Trim a text field to the app's own maximum length.
- * @param text - the raw text
- * @returns the text, capped
+ * Change some fields of an existing task. Only those fields are written, in one server-side
+ * transaction that also stamps the sync clock, so an edit made from the app in the meantime is never
+ * overwritten by this snapshot-based write, and a stale copy on another device can never win the
+ * last-write-wins merge and silently undo the coach.
+ * @param ctx - the Convex action context
+ * @param id - the id of the task to change
+ * @param changes - the fields to change
+ * @returns the whole task as now stored
  */
-function capText(text: string) {
-  return text.slice(0, maxTaskTextLength)
-}
-
-/**
- * Lowercase and strip accents, so "rangé" matches a spoken "range".
- * @param text - the text to normalize
- * @returns the normalized text
- */
-function normalize(text: string) {
-  return text
-    .normalize('NFD')
-    .replaceAll(/\p{Diacritic}/gu, '')
-    .toLowerCase()
+function patchTask(ctx: ActionCtx, id: string, changes: TaskChanges) {
+  return ctx.runMutation(api.tasks.patchTask, { changes, id })
 }
 
 /**
@@ -195,7 +151,7 @@ function summarize(task: SyncedTask) {
 function withTask(handler: (input: TaskToolInput) => Promise<string>) {
   return (input: ToolInput) => {
     const id = textArg(input.args.id)
-    const task = input.tasks.find(candidate => candidate.id === id)
+    const task = input.tasks.find(candidate => candidate.id === id && candidate.deletedOn === '')
     invariant(task, `no task found with id "${id}" — call get_today or find_task first to get a real id`)
     return handler({ ...input, task })
   }
@@ -207,7 +163,7 @@ const handlers: Record<string, (input: ToolInput) => Promise<string>> = {
     invariant(label !== '', 'add_task needs a name')
     const now = new Date().toISOString()
     const rawReason = textArg(args.reason).trim()
-    const created = await writeTask(ctx, {
+    const created = await insertTask(ctx, {
       completedOn: '',
       createdOn: now,
       deletedOn: '',
@@ -223,7 +179,7 @@ const handlers: Record<string, (input: ToolInput) => Promise<string>> = {
     return JSON.stringify({ added: summarize(created) })
   },
   complete_task: withTask(async ({ ctx, task, tasks }) => {
-    const done = await writeTask(ctx, { ...task, completedOn: dateIso10(), isDone: task.once === 'yes' })
+    const done = await patchTask(ctx, task.id, { completedOn: dateIso10(), isDone: task.once === 'yes' })
     const after = tasks.map(item => (item.id === done.id ? done : item))
     return JSON.stringify({ completed: summarize(done), progressPercent: computeProgressPercent(after) })
   }),
@@ -234,11 +190,11 @@ const handlers: Record<string, (input: ToolInput) => Promise<string>> = {
       const why = `"${task.name}" ${cadence}, so pushing it to tomorrow and marking it done are the same write. Tell the user you are skipping it for today instead — it just stays due.`
       return JSON.stringify({ refused: true, why })
     }
-    const deferred = await writeTask(ctx, { ...task, completedOn: daysAgoIso10(recurrence - 1), isDone: false })
+    const deferred = await patchTask(ctx, task.id, { completedOn: daysAgoIso10(recurrence - 1), isDone: false })
     return JSON.stringify({ deferred: summarize(deferred), warning: "This rewrote the task's completion date, so its future rhythm has shifted forward by a day. Say so out loud." })
   }),
   delete_task: withTask(async ({ ctx, task }) => {
-    const deleted = await writeTask(ctx, { ...task, deletedOn: new Date().toISOString() })
+    const deleted = await patchTask(ctx, task.id, { deletedOn: new Date().toISOString() })
     return JSON.stringify({ deleted: { id: deleted.id, name: deleted.name }, recoverable: true })
   }),
   find_task: ({ args, tasks }) => {
@@ -263,23 +219,27 @@ const handlers: Record<string, (input: ToolInput) => Promise<string>> = {
   set_reason: withTask(async ({ args, ctx, task }) => {
     const reason = capText(textArg(args.reason).trim())
     invariant(reason !== '', 'set_reason needs a non-empty reason')
-    const updated = await writeTask(ctx, { ...task, reason, updatedOn: new Date().toISOString() })
+    const updated = await patchTask(ctx, task.id, { reason, updatedOn: new Date().toISOString() })
     return JSON.stringify({ reasonSaved: summarize(updated) })
   }),
   uncomplete_task: withTask(async ({ ctx, task }) => {
-    const undone = await writeTask(ctx, { ...task, completedOn: daysAgoIso10(daysRecurrence(task.once)), isDone: false })
+    const undone = await patchTask(ctx, task.id, { completedOn: daysAgoIso10(daysRecurrence(task.once)), isDone: false })
     return JSON.stringify({ uncompleted: summarize(undone) })
   }),
   update_task: withTask(async ({ args, ctx, task }) => {
-    const label = args.name === undefined ? task.name : capText(textArg(args.name).trim())
-    invariant(label !== '', 'update_task needs a non-empty name')
-    const updated = await writeTask(ctx, {
-      ...task,
-      minutes: numberArg(args.minutes, task.minutes),
-      name: args.name === undefined ? task.name : label,
-      once: rhythmArg(args.once, task.once),
-      updatedOn: new Date().toISOString(),
-    })
+    // only the fields the caller sent are written, so a concurrent edit to any other field is never reverted from this snapshot
+    const changes: TaskChanges = { updatedOn: new Date().toISOString() }
+    if (args.name !== undefined) {
+      changes.name = capText(textArg(args.name).trim())
+      invariant(changes.name !== '', 'update_task needs a non-empty name')
+    }
+    if (args.minutes !== undefined) changes.minutes = numberArg(args.minutes, task.minutes)
+    if (args.once !== undefined) {
+      changes.once = rhythmArg(args.once, task.once)
+      // a finished one-time task changed to a recurring rhythm must become due again, or it would stay hidden for good
+      if (task.once === 'yes' && changes.once !== 'yes') changes.isDone = false
+    }
+    const updated = await patchTask(ctx, task.id, changes)
     return JSON.stringify({ updated: summarize(updated) })
   }),
 }
@@ -292,7 +252,8 @@ const handlers: Record<string, (input: ToolInput) => Promise<string>> = {
  * @returns a JSON string describing the result, for the model to read
  */
 export async function callTool(ctx: ActionCtx, name: string, args: Record<string, unknown>) {
-  const handler = handlers[name]
+  // own keys only: a client-chosen name like "constructor" must not reach an inherited Object.prototype member
+  const handler = Object.hasOwn(handlers, name) ? handlers[name] : undefined
   invariant(handler, `unknown tool "${name}"`)
   const tasks = (await ctx.runQuery(api.tasks.getAllTasks, {})) as SyncedTask[]
   return handler({ args, ctx, tasks })

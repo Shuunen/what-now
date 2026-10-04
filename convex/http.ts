@@ -1,6 +1,7 @@
 import { httpRouter } from 'convex/server'
 import { type ActionCtx, httpAction } from './_generated/server'
-import { callTool, textArg, tools } from './mcp'
+import { textArg } from './args'
+import { callTool, tools } from './mcp'
 
 /**
  * Model Context Protocol server, served over streamable HTTP at
@@ -81,7 +82,9 @@ function negotiateVersion(requested: unknown) {
  * @returns the JSON-RPC result payload, or undefined for a notification that expects no answer
  */
 async function handleRpc(ctx: ActionCtx, rpc: JsonRpcRequest) {
-  const { id, method, params = {} } = rpc
+  const { id, method } = rpc
+  // a non-object `params` (null, a string) is treated as absent rather than crashing on property reads
+  const params = typeof rpc.params === 'object' && rpc.params !== null ? rpc.params : {}
   if (method.startsWith('notifications/')) return undefined
   if (method === 'initialize')
     return {
@@ -98,7 +101,7 @@ async function handleRpc(ctx: ActionCtx, rpc: JsonRpcRequest) {
   if (method === 'tools/list') return { id, jsonrpc: jsonRpcVersion, result: { tools } }
   if (method === 'tools/call') {
     const name = textArg(params.name)
-    const args = (params.arguments ?? {}) as Record<string, unknown>
+    const args = typeof params.arguments === 'object' && params.arguments !== null ? (params.arguments as Record<string, unknown>) : {}
     try {
       const text = await callTool(ctx, name, args)
       return { id, jsonrpc: jsonRpcVersion, result: { content: [{ text, type: 'text' }], isError: false } }
