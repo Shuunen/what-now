@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as args from "../args.js";
 import type * as http from "../http.js";
 import type * as mcp from "../mcp.js";
 import type * as recurrence from "../recurrence.js";
@@ -20,6 +21,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  args: typeof args;
   http: typeof http;
   mcp: typeof mcp;
   recurrence: typeof recurrence;

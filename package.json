@@ -70,6 +70,7 @@
     "build:tsc": "tsc -b && echo build:tsc completed successfully || (echo Please fix type errors and run pnpm run build:tsc to check for remaining type issues && exit 1)",
     "build:vite": "vite build && echo build:vite completed successfully || (echo Please fix build errors and run pnpm run build:vite to check for remaining build issues && exit 1)",
     "check": "turbo run lint:types lint:format lint:issues lint:rules build:tsc build:vite test:unit test:e2e && echo check completed successfully",
+    "convex:dev": "convex dev --once && echo convex:dev completed successfully",
     "dev": "vite",
     "lint": "turbo run lint:types lint:format lint:issues && echo lint completed successfully",
     "lint:format": "oxfmt --check && echo lint:format completed successfully || (echo Please run pnpm run lint:format:fix to automatically fix formatting issues && exit 1)",
