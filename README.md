@@ -2,6 +2,7 @@
 
 [![Website Up](https://img.shields.io/website/https/what-now.netlify.app.svg)](https://what-now.netlify.app)
 [![Project license](https://img.shields.io/github/license/Shuunen/what-now.svg?color=informational)](https://github.com/Shuunen/what-now/blob/master/LICENSE)
+[![Visitors](https://hits.sh/github.com/Shuunen/what-now.svg?label=visitors&color=informational)](https://hits.sh/github.com/Shuunen/what-now/)
 
 ![logo](docs/logo-double.svg)
 
@@ -102,15 +103,15 @@ in terms of ui/ux :
 ## Thanks
 
 - [Boxy Svg](https://boxy-svg.com) : simple & effective svg editor
+- [Bun](https://bun.sh) : super fast runtime for JavaScript and TypeScript
 - [Canvas-Confetti](https://github.com/catdad/canvas-confetti) : superb fireworks/confetti effets
-- [Dependency-cruiser](https://github.com/sverweij/dependency-cruiser) : handy tool to validate and visualize dependencies
-- [Esbuild](https://github.com/evanw/esbuild) : an extremely fast JavaScript bundler and minifier
-- [Eslint](https://eslint.org) : super tool to find & fix problems
 - [Favicon.io](https://favicon.io) : cool favicon generator
 - [Florian Reichelt](https://freesound.org/people/florianreichelt/sounds/459973/) : fireworks sound effect hosted on FreeSound
 - [Github](https://github.com) : for all their great work year after year, pushing OSS forward
+- [Knip](https://github.com/webpro/knip) : super tool to find & fix problems
 - [Netlify](https://netlify.com) : awesome company that offers free CI & hosting for OSS projects
-- [Repo-checker](https://github.com/Shuunen/repo-checker) : eslint cover /src code and this tool the rest ^^
+- [Oxc](https://oxc.rs) : a lovely super-fast collection of JavaScript tools written in Rust
+- [React](https://react.dev) : great library for web and native user interfaces
 - [Shields.io](https://shields.io) : nice looking badges to be proud of
 - [Shuutils](https://github.com/Shuunen/shuutils) : collection of pure JS utils
 - [Svg Omg](https://jakearchibald.github.io/svgomg/) : the great king of svg file size reduction
@@ -118,11 +119,4 @@ in terms of ui/ux :
 - [V8](https://github.com/demurgos/v8-coverage) : simple & effective cli for code coverage
 - [Vite](https://github.com/vitejs/vite) : super fast frontend tooling
 - [Vitest](https://github.com/vitest-dev/vitest) : super fast vite-native testing framework
-
-## Stargazers over time
-
-[![Stargazers over time](https://starchart.cc/Shuunen/what-now.svg?variant=adaptive)](https://starchart.cc/Shuunen/what-now)
-
-## Page views
-
-[![Free Website Counter](https://www.websitecounterfree.com/c.php?d=9&id=64400&s=12)](https://www.websitecounterfree.com)
+- [Zod](https://github.com/colinhacks/zod) : typeScript-first schema validation
