@@ -70,10 +70,6 @@ A few things worth knowing:
 - If a device says "this doesn't look like a WhatNow sync deployment" or mentions a stale schema, redeploy the latest `convex/` template (step 3) — this app's own schema may have changed since you last deployed.
 - "Delete my synced data" in Settings wipes everything on that Convex deployment (not your local tasks) — useful if you want to start over or stop using that deployment.
 
-## TODO
-
-- [ ] try to use reefjs.com on this project
-
 ## New UX/UI & ideas
 
 1. instead of tasks, the daily goal might be to reach levels like : chores, health, mental and each task will give points to each level
