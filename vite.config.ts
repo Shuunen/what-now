@@ -58,8 +58,9 @@ export default defineConfig({
       },
     }),
   ],
-  preview: { port: 4300 },
-  server: { port: 4200 },
+  // dedicated ports, so apps never collide when running together (4200 / 4300 belong to stuff-finder)
+  preview: { port: 4111, strictPort: true },
+  server: { port: 5111, strictPort: true },
   test: {
     coverage: {
       exclude: ['**/__snapshots__/**'],

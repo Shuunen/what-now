@@ -5,10 +5,10 @@ export default defineConfig({
   fullyParallel: true,
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'], channel: 'chromium-headless-shell' } }],
   testDir: './e2e',
-  use: { baseURL: 'http://localhost:4200' },
+  use: { baseURL: 'http://localhost:5111' },
   webServer: {
     command: 'pnpm run dev',
     reuseExistingServer: !process.env.CI,
-    url: 'http://localhost:4200',
+    url: 'http://localhost:5111',
   },
 })
