@@ -255,8 +255,8 @@ importers:
         specifier: ^1.4.4
         version: 1.4.4
       convex-test:
-        specifier: ^0.0.67
-        version: 0.0.67(convex@1.49.0(react@19.3.1))
+        specifier: ^0.0.69
+        version: 0.0.69(convex@1.49.0(react@19.3.1))
       fake-indexeddb:
         specifier: ^6.2.8
         version: 6.2.8
@@ -264,8 +264,8 @@ importers:
         specifier: ^21.0.4
         version: 21.0.4
       knip:
-        specifier: ~6.44.2
-        version: 6.44.2
+        specifier: ~6.45.0
+        version: 6.45.0
       oxfmt:
         specifier: ^0.78.0
         version: 0.78.0
@@ -3165,8 +3165,8 @@ packages:
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
 
-  convex-test@0.0.67:
-    resolution: {integrity: sha512-UCAzL8pwo4akHs6dppAU3Rbo2Gzdp1KZp9kcsLGFBaL7JuXOfUZFxe16ywQjnyDZ+uQhawjTRx2j6Hd8FoBm5Q==}
+  convex-test@0.0.69:
+    resolution: {integrity: sha512-jAKCULbzF8oVxepTcesvazn90WxFCr2k32m8HJ6vypHG3f1Zmfq0250OmFVqp9dztZwVe+CgE2Hga6kZyW0LWQ==}
     peerDependencies:
       convex: ^1.43.0
 
@@ -3698,8 +3698,8 @@ packages:
     resolution: {integrity: sha512-p/nXbhSEcu3pZRdkW1OfJhpsVtW1gd4Wa1fnQc9YLiTfAjn0312eMKimbdIQzuZl9aa9xUGaRlP9T/CJE/ditQ==}
     engines: {node: '>=0.10.0'}
 
-  knip@6.44.2:
-    resolution: {integrity: sha512-6URO7pnqtOnyvSsXfW6+8C9j1lfcicxUCysXO0RgMtHTZ96HqCXh29op8iabeQW5JeIc8dJWwzSdJVWDokeScQ==}
+  knip@6.45.0:
+    resolution: {integrity: sha512-ywPAhxiJGPWD/1V5dVYawA6el74q4vgX8omkeyl0MbA1CCkdjxrvWXXVqM20a5wQWcl1NbC9ImLHYsbFEbD0Xg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
 
@@ -7299,7 +7299,7 @@ snapshots:
 
   convert-source-map@2.0.0: {}
 
-  convex-test@0.0.67(convex@1.49.0(react@19.3.1)):
+  convex-test@0.0.69(convex@1.49.0(react@19.3.1)):
     dependencies:
       convex: 1.49.0(react@19.3.1)
 
@@ -7900,7 +7900,7 @@ snapshots:
 
   jsonpointer@5.0.1: {}
 
-  knip@6.44.2:
+  knip@6.45.0:
     dependencies:
       formatly: 0.11.4
       get-tsconfig: 4.14.3
@@ -7913,7 +7913,6 @@ snapshots:
       tinyglobby: 0.2.17
       unbash: 6.0.4
       yaml: 2.9.1
-      zod: 4.6.7
 
   leven@3.1.0: {}
 

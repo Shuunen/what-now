@@ -1,3 +1,6 @@
 allowBuilds:
   bun: true
   esbuild: true
+minimumReleaseAgeExclude:
+  - convex-test@0.0.69
+  - knip@6.45.0
