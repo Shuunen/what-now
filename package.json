@@ -59,7 +59,7 @@
   ],
   "license": "GPL-3.0",
   "name": "@shuunen/what-now",
-  "packageManager": "pnpm@12.16.1",
+  "packageManager": "pnpm@12.18.0",
   "private": true,
   "repository": {
     "type": "git",
