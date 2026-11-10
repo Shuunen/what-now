@@ -46,6 +46,10 @@
     "window": "readonly"
   },
   "ignorePatterns": [".git", "*.d.ts", "convex/_generated", "coverage", "dist", "node_modules", "out-tsc", "test-output"],
+  "options": {
+    "typeAware": true,
+    "typeCheck": true
+  },
   "overrides": [
     {
       "files": ["src/bin/**/*.ts", "src/webhook/**/*.ts"],
@@ -84,12 +88,12 @@
         "max-nested-callbacks": "off",
         "max-params": "off",
         "max-statements": "off",
-        "unicorn/max-nested-calls": "off",
         "no-magic-numbers": "off",
         "no-nodejs-modules": "off",
         "prefer-describe-function-title": "off",
         "prefer-ending-with-an-expect": "off",
         "prefer-importing-jest-globals": "off",
+        "unicorn/max-nested-calls": "off",
         "vitest/expect-expect": [
           "error",
           {
@@ -117,7 +121,6 @@
     "explicit-module-boundary-types": "off",
     "exports-last": "off",
     "extensions": "off",
-    "one-var": "off",
     "filename-case": [
       "error",
       {
@@ -195,6 +198,7 @@
     "no-void": "off",
     "no-warning-comments": "off",
     "number-literal-case": "off",
+    "one-var": "off",
     "prefer-at": "error",
     "prefer-default-export": "off",
     "prefer-importing-vitest-globals": "off",
@@ -212,6 +216,12 @@
     "strict-void-return": "off",
     "switch-exhaustiveness-check": "off",
     "unambiguous": "off",
+    "unicorn/filename-case": [
+      "error",
+      {
+        "case": "kebabCase"
+      }
+    ],
     "unicorn/prefer-spread": "off",
     "vitest/prefer-called-times": "off",
     "vitest/prefer-called-with": "off",
