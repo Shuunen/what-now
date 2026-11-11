@@ -1,7 +1,7 @@
 import { Dexie, type Table } from 'dexie'
 import type { AppData } from '../schemas/app-data'
 
-export type AppDataRecord = {
+type AppDataRecord = {
   data: AppData
   id: number
 }

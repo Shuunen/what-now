@@ -20,17 +20,17 @@ export type TaskModifications = {
 export const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 export const daysInWeek = 14
 export const allDayIndices = Array.from({ length: daysInWeek }, (_unused, index) => index)
-export const dailyRecurrence = 1
-export const twoDayRecurrence = 2
-export const threeDayRecurrence = 3
-export const weeklyRecurrence = 7
+const dailyRecurrence = 1
+const twoDayRecurrence = 2
+const threeDayRecurrence = 3
+const weeklyRecurrence = 7
 
 // Constants for recurrence patterns
-export const dayFrequency = 1
-export const weekFrequency = 7
-export const biWeeklyFrequency = 14
-export const triWeeklyFrequency = 21
-export const monthlyFrequency = 28
+const dayFrequency = 1
+const weekFrequency = 7
+const biWeeklyFrequency = 14
+const triWeeklyFrequency = 21
+const monthlyFrequency = 28
 
 // Valid frequency options in ascending order (higher frequency = lower number)
 export const validFrequencies = [

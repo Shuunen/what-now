@@ -25,7 +25,7 @@ const defaultDaysAgo = 2
  * @param days - how many days ago
  * @returns a date-only ISO string (YYYY-MM-DD)
  */
-export function daysAgoIso10(days: number) {
+function daysAgoIso10(days: number) {
   return new Date(Date.now() - days * nbMsInDay).toISOString().slice(0, isoDateLength)
 }
 
@@ -34,7 +34,7 @@ export function daysAgoIso10(days: number) {
  * @param fields - the task fields to override, name is required
  * @returns a complete task
  */
-export function task(fields: SeedTask) {
+function task(fields: SeedTask) {
   return {
     completedOn: daysAgoIso10(defaultDaysAgo),
     id: fields.name.toLowerCase().replaceAll(/\s+/gu, '-'),
