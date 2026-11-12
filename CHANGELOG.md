@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update `convex-test` to 0.0.70
+- Add a `VERSION` file
 
 ## [3.2.0] - 2026-07-21
 
