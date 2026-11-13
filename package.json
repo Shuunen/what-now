@@ -35,7 +35,7 @@
     "@vitest/coverage-v8": "^5.1.0",
     "@vitest/ui": "^5.1.0",
     "bun": "^1.4.4",
-    "convex-test": "^0.0.70",
+    "convex-test": "^0.0.71",
     "fake-indexeddb": "^6.2.8",
     "happy-dom": "^21.0.4",
     "knip": "~6.45.0",

@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Update `convex-test` to 0.0.70
+- Update `convex-test` to 0.0.71
 - Drop the redundant `run_install` option from the CI
 - Add a `VERSION` file
 

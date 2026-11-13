@@ -255,8 +255,8 @@ importers:
         specifier: ^1.4.4
         version: 1.4.4
       convex-test:
-        specifier: ^0.0.70
-        version: 0.0.70(convex@1.49.0(react@19.3.1))
+        specifier: ^0.0.71
+        version: 0.0.71(convex@1.49.0(react@19.3.1))
       fake-indexeddb:
         specifier: ^6.2.8
         version: 6.2.8
@@ -3165,8 +3165,8 @@ packages:
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
 
-  convex-test@0.0.70:
-    resolution: {integrity: sha512-8/sRPBb2Av0OStepINBMDBpFk2VZdnJ28jnUiIszbVWcJIWB/ywbLHGH5w5b87ypQylmEIS65+LE3PmqZD3nTA==}
+  convex-test@0.0.71:
+    resolution: {integrity: sha512-sHptDSWL0b2Og6to5R9/GoCHF7XGNXIAxQDJnA8UYYZa8yym9mfC03h3C47LS3Bj2BIO9lD0pKIv2H7dP+VKPA==}
     peerDependencies:
       convex: ^1.43.0
 
@@ -7299,7 +7299,7 @@ snapshots:
 
   convert-source-map@2.0.0: {}
 
-  convex-test@0.0.70(convex@1.49.0(react@19.3.1)):
+  convex-test@0.0.71(convex@1.49.0(react@19.3.1)):
     dependencies:
       convex: 1.49.0(react@19.3.1)
 
