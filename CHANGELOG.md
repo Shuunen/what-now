@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update `convex-test` to 0.0.71
 - Drop the redundant `run_install` option from the CI
+- Send a `Referrer-Policy` header and stop the browser from caching the service worker
 - Add a `VERSION` file
 
 ## [3.2.0] - 2026-07-21
