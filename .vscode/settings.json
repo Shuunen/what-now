@@ -10,8 +10,17 @@
   "oxc.typeAware": true,
   "oxc.unusedDisableDirectives": "deny",
   "workbench.colorCustomizations": {
-    "activityBar.background": "#530E49",
-    "titleBar.activeBackground": "#751466",
-    "titleBar.activeForeground": "#FEFCFE"
+    "activityBar.background": "#084e91",
+    "activityBar.foreground": "#f9fafb",
+    "activityBarBadge.background": "#0c7ade",
+    "activityBarBadge.foreground": "#111827",
+    "statusBar.background": "#084e91",
+    "statusBar.foreground": "#f9fafbcc",
+    "statusBar.inactiveBackground": "#05335e",
+    "tab.activeBorderTop": "#0c7ade",
+    "titleBar.activeBackground": "#0c7ade",
+    "titleBar.activeForeground": "#111827",
+    "titleBar.inactiveBackground": "#084e91",
+    "titleBar.inactiveForeground": "#f9fafbaa"
   }
 }

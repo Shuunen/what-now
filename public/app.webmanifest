@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/web-manifest-combined.json",
-  "background_color": "#0c7ade",
+  "background_color": "#084e91",
   "description": "Minimalist task reminder",
   "display": "fullscreen",
   "icons": [

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Align the web manifest colors and the VS Code window colors on the theme color
+
 ### Fixed
 
 - Serve `robots.txt` to crawlers in place of the misspelled `robot.txt`
