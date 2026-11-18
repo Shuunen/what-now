@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Align the web manifest colors and the VS Code window colors on the theme color
 - Make the app icons from `public/logo.svg` with `build:assets`, full-bleed in the theme color, and list them in the web manifest
+- Rename the web app manifest to `manifest.webmanifest`, the standard extension
 
 ### Fixed
 
@@ -18,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.2.1] - 2026-11-13
 
-### Changed
+### Changed in 3.2.1
 
 - Update `convex-test` to 0.0.71
 - Drop the redundant `run_install` option from the CI
