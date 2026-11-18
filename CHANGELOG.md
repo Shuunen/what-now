@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Align the web manifest colors and the VS Code window colors on the theme color
+- Make the app icons from `public/logo.svg` with `build:assets`, full-bleed in the theme color, and list them in the web manifest
 
 ### Fixed
 
