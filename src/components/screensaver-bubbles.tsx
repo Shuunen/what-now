@@ -4,8 +4,8 @@ import { hueShiftBig, hueShiftSmall, paleColor, shiftHue } from '../utils/screen
 /** a calm bubble drifts this many times slower than a lively one */
 const calmSlowdown = 6
 const calmOpacity = 0.16
-/** at night the calm bubbles are twice as dim */
-const nightOpacity = 0.08
+/** at night the calm bubbles are four times as dim as the lively ones */
+const nightOpacity = 0.04
 const livelyOpacity = 0.5
 
 function bubbleOpacity(isCalm: boolean, isDim: boolean) {
