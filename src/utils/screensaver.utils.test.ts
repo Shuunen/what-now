@@ -1,5 +1,7 @@
-import { countRemaining, hueOffsets, formatClockDate, formatClockTime, paleColor, shiftHue } from './screensaver.utils'
+import { countRemaining, isNightTime, hueOffsets, formatClockDate, formatClockTime, paleColor, shiftHue } from './screensaver.utils'
 import { taskMock } from './tasks.utils'
+
+const at = (hours: number, minutes: number) => new Date(2026, 10, 25, hours, minutes)
 
 describe('screensaver.utils', () => {
   it('A shiftHue moves the hue of a color', () => {
@@ -29,5 +31,24 @@ describe('screensaver.utils', () => {
 
   it('F hueOffsets starts with the untouched accent color', () => {
     expect(hueOffsets[0]).toBe(0)
+  })
+
+  it('G isNightTime covers the night between the start and the end', () => {
+    expect(isNightTime(at(0, 0), '00:00', '07:00')).toBe(true)
+    expect(isNightTime(at(6, 59), '00:00', '07:00')).toBe(true)
+    expect(isNightTime(at(7, 0), '00:00', '07:00')).toBe(false)
+    expect(isNightTime(at(12, 0), '00:00', '07:00')).toBe(false)
+    expect(isNightTime(at(23, 59), '00:00', '07:00')).toBe(false)
+  })
+
+  it('H isNightTime handles a night that crosses midnight', () => {
+    expect(isNightTime(at(23, 30), '23:30', '06:30')).toBe(true)
+    expect(isNightTime(at(2, 0), '23:30', '06:30')).toBe(true)
+    expect(isNightTime(at(6, 30), '23:30', '06:30')).toBe(false)
+    expect(isNightTime(at(12, 0), '23:30', '06:30')).toBe(false)
+  })
+
+  it('I isNightTime is off when the start and the end are the same time', () => {
+    expect(isNightTime(new Date(2026, 10, 25, 3, 0), '07:00', '07:00')).toBe(false)
   })
 })

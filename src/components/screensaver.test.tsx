@@ -79,4 +79,24 @@ describe('Screensaver', () => {
     act(() => vi.advanceTimersByTime(idleSeconds * 5000))
     expect(queryByTestId('screensaver')).toBeNull()
   })
+
+  it('G shows the clock all night even when tasks are left, then the count again once the night ends', () => {
+    vi.setSystemTime(new Date(2026, 10, 25, 6, 59, 0))
+    loadTasks([taskMock({ completedOn: '', id: 'a' })])
+    const { getByTestId, queryByTestId } = renderScreensaver()
+    act(() => vi.advanceTimersByTime(idleSeconds * 1000))
+    expect(getByTestId('screensaver-clock')).toBeDefined()
+    expect(queryByTestId('screensaver-count')).toBeNull()
+    act(() => vi.advanceTimersByTime(60 * 1000))
+    expect(getByTestId('screensaver-count')).toHaveTextContent('1')
+    expect(queryByTestId('screensaver-clock')).toBeNull()
+  })
+
+  it('H shows the count during the day', () => {
+    vi.setSystemTime(new Date(2026, 10, 25, 12, 0, 0))
+    loadTasks([taskMock({ completedOn: '', id: 'a' })])
+    const { getByTestId } = renderScreensaver()
+    act(() => vi.advanceTimersByTime(idleSeconds * 1000))
+    expect(getByTestId('screensaver-count')).toHaveTextContent('1')
+  })
 })

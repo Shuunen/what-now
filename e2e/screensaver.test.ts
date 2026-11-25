@@ -2,6 +2,8 @@ import { expect, test } from '@playwright/test'
 import { persistenceDebounceMs, seedApp } from './seed'
 
 const idleSeconds = 5
+const hourMs = 3_600_000
+const timeOf = (offsetMs: number) => new Date(Date.now() + offsetMs).toTimeString().slice(0, 5)
 const idleTimeoutMs = (idleSeconds + 5) * 1000
 const screensaverSettings = { screensaverIdleSeconds: idleSeconds }
 
@@ -34,5 +36,11 @@ test('the screensaver turns into a clock once every task is done', async ({ page
   await page.getByTestId('button-water-plants').click()
   await expect(page.getByTestId('screensaver-clock')).toBeVisible({ timeout: idleTimeoutMs })
   await expect(page.getByTestId('screensaver-clock-time')).toHaveText(/\d{2}.\d{2}/u)
+  await expect(page.getByTestId('screensaver-count')).toBeHidden()
+})
+
+test('during the night the screensaver shows the clock even with tasks left', async ({ page }) => {
+  await seedApp(page, { settings: { ...screensaverSettings, nightEnd: timeOf(hourMs), nightStart: timeOf(-hourMs) }, tasks: [{ name: 'water plants' }] })
+  await expect(page.getByTestId('screensaver-clock')).toBeVisible({ timeout: idleTimeoutMs })
   await expect(page.getByTestId('screensaver-count')).toBeHidden()
 })

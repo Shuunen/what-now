@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Landscape layout : on any screen wider than tall, like an Echo Show, the tasks list becomes a wide two-column layout
 - Screensaver : after a delay without touch (60 seconds by default, editable in Settings) a moving What now logo shows the remaining task count, with a huge faint count behind it and colored bubbles in the shades of the progress color, a touch brings the tasks back
 - Once every task is done, the screensaver turns into a dimmed clock with the date, over very slow pale green bubbles
+- Night clock : from a start time to an end time (midnight to 7:00 by default, editable in Settings) the screensaver only shows the dimmed clock even when tasks are left, then goes back to the remaining count by itself
 - Fullscreen on touch devices : the first touch of the screen enters fullscreen, in portrait and in landscape (browsers do not allow it before a gesture)
 
 - Fullscreen item in the menu, to enter or leave fullscreen on demand, the menu closes once chosen

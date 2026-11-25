@@ -3,13 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { nbMsInSecond } from 'shuutils'
 import { useIdle } from '../hooks/use-idle'
 import { useAppStore } from '../store/use-app-store'
-import { computeProgressPercent, progressAccentColor } from '../utils/progress.utils'
-import { countRemaining } from '../utils/screensaver.utils'
 import { isTaskActive } from '../utils/tasks.utils'
-import { ScreensaverClock } from './screensaver-clock'
-import { ScreensaverCountdown } from './screensaver-countdown'
-
-const successPercent = 100
+import { ScreensaverBody } from './screensaver-body'
 
 /**
  * The fake screensaver, for a device that never really sleeps like an Echo Show, so after a while without touch this covers the app :
@@ -23,7 +18,6 @@ export function Screensaver() {
   const navigate = useNavigate()
   const { isIdle, wake } = useIdle(idleSeconds * nbMsInSecond, !isLoading)
   const tasks = useMemo(() => allTasks.filter(task => isTaskActive(task, true)), [allTasks])
-  const remaining = countRemaining(tasks)
   // oxlint-disable-next-line unicorn/no-null
   if (!isIdle) return null
   function handleClick() {
@@ -33,7 +27,7 @@ export function Screensaver() {
   }
   return (
     <button aria-label="Back to your tasks" className="fixed inset-0 z-40 cursor-pointer overflow-hidden bg-linear-to-tr from-stone-950 to-stone-900 text-white" data-testid="screensaver" onClick={handleClick} type="button">
-      {remaining === 0 ? <ScreensaverClock accent={progressAccentColor(successPercent)} /> : <ScreensaverCountdown accent={progressAccentColor(computeProgressPercent(tasks))} remaining={remaining} />}
+      <ScreensaverBody tasks={tasks} />
     </button>
   )
 }

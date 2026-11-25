@@ -14,6 +14,8 @@ type AppStore = {
   mergeTasks: (tasks: Task[]) => void
   removeTask: (id: string) => void
   setFinaleDismissedOn: (finaleDismissedOn: string) => void
+  setNightEnd: (nightEnd: string) => void
+  setNightStart: (nightStart: string) => void
   setScreensaverIdleSeconds: (screensaverIdleSeconds: number) => void
   setSyncStatus: (syncStatus: SyncStatus) => void
   setSyncUrl: (syncUrl: string) => void
@@ -56,6 +58,8 @@ export const useAppStore = create<AppStore>()(
         data: { ...state.data, tasks: state.data.tasks.map(task => (task.id === id ? deleteTask(task) : task)) },
       })),
     setFinaleDismissedOn: finaleDismissedOn => set(withSettings({ finaleDismissedOn })),
+    setNightEnd: nightEnd => set(withSettings({ nightEnd })),
+    setNightStart: nightStart => set(withSettings({ nightStart })),
     setScreensaverIdleSeconds: screensaverIdleSeconds => set(withSettings({ screensaverIdleSeconds })),
     setSyncStatus: syncStatus => set({ syncStatus }),
     setSyncUrl: syncUrl => set(withSettings({ syncUrl })),

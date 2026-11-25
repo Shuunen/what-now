@@ -54,3 +54,31 @@ export function formatClockTime(date: Date, locale?: string) {
 export function formatClockDate(date: Date, locale?: string) {
   return date.toLocaleDateString(locale, { day: 'numeric', month: 'long', weekday: 'long' })
 }
+
+const minutesInHour = 60
+
+/**
+ * Minutes elapsed since midnight for a time written HH:mm.
+ * @param time - the time, like 07:30
+ * @returns the minutes since midnight
+ */
+function minutesOfDay(time: string) {
+  const [hours = '0', minutes = '0'] = time.split(':')
+  return Number(hours) * minutesInHour + Number(minutes)
+}
+
+/**
+ * Whether a date falls in the night, from the night start (included) to the night end (excluded).
+ * @param date - the date to check, in the local time
+ * @param nightStart - when the night starts, HH:mm
+ * @param nightEnd - when the night ends, HH:mm, it can be before the start when the night crosses midnight
+ * @returns true during the night, always false when start and end are the same time
+ */
+export function isNightTime(date: Date, nightStart: string, nightEnd: string) {
+  const start = minutesOfDay(nightStart)
+  const end = minutesOfDay(nightEnd)
+  const now = date.getHours() * minutesInHour + date.getMinutes()
+  if (start === end) return false
+  if (start < end) return now >= start && now < end
+  return now >= start || now < end
+}
