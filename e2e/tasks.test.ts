@@ -37,3 +37,11 @@ test('adding a task from the empty state redirects home with a success toast', a
   await expect(page.getByTestId('toast').filter({ hasText: 'Task added' })).toBeVisible()
   await expect(page.getByTestId('button-water-plants')).toBeVisible()
 })
+
+test('a very long task name never makes the page wider than the screen', async ({ page }) => {
+  await page.setViewportSize({ height: 800, width: 390 })
+  await seedTasks(page, [{ name: 'call someone about that very long thing that does not fit on a phone screen at all' }])
+  await expect(page.getByTestId('tasks')).toBeVisible()
+  const hasOverflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth)
+  expect(hasOverflow).toBe(false)
+})

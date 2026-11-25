@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Landscape layout : on any screen wider than tall, like an Echo Show, the tasks list becomes a wide two-column layout
+- Screensaver : after a delay without touch (60 seconds by default, editable in Settings) a moving What now logo shows the remaining task count, with a huge faint count behind it and colored bubbles in the shades of the progress color, a touch brings the tasks back
+- Once every task is done, the screensaver turns into a dimmed clock with the date, over very slow pale green bubbles
+- Fullscreen on touch devices : the first touch of the screen enters fullscreen, in portrait and in landscape (browsers do not allow it before a gesture)
+
+- Fullscreen item in the menu, to enter or leave fullscreen on demand, the menu closes once chosen
+
 ### Changed
 
 - Align the web manifest colors and the VS Code window colors on the theme color
@@ -15,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- A long task name no longer makes the tasks page wider than the screen, which zoomed the page out on phones : names are now cut with an ellipsis and the list always fits the screen, in portrait and in landscape
 - Serve `robots.txt` to crawlers in place of the misspelled `robot.txt`
 
 ## [3.2.1] - 2026-11-13

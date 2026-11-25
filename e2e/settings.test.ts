@@ -27,7 +27,7 @@ test('connecting to an unreachable sync URL shows an error toast and does not pe
 })
 
 test('the delete-synced-data button requires a confirming second click', async ({ page }) => {
-  const appData = { settings: { finaleDismissedOn: '', syncUrl: 'https://example.convex.cloud', userName: 'Me', webhook: '' }, tasks: [] }
+  const appData = { settings: { finaleDismissedOn: '', screensaverIdleSeconds: 60, syncUrl: 'https://example.convex.cloud', userName: 'Me', webhook: '' }, tasks: [] }
   await page.goto('/settings')
   await page.getByTestId('file-input').setInputFiles({ buffer: globalThis.Buffer.from(JSON.stringify(appData)), mimeType: 'application/json', name: 'seed.json' })
   await page.getByTestId('toast').filter({ hasText: 'Data imported' }).waitFor()

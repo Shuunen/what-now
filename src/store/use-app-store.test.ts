@@ -10,7 +10,7 @@ describe('useAppStore', () => {
   })
 
   it('A loadData replaces data and clears loading', () => {
-    const data = { settings: { finaleDismissedOn: '', syncUrl: '', userName: 'Me', webhook: '' }, tasks: [taskMock({ id: 'a' })] }
+    const data = { settings: { finaleDismissedOn: '', screensaverIdleSeconds: 60, syncUrl: '', userName: 'Me', webhook: '' }, tasks: [taskMock({ id: 'a' })] }
     useAppStore.getState().loadData(data)
     expect(useAppStore.getState().data).toStrictEqual(data)
     expect(useAppStore.getState().isLoading).toBe(false)
@@ -53,6 +53,11 @@ describe('useAppStore', () => {
   it('F3 setSyncUrl updates the setting', () => {
     useAppStore.getState().setSyncUrl('https://example.convex.cloud')
     expect(useAppStore.getState().data.settings.syncUrl).toBe('https://example.convex.cloud')
+  })
+
+  it('F6 setScreensaverIdleSeconds updates the setting', () => {
+    useAppStore.getState().setScreensaverIdleSeconds(120)
+    expect(useAppStore.getState().data.settings.screensaverIdleSeconds).toBe(120)
   })
 
   it('F4 setSyncStatus updates the live sync status', () => {

@@ -1,8 +1,19 @@
 import { defaultSettings, SettingsSchema } from './settings'
 
 describe('SettingsSchema', () => {
+  it('C keeps the screensaver delay', () => {
+    const settings = SettingsSchema.parse({ screensaverIdleSeconds: 90 })
+    expect(settings.screensaverIdleSeconds).toBe(90)
+  })
+
+  it('D rejects a screensaver delay out of range', () => {
+    expect(SettingsSchema.safeParse({ screensaverIdleSeconds: 1 }).success).toBe(false)
+    expect(SettingsSchema.safeParse({ screensaverIdleSeconds: 99_999 }).success).toBe(false)
+    expect(SettingsSchema.safeParse({ screensaverIdleSeconds: 12.5 }).success).toBe(false)
+  })
+
   it('A provides empty defaults', () => {
-    expect(defaultSettings).toStrictEqual({ finaleDismissedOn: '', syncUrl: '', userName: 'Me', webhook: '' })
+    expect(defaultSettings).toStrictEqual({ finaleDismissedOn: '', screensaverIdleSeconds: 60, syncUrl: '', userName: 'Me', webhook: '' })
   })
 
   it('B keeps provided values', () => {

@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 import type { SyncStatus } from '../db/sync-status'
 import { type AppData, defaultAppData } from '../schemas/app-data'
+import type { Settings } from '../schemas/settings'
 import type { Task } from '../schemas/task'
 import { createTask, deleteTask, type NewTaskFields, toggleComplete } from '../utils/tasks.utils'
 
@@ -13,6 +14,7 @@ type AppStore = {
   mergeTasks: (tasks: Task[]) => void
   removeTask: (id: string) => void
   setFinaleDismissedOn: (finaleDismissedOn: string) => void
+  setScreensaverIdleSeconds: (screensaverIdleSeconds: number) => void
   setSyncStatus: (syncStatus: SyncStatus) => void
   setSyncUrl: (syncUrl: string) => void
   setUserName: (userName: string) => void
@@ -22,6 +24,13 @@ type AppStore = {
   toggleTask: (id: string) => void
   updateTasks: (tasks: Task[]) => void
 }
+
+/**
+ * Builds a state update that changes some settings and keeps everything else.
+ * @param patch - the settings to change
+ * @returns an updater for the store `set` function
+ */
+const withSettings = (patch: Partial<Settings>) => (state: AppStore) => ({ data: { ...state.data, settings: { ...state.data.settings, ...patch } } })
 
 export const useAppStore = create<AppStore>()(
   subscribeWithSelector(set => ({
@@ -46,23 +55,12 @@ export const useAppStore = create<AppStore>()(
       set(state => ({
         data: { ...state.data, tasks: state.data.tasks.map(task => (task.id === id ? deleteTask(task) : task)) },
       })),
-    setFinaleDismissedOn: finaleDismissedOn =>
-      set(state => ({
-        data: { ...state.data, settings: { ...state.data.settings, finaleDismissedOn } },
-      })),
+    setFinaleDismissedOn: finaleDismissedOn => set(withSettings({ finaleDismissedOn })),
+    setScreensaverIdleSeconds: screensaverIdleSeconds => set(withSettings({ screensaverIdleSeconds })),
     setSyncStatus: syncStatus => set({ syncStatus }),
-    setSyncUrl: syncUrl =>
-      set(state => ({
-        data: { ...state.data, settings: { ...state.data.settings, syncUrl } },
-      })),
-    setUserName: userName =>
-      set(state => ({
-        data: { ...state.data, settings: { ...state.data.settings, userName } },
-      })),
-    setWebhook: webhook =>
-      set(state => ({
-        data: { ...state.data, settings: { ...state.data.settings, webhook } },
-      })),
+    setSyncUrl: syncUrl => set(withSettings({ syncUrl })),
+    setUserName: userName => set(withSettings({ userName })),
+    setWebhook: webhook => set(withSettings({ webhook })),
     syncStatus: 'off',
     toggleTask: id =>
       set(state => ({
