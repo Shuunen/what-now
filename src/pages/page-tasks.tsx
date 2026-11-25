@@ -1,5 +1,4 @@
 import { PlusIcon } from 'lucide-react'
-import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Finale } from '../components/finale'
 import { FloatingMenu } from '../components/floating-menu'
@@ -7,6 +6,7 @@ import { Progress } from '../components/progress'
 import { Status } from '../components/status'
 import { Tasks } from '../components/tasks'
 import { Button } from '../components/ui/button'
+import { useDayKey } from '../hooks/use-day-key'
 import { useIsLandscape } from '../hooks/use-is-landscape'
 import { useAppStore } from '../store/use-app-store'
 import { useActions } from '../utils/pages.utils'
@@ -19,7 +19,9 @@ export function PageTasks() {
   const isLoading = useAppStore(state => state.isLoading)
   const actions = useActions()
   const navigate = useNavigate()
-  const tasks = useMemo(() => allTasks.filter(task => isTaskActive(task, true)).toSorted(byActive), [allTasks])
+  // not memoized on purpose : which tasks are due depends on today's date, and useDayKey re-renders at midnight so a screen left on overnight recomputes them
+  useDayKey()
+  const tasks = allTasks.filter(task => isTaskActive(task, true)).toSorted(byActive)
   const percent = computeProgressPercent(tasks)
   const accentColor = progressAccentColor(percent)
   const info = isLoading ? 'Loading, please wait...' : ''

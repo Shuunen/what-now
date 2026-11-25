@@ -1,4 +1,5 @@
 import type { Task } from '../schemas/task'
+import { accentChroma, accentLightness } from './progress.utils'
 import { isTaskActive } from './tasks.utils'
 
 /** hue shifts (in degrees) applied to the progress accent color, so the bubbles and the bouncing logo show several shades of the same color */
@@ -6,24 +7,29 @@ export const hueShiftSmall = 10
 export const hueShiftBig = 20
 export const hueOffsets = [0, hueShiftSmall, -hueShiftSmall, hueShiftBig, -hueShiftBig]
 
+/** the pale version of the accent color is a bit lighter and much less saturated */
+const paleLightnessGain = 10
+/** about a third of the accent chroma */
+const paleChroma = 0.063
+
 /**
- * Shift the hue of a css color.
- * @param color - any css color, like a `var(--color-ok-accent)`
+ * The accent color with its hue shifted, written in plain oklch so it works wherever oklch does, unlike the relative color syntax.
+ * @param hue - the oklch hue of the accent color, from progressAccentHue
  * @param degrees - how many degrees to move the hue
  * @returns a css color
  */
-export function shiftHue(color: string, degrees: number) {
-  return `oklch(from ${color} l c calc(h + ${degrees}))`
+export function shiftHue(hue: number, degrees: number) {
+  return `oklch(${accentLightness}% ${accentChroma} ${hue + degrees})`
 }
 
 /**
- * A soft version of a shifted color, for the very calm bubbles behind the clock.
- * @param color - any css color
+ * A soft version of the shifted accent color, for the very calm bubbles behind the clock.
+ * @param hue - the oklch hue of the accent color, from progressAccentHue
  * @param degrees - how many degrees to move the hue
  * @returns a paler, less saturated css color
  */
-export function paleColor(color: string, degrees: number) {
-  return `oklch(from ${color} calc(l + 0.1) calc(c * 0.35) calc(h + ${degrees}))`
+export function paleColor(hue: number, degrees: number) {
+  return `oklch(${accentLightness + paleLightnessGain}% ${paleChroma} ${hue + degrees})`
 }
 
 /**

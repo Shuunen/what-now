@@ -39,7 +39,7 @@ export function useBounce(onHit: () => void) {
     function tick(time: number) {
       invariant(container && item, 'bounce container and item must be attached')
       const room = { height: container.clientHeight - item.offsetHeight, width: container.clientWidth - item.offsetWidth }
-      const { hasHit, state: nextState } = stepBounce(state, Math.min(time - lastTime, maxStepMs), room)
+      const { hasHit, state: nextState } = stepBounce(state, Math.max(0, Math.min(time - lastTime, maxStepMs)), room)
       lastTime = time
       state = nextState
       place()

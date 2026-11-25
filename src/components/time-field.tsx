@@ -1,6 +1,5 @@
 import { useState } from 'react'
-
-const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/u
+import { timeOfDayRegex } from '../schemas/settings'
 
 type TimeFieldProps = {
   disabled: boolean
@@ -25,7 +24,7 @@ export function TimeField({ disabled, id, label, onSave, saved }: TimeFieldProps
   const [draft, setDraft] = useState(saved)
   function handleChange(value: string) {
     setDraft(value)
-    if (timeRegex.test(value)) onSave(value)
+    if (timeOfDayRegex.test(value)) onSave(value)
   }
   return (
     <label className="flex items-center gap-2" htmlFor={id}>

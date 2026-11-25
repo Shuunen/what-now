@@ -8,7 +8,8 @@ export const minScreensaverIdleSeconds = 5
 export const maxScreensaverIdleSeconds = 3600
 
 /** a time of day written HH:mm, 24 hours */
-const timeOfDay = z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/u)
+export const timeOfDayRegex = /^(?:[01]\d|2[0-3]):[0-5]\d$/u
+const timeOfDay = z.string().regex(timeOfDayRegex)
 
 export const SettingsSchema = z.object({
   /** iso10 date the finale celebration screen was last dismissed on, to avoid showing it again the same day */

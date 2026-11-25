@@ -7,9 +7,12 @@ import { Screensaver } from './screensaver'
 
 const idleSeconds = 10
 
-function renderScreensaver() {
+const mockNavigate = vi.fn<() => void>()
+vi.mock(import('react-router-dom'), async importOriginal => ({ ...(await importOriginal()), useNavigate: () => mockNavigate }))
+
+function renderScreensaver(path = '/') {
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[path]}>
       <Screensaver />
     </MemoryRouter>,
   )
@@ -22,6 +25,8 @@ function loadTasks(tasks: ReturnType<typeof taskMock>[]) {
 describe('Screensaver', () => {
   beforeEach(() => {
     vi.useFakeTimers()
+    mockNavigate.mockClear()
+    vi.setSystemTime(new Date(2026, 10, 25, 12, 0, 0))
     useAppStore.setState({ data: defaultAppData, isLoading: true })
   })
 
@@ -59,13 +64,6 @@ describe('Screensaver', () => {
     expect(queryByTestId('screensaver-count')).toBeNull()
   })
 
-  it('D shows in portrait too', () => {
-    loadTasks([taskMock({ completedOn: '', id: 'a' })])
-    const { getByTestId } = renderScreensaver()
-    act(() => vi.advanceTimersByTime(idleSeconds * 1000))
-    expect(getByTestId('screensaver')).toBeDefined()
-  })
-
   it('E goes away on touch', () => {
     loadTasks([taskMock({ completedOn: '', id: 'a' })])
     const { getByTestId, queryByTestId } = renderScreensaver()
@@ -98,5 +96,41 @@ describe('Screensaver', () => {
     const { getByTestId } = renderScreensaver()
     act(() => vi.advanceTimersByTime(idleSeconds * 1000))
     expect(getByTestId('screensaver-count')).toHaveTextContent('1')
+  })
+
+  it('I a tap goes back to the tasks list, except on the add task form', () => {
+    loadTasks([taskMock({ completedOn: '', id: 'a' })])
+    const first = renderScreensaver('/settings')
+    act(() => vi.advanceTimersByTime(idleSeconds * 1000))
+    fireEvent.click(first.getByTestId('screensaver'))
+    expect(mockNavigate).toHaveBeenCalledWith('/')
+    first.unmount()
+    mockNavigate.mockClear()
+    const second = renderScreensaver('/add-task')
+    act(() => vi.advanceTimersByTime(idleSeconds * 1000))
+    fireEvent.click(second.getByTestId('screensaver'))
+    expect(mockNavigate).not.toHaveBeenCalled()
+    expect(second.queryByTestId('screensaver')).toBeNull()
+  })
+
+  it('J a key press wakes the screensaver without changing page', () => {
+    loadTasks([taskMock({ completedOn: '', id: 'a' })])
+    const { queryByTestId } = renderScreensaver('/settings')
+    act(() => vi.advanceTimersByTime(idleSeconds * 1000))
+    expect(queryByTestId('screensaver')).not.toBeNull()
+    fireEvent.keyDown(globalThis.window, { key: 'Enter' })
+    expect(queryByTestId('screensaver')).toBeNull()
+    expect(mockNavigate).not.toHaveBeenCalled()
+  })
+
+  it('K takes the focus off the element hidden under the screensaver', () => {
+    loadTasks([taskMock({ completedOn: '', id: 'a' })])
+    const input = document.createElement('input')
+    document.body.append(input)
+    input.focus()
+    renderScreensaver()
+    act(() => vi.advanceTimersByTime(idleSeconds * 1000))
+    expect(document.activeElement).not.toBe(input)
+    input.remove()
   })
 })

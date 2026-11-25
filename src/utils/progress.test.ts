@@ -1,4 +1,6 @@
-import { computeProgressPercent, progressAccentColor, progressText, webhookPayload } from './progress.utils'
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { accentChroma, accentLightness, computeProgressPercent, progressAccentColor, progressAccentHue, progressText, webhookPayload } from './progress.utils'
 import { taskMock } from './tasks.utils'
 
 describe('progress.utils', () => {
@@ -90,5 +92,23 @@ describe('progress.utils', () => {
   it('webhookPayload E should handle task without reason', () => {
     const tasks = [taskMock({ completedOn: '', id: 'no-reason-task', minutes: 5, name: 'Task without reason', once: 'month' })]
     expect(webhookPayload(tasks, 100)).toMatchInlineSnapshot(`"progress=100&remaining=5&nextTask=Task without reason"`)
+  })
+})
+
+describe('progress accent hues', () => {
+  it('A progressAccentHue follows the progress, from red to green', () => {
+    expect(progressAccentHue(0)).toBe(22)
+    expect(progressAccentHue(100)).toBe(150)
+  })
+
+  it('B the hues, lightness and chroma match the colors defined in styles.css', () => {
+    const css = readFileSync(path.join(import.meta.dirname, '../styles.css'), 'utf8')
+    const percents = { bad: 25, error: 0, ok: 75, success: 100, warning: 50 }
+    for (const [name, percent] of Object.entries(percents)) {
+      const match = new RegExp(`--color-${name}-accent: oklch\\((?<lightness>[\\d.]+)% (?<chroma>[\\d.]+) (?<hue>[\\d.]+)\\)`, 'u').exec(css)
+      expect(Number(match?.groups?.hue)).toBe(progressAccentHue(percent))
+      expect(Number(match?.groups?.lightness)).toBe(accentLightness)
+      expect(Number(match?.groups?.chroma)).toBe(accentChroma)
+    }
   })
 })

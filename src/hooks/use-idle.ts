@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
  * Tells when nobody touched the screen for a while.
- * @param delayMs - how long without any touch or key press before the user is considered idle
+ * @param delayMs - how long without any touch or key press before the user is considered idle, a key press also wakes an idle user
  * @param isEnabled - when false, the user is never idle and no listener is added
  * @returns whether the user is idle, and a function to wake up (not idle anymore, with the timer restarted)
  */
@@ -21,13 +21,13 @@ export function useIdle(delayMs: number, isEnabled: boolean) {
     if (!isEnabled) return undefined
     arm()
     globalThis.addEventListener('pointerdown', arm, { passive: true })
-    globalThis.addEventListener('keydown', arm, { passive: true })
+    globalThis.addEventListener('keydown', wake, { passive: true })
     return () => {
       clearTimeout(timeoutRef.current)
       globalThis.removeEventListener('pointerdown', arm)
-      globalThis.removeEventListener('keydown', arm)
+      globalThis.removeEventListener('keydown', wake)
     }
-  }, [arm, isEnabled])
+  }, [arm, isEnabled, wake])
   // never idle while disabled, whatever the last known state was
   return { isIdle: isEnabled && isIdle, wake }
 }

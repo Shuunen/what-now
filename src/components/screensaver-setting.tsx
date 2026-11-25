@@ -3,7 +3,7 @@ import { maxScreensaverIdleSeconds, minScreensaverIdleSeconds } from '../schemas
 import { useAppStore } from '../store/use-app-store'
 
 /**
- * The delay before the screensaver that shows on landscape screens, in seconds. The field keeps its own draft so the user can clear it and retype,
+ * The delay before the screensaver appears, in seconds. The field keeps its own draft so the user can clear it and retype,
  * and only a valid delay is saved, the draft goes back to the saved value on blur.
  * It reads its initial draft from the store, so remount it (with a key) once the stored data has loaded.
  * @returns the setting section element

@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { useBounce } from '../hooks/use-bounce'
+import { progressAccentColor, progressAccentHue } from '../utils/progress.utils'
 import { hueOffsets, shiftHue } from '../utils/screensaver.utils'
 import { ScreensaverBubbles } from './screensaver-bubbles'
 
@@ -9,18 +10,19 @@ const twoDigits = 10
 /**
  * The screensaver shown while tasks remain : a huge faint number behind, colored bubbles, and the What now logo with the remaining count bouncing around like a DVD logo.
  * @param props - the component props
- * @param props.accent - the css color of the current progress, from red to green
+ * @param props.percent - the progress percent, from 0 (red) to 100 (green)
  * @param props.remaining - how many tasks are still to do
  * @returns the countdown screensaver
  */
-export function ScreensaverCountdown({ accent, remaining }: { accent: string; remaining: number }) {
+export function ScreensaverCountdown({ percent, remaining }: { percent: number; remaining: number }) {
+  const accent = progressAccentColor(percent)
   const [hitCount, setHitCount] = useState(0)
   const handleHit = useCallback(() => setHitCount(count => count + 1), [])
   const { containerRef, itemRef } = useBounce(handleHit)
-  const color = shiftHue(accent, hueOffsets[hitCount % hueOffsets.length] ?? 0)
+  const color = shiftHue(progressAccentHue(percent), hueOffsets[hitCount % hueOffsets.length] ?? 0)
   return (
     <div className="absolute inset-0 overflow-hidden" data-testid="screensaver-countdown" ref={containerRef}>
-      <ScreensaverBubbles accent={accent} isCalm={false} />
+      <ScreensaverBubbles isCalm={false} percent={percent} />
       <div aria-hidden="true" className={`absolute inset-0 flex items-center justify-center ${remaining >= twoDigits ? 'text-[38vmax]' : 'text-[54vmax]'} leading-none font-black tabular-nums opacity-10`} style={{ color: accent }}>
         {remaining}
       </div>

@@ -5,7 +5,7 @@ const idleSeconds = 5
 const hourMs = 3_600_000
 const timeOf = (offsetMs: number) => new Date(Date.now() + offsetMs).toTimeString().slice(0, 5)
 const idleTimeoutMs = (idleSeconds + 5) * 1000
-const screensaverSettings = { screensaverIdleSeconds: idleSeconds }
+const screensaverSettings = { nightEnd: '00:00', nightStart: '00:00', screensaverIdleSeconds: idleSeconds }
 
 test('the screensaver delay setting is saved', async ({ page }) => {
   await page.goto('/settings')

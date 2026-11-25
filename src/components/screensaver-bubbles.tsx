@@ -1,3 +1,4 @@
+import { progressAccentHue } from '../utils/progress.utils'
 import { hueShiftBig, hueShiftSmall, paleColor, shiftHue } from '../utils/screensaver.utils'
 
 /** a calm bubble drifts this many times slower than a lively one */
@@ -15,18 +16,19 @@ const bubbles = [
 /**
  * Soft colored bubbles drifting behind the screensaver, in shades of the progress color.
  * @param props - the component props
- * @param props.accent - the css color of the current progress, from red to green
+ * @param props.percent - the progress percent, from 0 (red) to 100 (green)
  * @param props.isCalm - very slow, very pale bubbles, for the clock
  * @returns the bubbles layer
  */
-export function ScreensaverBubbles({ accent, isCalm }: { accent: string; isCalm: boolean }) {
+export function ScreensaverBubbles({ isCalm, percent }: { isCalm: boolean; percent: number }) {
+  const hue = progressAccentHue(percent)
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden" data-testid="screensaver-bubbles">
       {bubbles.map(bubble => {
-        const color = isCalm ? paleColor(accent, bubble.offset) : shiftHue(accent, bubble.offset)
+        const color = isCalm ? paleColor(hue, bubble.offset) : shiftHue(hue, bubble.offset)
         return (
           <div
-            className="wn-bubble absolute rounded-full transition-[background] duration-[2000ms] will-change-transform"
+            className="wn-bubble absolute rounded-full will-change-transform"
             key={bubble.animation}
             style={{
               animation: `${bubble.animation} ${bubble.seconds * (isCalm ? calmSlowdown : 1)}s ease-in-out infinite alternate`,
