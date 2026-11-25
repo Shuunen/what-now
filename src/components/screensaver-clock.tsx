@@ -3,17 +3,18 @@ import { formatClockDate, formatClockTime } from '../utils/screensaver.utils'
 import { ScreensaverBubbles } from './screensaver-bubbles'
 
 /**
- * The screensaver shown once every task is done : a dimmed clock with the date in small, over very slow pale green bubbles.
+ * The screensaver shown once every task is done, or during the night : a dimmed clock with the date in small, over very slow pale green bubbles. At night everything is twice as dim.
  * @param props - the component props
+ * @param props.isNight - the night clock, twice as dim as the clock shown when every task is done
  * @param props.percent - the progress percent, 100 once every task is done
  * @returns the clock screensaver
  */
-export function ScreensaverClock({ percent }: { percent: number }) {
+export function ScreensaverClock({ isNight, percent }: { isNight: boolean; percent: number }) {
   const now = useNow()
   return (
     <div className="absolute inset-0 overflow-hidden" data-testid="screensaver-clock">
-      <ScreensaverBubbles isCalm percent={percent} />
-      <div className="relative flex h-full flex-col items-center justify-center gap-[1.5vmin] opacity-70">
+      <ScreensaverBubbles isCalm isDim={isNight} percent={percent} />
+      <div className={`relative flex h-full flex-col items-center justify-center gap-[1.5vmin] ${isNight ? 'opacity-35' : 'opacity-70'}`} data-testid="screensaver-clock-content">
         <div className="text-[min(40vw,45vh)] leading-none font-light tracking-tight tabular-nums" data-testid="screensaver-clock-time">
           {formatClockTime(now)}
         </div>

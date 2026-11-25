@@ -22,6 +22,7 @@ export function ScreensaverBody({ tasks: allTasks }: { tasks: Task[] }) {
   const now = useNow()
   const tasks = allTasks.filter(task => isTaskActive(task, true))
   const remaining = countRemaining(tasks)
-  if (remaining === 0 || isNightTime(now, nightStart, nightEnd)) return <ScreensaverClock percent={successPercent} />
+  const isNight = isNightTime(now, nightStart, nightEnd)
+  if (remaining === 0 || isNight) return <ScreensaverClock isNight={isNight} percent={successPercent} />
   return <ScreensaverCountdown percent={computeProgressPercent(tasks)} remaining={remaining} />
 }

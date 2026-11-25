@@ -4,7 +4,14 @@ import { hueShiftBig, hueShiftSmall, paleColor, shiftHue } from '../utils/screen
 /** a calm bubble drifts this many times slower than a lively one */
 const calmSlowdown = 6
 const calmOpacity = 0.16
+/** at night the calm bubbles are twice as dim */
+const nightOpacity = 0.08
 const livelyOpacity = 0.5
+
+function bubbleOpacity(isCalm: boolean, isDim: boolean) {
+  if (!isCalm) return livelyOpacity
+  return isDim ? nightOpacity : calmOpacity
+}
 
 const bubbles = [
   { animation: 'wn-drift-a', left: '-4%', offset: hueShiftBig, seconds: 38, size: '52vmax', top: '-18%' },
@@ -18,9 +25,10 @@ const bubbles = [
  * @param props - the component props
  * @param props.percent - the progress percent, from 0 (red) to 100 (green)
  * @param props.isCalm - very slow, very pale bubbles, for the clock
+ * @param props.isDim - even dimmer calm bubbles, for the night clock
  * @returns the bubbles layer
  */
-export function ScreensaverBubbles({ isCalm, percent }: { isCalm: boolean; percent: number }) {
+export function ScreensaverBubbles({ isCalm, isDim, percent }: { isCalm: boolean; isDim: boolean; percent: number }) {
   const hue = progressAccentHue(percent)
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden" data-testid="screensaver-bubbles">
@@ -35,7 +43,7 @@ export function ScreensaverBubbles({ isCalm, percent }: { isCalm: boolean; perce
               background: `radial-gradient(circle, ${color} 0%, transparent 68%)`,
               height: bubble.size,
               left: bubble.left,
-              opacity: isCalm ? calmOpacity : livelyOpacity,
+              opacity: bubbleOpacity(isCalm, isDim),
               top: bubble.top,
               width: bubble.size,
             }}
