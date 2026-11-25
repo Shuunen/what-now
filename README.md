@@ -52,6 +52,13 @@ Your data is yours and never leaves your browser (except to a sync deployment or
 
 The app is a Progressive Web App: a service worker caches everything it needs to run, so once you've loaded it once, it keeps working offline, and you can install it on your device like a native app. A small banner appears whenever you lose connection so you always know your changes are only saved on this device until you're back online.
 
+### Landscape, screensaver and fullscreen
+
+- On a landscape screen the tasks are laid out in two bigger columns.
+- After a while without any touch (60 seconds by default), a fake screensaver takes over: a bouncing logo with the number of remaining tasks. When every task is done, or during the night window, it only shows a dimmed clock. Touch the screen to go back to your tasks.
+- From Settings you can change the idle delay (5 seconds to 1 hour) and the night window (start and end times, the night can cross midnight, and the same time twice turns it off).
+- The menu has a "Fullscreen" item to toggle fullscreen, and on touch devices the app also enters fullscreen on your first touch.
+
 ### Cross-device sync (optional, self-hosted)
 
 By default your tasks stay on one device — no accounts, no shared backend, no one but you has access to anything. If you want your tasks to follow you across your own devices, you can opt into sync by deploying your own free [Convex](https://convex.dev) backend from this same repository:
