@@ -1,5 +1,6 @@
-import { LoaderCircleIcon, type LucideProps, MenuIcon, XIcon } from 'lucide-react'
+import { LoaderCircleIcon, type LucideProps, MaximizeIcon, MenuIcon, MinimizeIcon, XIcon } from 'lucide-react'
 import { createElement, type ForwardRefExoticComponent, type RefAttributes, useEffect, useMemo, useRef, useState } from 'react'
+import { useFullscreen } from '../hooks/use-fullscreen'
 import { testIdFromProps } from '../utils/form.utils'
 import { cn } from '../utils/styles.utils'
 import { Command } from './ui/command'
@@ -19,8 +20,29 @@ export type FloatingMenuAction = {
   name: string
 }
 
+/**
+ * The menu item that toggles fullscreen.
+ * @param onChosen - called when the item is chosen, to close the menu
+ * @returns the menu action
+ */
+function useFullscreenAction(onChosen: () => void): FloatingMenuAction {
+  const { isFullscreen, isSupported, toggleFullscreen } = useFullscreen()
+  return {
+    disabled: !isSupported,
+    handleClick: () => {
+      onChosen()
+      void toggleFullscreen()
+    },
+    icon: isFullscreen ? MinimizeIcon : MaximizeIcon,
+    name: 'Fullscreen',
+  }
+}
+
 export function FloatingMenu({ actions, isLoading = false, isSettingsRequired = false }: Readonly<{ actions: FloatingMenuAction[]; isLoading?: boolean; isSettingsRequired?: boolean }>) {
   const [isOpen, setIsOpen] = useState(false)
+  // every page gets the fullscreen toggle, after its own navigation actions
+  const fullscreenAction = useFullscreenAction(() => setIsOpen(false))
+  const allActions = useMemo<FloatingMenuAction[]>(() => [...actions, fullscreenAction], [actions, fullscreenAction])
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined)
   const iconOpen = useMemo(() => (isOpen ? <XIcon /> : <MenuIcon />), [isOpen])
   const icon = useMemo(() => (isLoading ? <LoaderCircleIcon /> : iconOpen), [iconOpen, isLoading])
@@ -44,7 +66,7 @@ export function FloatingMenu({ actions, isLoading = false, isSettingsRequired = 
             <Command>
               <CommandList>
                 <CommandEmpty>No results found.</CommandEmpty>
-                {actions.map(action => (
+                {allActions.map(action => (
                   <CommandItem className="cursor-pointer text-lg" data-testid={testIdFromProps('menu-item', action)} disabled={action.disabled} key={action.name} onSelect={action.handleClick}>
                     {createElement(action.icon, { className: 'size-5' })}
                     {action.name}

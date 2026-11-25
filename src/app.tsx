@@ -2,9 +2,11 @@ import { useEffect } from 'react'
 import { on } from 'shuutils'
 import { AnimatedRoutes } from './components/animated-routes'
 import { OfflineWarning } from './components/offline-warning'
+import { Screensaver } from './components/screensaver'
 import { ToastViewportProvider } from './components/ui/toast-viewport'
 import { useHydration, usePersistence } from './db/use-persistence'
 import { useSync } from './db/use-sync'
+import { useAutoFullscreen } from './hooks/use-auto-fullscreen'
 import { setupPwa } from './pwa'
 import { useAppStore } from './store/use-app-store'
 import { toastError } from './store/use-toast-store'
@@ -18,6 +20,7 @@ function handleGlobalError(data: unknown) {
 
 export function App() {
   useHydration()
+  useAutoFullscreen()
   usePersistence()
   const isOffline = useOfflineStatus()
   // called once here (not from Settings/the offline indicator directly) so only one Convex
@@ -37,6 +40,7 @@ export function App() {
     <ToastViewportProvider>
       <OfflineWarning isOffline={isOffline} />
       <AnimatedRoutes />
+      <Screensaver />
     </ToastViewportProvider>
   )
 }

@@ -1,6 +1,6 @@
 import { isNil } from 'es-toolkit'
 import { z } from 'zod/v4'
-import { defaultSettings, SettingsSchema } from './settings'
+import { defaultSettings, type Settings, SettingsSchema } from './settings'
 import { maxTasks, TaskSchema } from './task'
 
 export const AppDataSchema = z
@@ -20,14 +20,27 @@ export type AppData = z.infer<typeof AppDataSchema>
 export const defaultAppData: AppData = { settings: defaultSettings, tasks: [] }
 
 /**
- * Best-effort recovery for a stored document that fails full validation: keeps valid settings and
+ * Recover the settings one field at a time, so a single invalid value only resets itself and never the sync url, the webhook or the name.
+ * @param raw the unknown settings read from storage
+ * @returns valid settings, with the default value for each missing or invalid field
+ */
+function recoverSettings(raw: unknown): Settings {
+  const record = !isNil(raw) && typeof raw === 'object' ? (raw as Record<string, unknown>) : {}
+  const entries = Object.entries(SettingsSchema.shape).map(([key, schema]) => {
+    const result = schema.safeParse(record[key])
+    return [key, result.success ? result.data : defaultSettings[key as keyof Settings]]
+  })
+  return SettingsSchema.parse(Object.fromEntries(entries))
+}
+
+/**
+ * Best-effort recovery for a stored document that fails full validation: keeps each valid setting and
  * drops only the individual tasks that don't parse, so one corrupt task can't wipe every task.
  * @param raw the unknown data read from storage
  * @returns a valid AppData, keeping as much of the original data as possible
  */
 export function recoverAppData(raw: unknown): AppData {
   const record = !isNil(raw) && typeof raw === 'object' ? (raw as { settings?: unknown; tasks?: unknown }) : {}
-  const settings = SettingsSchema.safeParse(record.settings)
   const rawTasks = Array.isArray(record.tasks) ? record.tasks : []
   const seenIds = new Set<string>()
   const tasks = rawTasks
@@ -39,7 +52,7 @@ export function recoverAppData(raw: unknown): AppData {
       seenIds.add(task.id)
       return true
     })
-  return { settings: settings.success ? settings.data : defaultSettings, tasks }
+  return { settings: recoverSettings(record.settings), tasks }
 }
 
 /**

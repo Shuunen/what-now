@@ -1,5 +1,7 @@
 import { FloatingMenu } from '../components/floating-menu'
 import { ImportExportButtons } from '../components/import-export-buttons'
+import { NightSetting } from '../components/night-setting'
+import { ScreensaverSetting } from '../components/screensaver-setting'
 import { SyncSetting } from '../components/sync-setting'
 import { TextSetting } from '../components/text-setting'
 import { useAppStore } from '../store/use-app-store'
@@ -35,6 +37,8 @@ export function PageSettings() {
         value={webhook}
       />
       <SyncSetting />
+      <ScreensaverSetting key={String(isLoading)} />
+      <NightSetting key={`night-${isLoading}`} />
       <FloatingMenu actions={actions} />
     </div>
   )

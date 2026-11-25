@@ -45,6 +45,34 @@ function task(fields: SeedTask) {
   }
 }
 
+type SeedOptions = {
+  /** the path to end up on, defaults to the tasks page */
+  path?: string
+  /** the settings to override, none by default */
+  settings?: Record<string, unknown>
+  /** the tasks to import */
+  tasks: SeedTask[]
+}
+
+/**
+ * Seed the app's local data by importing it through the settings page, then land on the given path.
+ * @param page - the Playwright page
+ * @param options - the tasks and settings to import, and the path to end up on
+ * @param options.path - the path to end up on, defaults to the tasks page
+ * @param options.settings - the settings to override, none by default
+ * @param options.tasks - the tasks to import
+ */
+export async function seedApp(page: Page, options: SeedOptions) {
+  const { path = '/', settings = {}, tasks } = options
+  const appData = { settings: { finaleDismissedOn: '', webhook: '', ...settings }, tasks: tasks.map(fields => task(fields)) }
+  await page.goto('/settings')
+  await page.getByTestId('file-input').setInputFiles({ buffer: globalThis.Buffer.from(JSON.stringify(appData)), mimeType: 'application/json', name: 'seed.json' })
+  await page.getByTestId('toast').filter({ hasText: 'Data imported' }).waitFor()
+  // let the persistence debounce flush the imported data to IndexedDB before we reload onto the target page
+  await page.waitForTimeout(persistenceDebounceMs)
+  await page.goto(path)
+}
+
 /**
  * Seed the app's local tasks by importing them through the settings page, then land on the given path.
  * @param page - the Playwright page
@@ -52,11 +80,5 @@ function task(fields: SeedTask) {
  * @param path - the path to end up on, defaults to the tasks page
  */
 export async function seedTasks(page: Page, tasks: SeedTask[], path = '/') {
-  const appData = { settings: { finaleDismissedOn: '', webhook: '' }, tasks: tasks.map(fields => task(fields)) }
-  await page.goto('/settings')
-  await page.getByTestId('file-input').setInputFiles({ buffer: globalThis.Buffer.from(JSON.stringify(appData)), mimeType: 'application/json', name: 'seed.json' })
-  await page.getByTestId('toast').filter({ hasText: 'Data imported' }).waitFor()
-  // let the persistence debounce flush the imported data to IndexedDB before we reload onto the target page
-  await page.waitForTimeout(persistenceDebounceMs)
-  await page.goto(path)
+  await seedApp(page, { path, tasks })
 }

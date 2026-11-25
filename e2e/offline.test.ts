@@ -12,7 +12,7 @@ test('going offline shows the offline warning, coming back online hides it', asy
 })
 
 test('going offline with sync configured mentions that sync will resume', async ({ context, page }) => {
-  const appData = { settings: { finaleDismissedOn: '', syncUrl: 'https://example.convex.cloud', userName: 'Me', webhook: '' }, tasks: [] }
+  const appData = { settings: { finaleDismissedOn: '', nightEnd: '07:00', nightStart: '00:00', screensaverIdleSeconds: 60, syncUrl: 'https://example.convex.cloud', userName: 'Me', webhook: '' }, tasks: [] }
   await page.goto('/settings')
   await page.getByTestId('file-input').setInputFiles({ buffer: globalThis.Buffer.from(JSON.stringify(appData)), mimeType: 'application/json', name: 'seed.json' })
   await page.getByTestId('toast').filter({ hasText: 'Data imported' }).waitFor()

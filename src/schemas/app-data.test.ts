@@ -3,7 +3,7 @@ import { AppDataSchema, defaultAppData, recoverAppData, safeImportJson } from '.
 describe('AppDataSchema', () => {
   it('A applies defaults for an empty object', () => {
     const data = AppDataSchema.parse({})
-    expect(data).toStrictEqual({ settings: { finaleDismissedOn: '', syncUrl: '', userName: 'Me', webhook: '' }, tasks: [] })
+    expect(data).toStrictEqual({ settings: { finaleDismissedOn: '', nightEnd: '07:00', nightStart: '00:00', screensaverIdleSeconds: 60, syncUrl: '', userName: 'Me', webhook: '' }, tasks: [] })
   })
 
   it('B rejects duplicate task ids', () => {
@@ -38,7 +38,7 @@ describe('AppDataSchema', () => {
 
 describe('defaultAppData', () => {
   it('A is an empty state', () => {
-    expect(defaultAppData).toStrictEqual({ settings: { finaleDismissedOn: '', syncUrl: '', userName: 'Me', webhook: '' }, tasks: [] })
+    expect(defaultAppData).toStrictEqual({ settings: { finaleDismissedOn: '', nightEnd: '07:00', nightStart: '00:00', screensaverIdleSeconds: 60, syncUrl: '', userName: 'Me', webhook: '' }, tasks: [] })
   })
 })
 
@@ -54,14 +54,19 @@ describe('recoverAppData', () => {
     expect(data.tasks[0]?.id).toBe('b')
   })
 
-  it('B falls back to default settings when settings are invalid', () => {
+  it('B falls back to the default for an invalid setting', () => {
     const data = recoverAppData({ settings: { userName: 42 }, tasks: [] })
-    expect(data.settings).toStrictEqual({ finaleDismissedOn: '', syncUrl: '', userName: 'Me', webhook: '' })
+    expect(data.settings).toStrictEqual({ finaleDismissedOn: '', nightEnd: '07:00', nightStart: '00:00', screensaverIdleSeconds: 60, syncUrl: '', userName: 'Me', webhook: '' })
   })
 
   it('C handles a completely malformed document', () => {
     const data = recoverAppData('not an object')
-    expect(data).toStrictEqual({ settings: { finaleDismissedOn: '', syncUrl: '', userName: 'Me', webhook: '' }, tasks: [] })
+    expect(data).toStrictEqual({ settings: { finaleDismissedOn: '', nightEnd: '07:00', nightStart: '00:00', screensaverIdleSeconds: 60, syncUrl: '', userName: 'Me', webhook: '' }, tasks: [] })
+  })
+
+  it('E keeps the valid settings when only one of them is invalid', () => {
+    const data = recoverAppData({ settings: { nightStart: '25:99', screensaverIdleSeconds: 1, syncUrl: 'https://example.convex.cloud', userName: 'Alice', webhook: 'https://example.com/hook' }, tasks: [] })
+    expect(data.settings).toStrictEqual({ ...defaultAppData.settings, syncUrl: 'https://example.convex.cloud', userName: 'Alice', webhook: 'https://example.com/hook' })
   })
 
   it('D drops duplicate task ids, keeping the first occurrence', () => {

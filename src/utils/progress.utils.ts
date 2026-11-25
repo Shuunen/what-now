@@ -34,13 +34,36 @@ export function progressText(percent = 0) {
   /* oxlint-enable no-magic-numbers */
 }
 
-const progressAccentColors = ['var(--color-error-accent)', 'var(--color-bad-accent)', 'var(--color-warning-accent)', 'var(--color-ok-accent)', 'var(--color-success-accent)']
+/** lightness (%) and chroma of every accent color, as defined in styles.css, a test checks they still match */
+export const accentLightness = 72
+export const accentChroma = 0.18
+
+/** the accent colors from red (low progress) to green (high progress), with the hue each one has in styles.css */
+const progressAccents = [
+  { color: 'var(--color-error-accent)', hue: 22 },
+  { color: 'var(--color-bad-accent)', hue: 54 },
+  { color: 'var(--color-warning-accent)', hue: 86 },
+  { color: 'var(--color-ok-accent)', hue: 118 },
+  { color: 'var(--color-success-accent)', hue: 150 },
+]
+
+function progressAccent(percent: number) {
+  const lastIndex = progressAccents.length - 1
+  const accent = progressAccents[Math.round((percent / nbPercentMax) * lastIndex)]
+  invariant(accent, `no accent color found for progress percent ${percent}`)
+  return accent
+}
 
 // accent color for a given progress percent, shifting from red (low) to green (high)
 export function progressAccentColor(percent: number) {
-  const lastIndex = progressAccentColors.length - 1
-  const index = Math.round((percent / nbPercentMax) * lastIndex)
-  const color = progressAccentColors[index]
-  invariant(color, `no accent color found for progress percent ${percent}`)
-  return color
+  return progressAccent(percent).color
+}
+
+/**
+ * The hue (degrees) of the accent color for a given progress percent, for the places that need to shift it.
+ * @param percent - the progress percent, 0 to 100
+ * @returns the oklch hue of the accent color
+ */
+export function progressAccentHue(percent: number) {
+  return progressAccent(percent).hue
 }

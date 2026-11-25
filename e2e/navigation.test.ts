@@ -12,6 +12,7 @@ test('the menu offers all pages', async ({ page }) => {
   await expect(page.getByTestId('menu-item-settings')).toBeVisible()
   await expect(page.getByTestId('menu-item-planner')).toBeVisible()
   await expect(page.getByTestId('menu-item-about')).toBeVisible()
+  await expect(page.getByTestId('menu-item-fullscreen')).toBeVisible()
 })
 
 test('the menu navigates between pages', async ({ page }) => {
@@ -49,4 +50,11 @@ test('hovering the trigger opens the menu, and moving away closes it after a del
   await expect(page.getByTestId('menu-item-tasks')).toBeVisible()
   await page.mouse.move(0, 0)
   await expect(page.getByTestId('menu-item-tasks')).toBeHidden()
+})
+
+test('choosing fullscreen in the menu closes the menu', async ({ page }) => {
+  await page.goto('/')
+  await page.getByTestId('floating-menu-trigger').click()
+  await page.getByTestId('menu-item-fullscreen').click()
+  await expect(page.getByTestId('menu-item-fullscreen')).toBeHidden()
 })

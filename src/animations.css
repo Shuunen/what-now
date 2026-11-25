@@ -35,3 +35,50 @@
     opacity: 1;
   }
 }
+
+/* slow drifting of the colored bubbles of the screensaver, each one has its own path */
+@keyframes wn-drift-a {
+  from {
+    transform: translate3d(-12vw, -8vh, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(22vw, 14vh, 0) scale(1.25);
+  }
+}
+
+@keyframes wn-drift-b {
+  from {
+    transform: translate3d(14vw, 10vh, 0) scale(1.2);
+  }
+
+  to {
+    transform: translate3d(-20vw, -12vh, 0) scale(0.9);
+  }
+}
+
+@keyframes wn-drift-c {
+  from {
+    transform: translate3d(-16vw, 12vh, 0) scale(0.95);
+  }
+
+  to {
+    transform: translate3d(18vw, -14vh, 0) scale(1.2);
+  }
+}
+
+@keyframes wn-drift-d {
+  from {
+    transform: translate3d(10vw, -10vh, 0) scale(1.1);
+  }
+
+  to {
+    transform: translate3d(-14vw, 16vh, 0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wn-bubble {
+    animation: none !important;
+  }
+}
