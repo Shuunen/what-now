@@ -31,7 +31,7 @@ export function ScreensaverCountdown({ percent, remaining }: { percent: number; 
           <span className="block">What</span>
           <span className="block text-white">now</span>
         </div>
-        <div className="rounded-[3vmax] px-[2.6vmax] py-[1.2vmax] text-center text-black transition-colors duration-500" style={{ background: color }}>
+        <div className="rounded-[3vmax] px-[2.6vmax] py-[1.2vmax] text-center text-black transition-colors duration-500" data-testid="screensaver-badge" style={{ background: color }}>
           <div className="text-[8.5vmax] leading-none font-black tabular-nums" data-testid="screensaver-count">
             {remaining}
           </div>
