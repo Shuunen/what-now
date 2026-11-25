@@ -5,17 +5,15 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [3.3.0] - 2026-11-25
 
 ### Added
 
-- Landscape layout : on any screen wider than tall, like an Echo Show, the tasks list becomes a wide two-column layout
-- Screensaver : after a delay without touch (60 seconds by default, editable in Settings) a moving What now logo shows the remaining task count, with a huge faint count behind it and colored bubbles in the shades of the progress color, a touch brings the tasks back
+- See your tasks in two wide columns on any screen wider than tall, like an Echo Show or a phone turned sideways
+- Get a moving screensaver after a pause without touch (60 seconds by default, editable in Settings): the What now logo bounces around with the number of tasks left, over colored bubbles that follow your progress from red to green, and a touch brings your tasks back
 - Once every task is done, the screensaver turns into a dimmed clock with the date, over very slow pale green bubbles
-- Night clock : from a start time to an end time (midnight to 7:00 by default, editable in Settings) the screensaver only shows the dimmed clock even when tasks are left, then goes back to the remaining count by itself
-- Fullscreen on touch devices : the first touch of the screen enters fullscreen, in portrait and in landscape (browsers do not allow it before a gesture)
-
-- Fullscreen item in the menu, to enter or leave fullscreen on demand, the menu closes once chosen
+- At night the screensaver only shows the dimmed clock, even when tasks are left, from a start time to an end time (midnight to 7:00 by default, editable in Settings), then goes back to the count by itself
+- Go fullscreen with the first touch on a touch screen, held upright or sideways, or any time from the new Fullscreen item of the menu, which closes the menu once chosen
 
 ### Changed
 
@@ -25,7 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- A long task name no longer makes the tasks page wider than the screen, which zoomed the page out on phones : names are now cut with an ellipsis and the list always fits the screen, in portrait and in landscape
+- Tasks due today are recomputed when the day changes, so a screen left on overnight no longer shows yesterday's tasks
+- One invalid setting no longer resets all the others (sync URL, webhook, name) when your data is loaded
+- A long task name no longer makes the tasks page wider than the screen, which zoomed the page out on phones : names are now cut with an ellipsis and the list always fits the screen, held upright or sideways
 - Serve `robots.txt` to crawlers in place of the misspelled `robot.txt`
 
 ## [3.2.1] - 2026-11-13
@@ -129,7 +129,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Migrated the project back out of the monorepo into its own repository
 
-[Unreleased]: https://github.com/Shuunen/what-now/compare/v3.2.0...HEAD
+[Unreleased]: https://github.com/Shuunen/what-now/compare/v3.3.0...HEAD
+[3.3.0]: https://github.com/Shuunen/what-now/compare/v3.2.1...v3.3.0
 [3.2.0]: https://github.com/Shuunen/what-now/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/Shuunen/what-now/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/Shuunen/what-now/compare/v2.1.3...v3.0.0
