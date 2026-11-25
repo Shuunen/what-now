@@ -62,6 +62,7 @@ describe('Screensaver', () => {
     expect(getByTestId('screensaver-clock')).toBeDefined()
     expect(getByTestId('screensaver-clock-time').textContent).toMatch(/^\d{2}.\d{2}$/u)
     expect(getByTestId('screensaver-clock-content')).toHaveClass('opacity-70')
+    expect(getByTestId('screensaver-bubbles')).toBeDefined()
     expect(queryByTestId('screensaver-count')).toBeNull()
   })
 
@@ -142,5 +143,14 @@ describe('Screensaver', () => {
     const { getByTestId } = renderScreensaver()
     act(() => vi.advanceTimersByTime(idleSeconds * 1000))
     expect(getByTestId('screensaver-clock-content')).toHaveClass('opacity-[0.175]')
+  })
+
+  it('M sits on a pure black background without bubbles at night', () => {
+    vi.setSystemTime(new Date(2026, 10, 25, 3, 0, 0))
+    loadTasks([taskMock({ completedOn: '', id: 'a' })])
+    const { getByTestId, queryByTestId } = renderScreensaver()
+    act(() => vi.advanceTimersByTime(idleSeconds * 1000))
+    expect(getByTestId('screensaver-clock')).toHaveClass('bg-black')
+    expect(queryByTestId('screensaver-bubbles')).toBeNull()
   })
 })

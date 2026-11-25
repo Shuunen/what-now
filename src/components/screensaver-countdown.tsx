@@ -22,7 +22,7 @@ export function ScreensaverCountdown({ percent, remaining }: { percent: number; 
   const color = shiftHue(progressAccentHue(percent), hueOffsets[hitCount % hueOffsets.length] ?? 0)
   return (
     <div className="absolute inset-0 overflow-hidden" data-testid="screensaver-countdown" ref={containerRef}>
-      <ScreensaverBubbles isCalm={false} isDim={false} percent={percent} />
+      <ScreensaverBubbles isCalm={false} percent={percent} />
       <div aria-hidden="true" className={`absolute inset-0 flex items-center justify-center ${remaining >= twoDigits ? 'text-[38vmax]' : 'text-[54vmax]'} leading-none font-black tabular-nums opacity-10`} style={{ color: accent }}>
         {remaining}
       </div>
